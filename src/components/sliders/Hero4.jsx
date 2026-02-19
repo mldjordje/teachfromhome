@@ -39,7 +39,7 @@ const Hero4Slider = () => {
             
             <Swiper
                 {...heroSliderConfig}
-                className="swiper-container onovo-hero-parallax js-hero-parallax"
+                className="swiper-container onovo-hero-parallax"
             >
                 {Data.items.map((item, key) => (
                 <SwiperSlide key={`h4s-slide-${key}`} className="swiper-slide">
