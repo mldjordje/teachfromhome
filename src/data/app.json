@@ -26,8 +26,8 @@
     },
     "header": {
         "logo": {
-            "image": "/images/teachfromhome/logo2-dark.png",
-            "image_white": "/images/teachfromhome/logo1-white.png",
+            "image": "/images/teachfromhome/logo2-dark.jpeg",
+            "image_white": "/images/teachfromhome/logo1-white.jpeg",
             "alt": "TeachFromHome"
         },
         "menu": [
@@ -58,22 +58,22 @@
             },
             {
                 "label": "Apply",
-                "link": "/contact",
+                "link": "/apply",
                 "children": 0
             }
         ],
         "button": {
             "label": "Apply Now",
-            "link": "/contact"
+            "link": "/apply"
         },
         "button2": {
             "label": "Apply Now",
-            "link": "/contact"
+            "link": "/apply"
         }
     },
     "footer": {
         "logo": {
-            "image": "/images/teachfromhome/logo2-dark.png",
+            "image": "/images/teachfromhome/logo2-dark.jpeg",
             "alt": "TeachFromHome"
         },
         "gallery": [

@@ -12,11 +12,14 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const nextFromQuery =
+    typeof router.query.next === "string" && router.query.next.startsWith("/") ? router.query.next : null;
+  const nextTarget = nextFromQuery || "/teacher/dashboard";
+
   useEffect(() => {
     if (loading || !user) return;
-    const next = typeof router.query.next === "string" ? router.query.next : null;
-    router.replace(next || (isAdmin ? "/admin" : "/teacher/dashboard"));
-  }, [isAdmin, loading, router, user]);
+    router.replace(nextFromQuery || (isAdmin ? "/admin" : "/teacher/dashboard"));
+  }, [isAdmin, loading, nextFromQuery, router, user]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +43,7 @@ const LoginPage = () => {
   };
 
   return (
-    <AppShell title="Login" subtitle="Access teacher dashboard or admin panel.">
+    <AppShell title="Login" subtitle="Access your teacher onboarding account.">
       <div className="tfh-grid tfh-grid-2">
         <div className="tfh-card">
           <h3>Sign in</h3>
@@ -61,7 +64,7 @@ const LoginPage = () => {
               <button className="tfh-btn" type="submit" disabled={busy}>
                 {busy ? "Signing in..." : "Login"}
               </button>
-              <Link href="/signup" className="tfh-btn tfh-btn-outline">
+              <Link href={`/signup?next=${encodeURIComponent(nextTarget)}`} className="tfh-btn tfh-btn-outline">
                 Create account
               </Link>
             </div>
@@ -76,7 +79,7 @@ const LoginPage = () => {
             Phase 1 submission, Phase 2 training, notifications and profile management.
           </p>
           <p>
-            New here? <Link href="/signup">Create your account</Link>.
+            New here? <Link href={`/signup?next=${encodeURIComponent(nextTarget)}`}>Create your account</Link>.
           </p>
         </div>
       </div>

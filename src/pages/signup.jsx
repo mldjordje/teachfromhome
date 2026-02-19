@@ -17,10 +17,14 @@ const SignupPage = () => {
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const nextFromQuery =
+    typeof router.query.next === "string" && router.query.next.startsWith("/") ? router.query.next : null;
+  const nextTarget = nextFromQuery || (isAdmin ? "/admin" : "/teacher/dashboard");
+
   useEffect(() => {
     if (loading || !user) return;
-    router.replace(isAdmin ? "/admin" : "/teacher/dashboard");
-  }, [isAdmin, loading, router, user]);
+    router.replace(nextTarget);
+  }, [loading, nextTarget, router, user]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -71,7 +75,7 @@ const SignupPage = () => {
     setBusy(false);
     setSuccess("Account created. You can now continue to your dashboard.");
     if (data.session) {
-      router.push("/teacher/dashboard");
+      router.push(nextTarget);
       return;
     }
   };
@@ -107,7 +111,7 @@ const SignupPage = () => {
               <button className="tfh-btn" type="submit" disabled={busy}>
                 {busy ? "Creating account..." : "Create account"}
               </button>
-              <Link href="/login" className="tfh-btn tfh-btn-outline">
+              <Link href={`/login?next=${encodeURIComponent(nextTarget)}`} className="tfh-btn tfh-btn-outline">
                 I already have account
               </Link>
             </div>

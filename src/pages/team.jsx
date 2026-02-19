@@ -56,7 +56,7 @@ const Team = ( props ) => {
 
 					{/* Button */}
 					<div className="col-xs-12 col-sm-12 col-md-6 col-lg-3 align-center align-self-center">
-						<Link className="onovo-btn-circle onovo-hover-2" href={'/contact'}>
+						<Link className="onovo-btn-circle onovo-hover-2" href={'/apply'}>
 							<i className="arrow">
 								<span />
 							</i>

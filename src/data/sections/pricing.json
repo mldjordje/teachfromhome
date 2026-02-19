@@ -28,7 +28,7 @@
             ],
             "button": {
                 "label": "Purchase Now",
-                "link": "/contact"
+                "link": "/apply"
             }
         },
         {
@@ -57,7 +57,7 @@
             ],
             "button": {
                 "label": "Purchase Now",
-                "link": "/contact"
+                "link": "/apply"
             }
         },
         {
@@ -86,7 +86,7 @@
             ],
             "button": {
                 "label": "Purchase Now",
-                "link": "/contact"
+                "link": "/apply"
             }
         }
     ]

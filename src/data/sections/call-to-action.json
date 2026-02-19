@@ -6,7 +6,7 @@
     "bg_image2": "/images/cta-circle2.png",
     "social": [
         {
-            "link": "/contact",
+            "link": "/apply",
             "icon": "fas fa-paper-plane",
             "title": "Apply Now / Prijavi se"
         },
