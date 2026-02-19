@@ -131,6 +131,9 @@ export const sliderProps = {
     parallax: true,
     loop: false,
     touchReleaseOnEdges: true,
+    threshold: 0,
+    touchStartPreventDefault: false,
+    touchStartForcePreventDefault: false,
     mousewheel: {
       releaseOnEdges: true
     },
