@@ -1,17 +1,44 @@
+import { useEffect, useMemo, useState } from "react";
 import { sliderProps } from "@common/sliderProps";
 import { Swiper, SwiperSlide } from "swiper/react";
-
-import Data from '@data/sliders/hero-4';
+import Data from "@data/sliders/hero-4";
 import Link from "next/link";
 
 const Hero4Slider = () => {
+  const [isMobileTouch, setIsMobileTouch] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const media = window.matchMedia("(max-width: 991px), (pointer: coarse)");
+    const apply = () => setIsMobileTouch(media.matches);
+    apply();
+    if (media.addEventListener) {
+      media.addEventListener("change", apply);
+      return () => media.removeEventListener("change", apply);
+    }
+    media.addListener(apply);
+    return () => media.removeListener(apply);
+  }, []);
+
+  const heroSliderConfig = useMemo(() => {
+    if (!isMobileTouch) return sliderProps.hero4Slider;
+
+    return {
+      ...sliderProps.hero4Slider,
+      allowTouchMove: false,
+      simulateTouch: false,
+      touchRatio: 0,
+      touchReleaseOnEdges: false,
+    };
+  }, [isMobileTouch]);
+
   return (
     <>
         {/* Onovo Hero Parallax */}
         <section className="onovo-section">
             
             <Swiper
-                {...sliderProps.hero4Slider}
+                {...heroSliderConfig}
                 className="swiper-container onovo-hero-parallax js-hero-parallax"
             >
                 {Data.items.map((item, key) => (
