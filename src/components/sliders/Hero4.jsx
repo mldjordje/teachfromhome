@@ -25,6 +25,8 @@ const Hero4Slider = () => {
 
     return {
       ...sliderProps.hero4Slider,
+      direction: "horizontal",
+      mousewheel: false,
       allowTouchMove: false,
       simulateTouch: false,
       touchRatio: 0,
