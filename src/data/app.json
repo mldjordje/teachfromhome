@@ -26,8 +26,8 @@
     },
     "header": {
         "logo": {
-            "image": "/images/teachfromhome/logo2-dark.jpeg",
-            "image_white": "/images/teachfromhome/logo1-white.jpeg",
+            "image": "/images/teachfromhome/logo2-dark.png",
+            "image_white": "/images/teachfromhome/logo1-white.png",
             "alt": "TeachFromHome"
         },
         "menu": [
@@ -73,7 +73,7 @@
     },
     "footer": {
         "logo": {
-            "image": "/images/teachfromhome/logo2-dark.jpeg",
+            "image": "/images/teachfromhome/logo2-dark.png",
             "alt": "TeachFromHome"
         },
         "gallery": [
