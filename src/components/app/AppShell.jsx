@@ -90,7 +90,8 @@ const AppShell = ({ title, subtitle, children }) => {
         </div>
         {!loading && !isConfigured && (
           <div className="tfh-alert tfh-error">
-            {configError || "Supabase env variables are missing. Configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."}
+            {configError ||
+              "Supabase env variables are missing. Configure NEXT_PUBLIC_SUPABASE_URL and one publishable key (NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY)."}
           </div>
         )}
         {children}

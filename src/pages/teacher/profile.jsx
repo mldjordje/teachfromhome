@@ -51,14 +51,18 @@ const TeacherProfilePage = () => {
 
     const { error: updateError } = await supabase
       .from("profiles")
-      .update({
-        first_name: form.first_name,
-        last_name: form.last_name,
-        phone: form.phone,
-        date_of_birth: form.date_of_birth || null,
-        short_about: form.short_about,
-      })
-      .eq("user_id", user.id);
+      .upsert(
+        {
+          user_id: user.id,
+          email: user.email,
+          first_name: form.first_name,
+          last_name: form.last_name,
+          phone: form.phone,
+          date_of_birth: form.date_of_birth || null,
+          short_about: form.short_about,
+        },
+        { onConflict: "user_id" },
+      );
 
     setBusy(false);
     if (updateError) {
