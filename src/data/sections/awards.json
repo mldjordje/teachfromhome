@@ -1,0 +1,23 @@
+{
+    "subtitle": "Awards",
+    "items": [
+        {
+            "image": "/images/award1.png",
+            "alt": "award",
+            "label": "7 SOTD <br/> 17 HONORABLE MENTION <br/> 3 MOBILE EXCELLENCE",
+            "value": "31"
+        },
+        {
+            "image": "/images/award2.png",
+            "alt": "award",
+            "label": "11 SOTD <br/> 5 SPECIAL KUDOS",
+            "value": "16"
+        },
+        {
+            "image": "/images/award3.png",
+            "alt": "award",
+            "label": "AWARD 2019 <br/> 1 GLOBAL COMPETITION",
+            "value": "20"
+        }
+    ]
+}

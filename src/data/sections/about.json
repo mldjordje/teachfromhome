@@ -1,0 +1,22 @@
+{
+    "title": "About the Job / O poslu<br/>Remote English Teaching Opportunity",
+    "subtitle": "TeachFromHome Application",
+    "number": {
+        "value": "2",
+        "label": "Application phases / Faze prijave"
+    },
+    "items": [
+        {
+            "title": "About the Job / O poslu",
+            "text": "Fully remote online teaching position with flexible scheduling, international students, and long-term collaboration potential. Work from anywhere, build stable monthly income, and grow your teaching skills with structured support. / Potpuno remote pozicija online predavaca sa fleksibilnim rasporedom, internacionalnim ucenicima i dugorocnom saradnjom. Radi odakle zelis, izgradi stabilan mesecni prihod i unapredi predavacke vestine uz podrsku."
+        },
+        {
+            "title": "Requirements / Uslovi",
+            "text": "Fluent English, clear American or British accent preferred, professional communication, reliable internet, and a quiet teaching setup. Teaching experience is a plus. We are reviewing applications daily and hiring serious candidates ready to start soon. / Potreban je tecan engleski, pozeljan jasan americki ili britanski akcenat, profesionalna komunikacija, stabilan internet i mirno okruzenje za rad. Iskustvo je plus. Prijave se pregledaju svakodnevno.",
+            "button": {
+                "label": "Apply Now / Prijavi se",
+                "link": "/contact"
+            }
+        }
+    ]
+}

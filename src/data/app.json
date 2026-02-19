@@ -1,0 +1,130 @@
+{
+    "settings": {
+        "siteName": "TeachFromHome.app",
+        "preloader": true,
+        "formspreeURL": "https://formspree.io/f/your_api_key",
+        "portfolio": {
+            "categories": [
+                {
+                    "label": "Marketing",
+                    "slug": "marketing"
+                },
+                {
+                    "label": "Interactive",
+                    "slug": "interactive"
+                },
+                {
+                    "label": "Design",
+                    "slug": "design"
+                },
+                {
+                    "label": "Branding",
+                    "slug": "branding"
+                }
+            ]
+        }
+    },
+    "header": {
+        "logo": {
+            "image": "/images/teachfromhome/logo2-dark.jpeg",
+            "image_white": "/images/teachfromhome/logo1-white.jpeg",
+            "alt": "TeachFromHome"
+        },
+        "menu": [
+            {
+                "label": "Home",
+                "link": "/#home",
+                "children": 0
+            },
+            {
+                "label": "Why Join",
+                "link": "/#why-join",
+                "children": 0
+            },
+            {
+                "label": "About Job",
+                "link": "/#about-job",
+                "children": 0
+            },
+            {
+                "label": "Earnings",
+                "link": "/#earnings",
+                "children": 0
+            },
+            {
+                "label": "Process",
+                "link": "/#process",
+                "children": 0
+            },
+            {
+                "label": "Apply",
+                "link": "/contact",
+                "children": 0
+            }
+        ],
+        "button": {
+            "label": "Apply Now",
+            "link": "/contact"
+        },
+        "button2": {
+            "label": "Apply Now",
+            "link": "/contact"
+        }
+    },
+    "footer": {
+        "logo": {
+            "image": "/images/teachfromhome/logo2-dark.jpeg",
+            "alt": "TeachFromHome"
+        },
+        "gallery": [
+            {
+                "image": "/images/teachfromhome/image1.jpeg",
+                "title": "TeachFromHome image",
+                "alt": "TeachFromHome"
+            },
+            {
+                "image": "/images/teachfromhome/hero1-mobile.jpeg",
+                "title": "TeachFromHome image",
+                "alt": "TeachFromHome"
+            },
+            {
+                "image": "/images/teachfromhome/hero2-mobile.jpeg",
+                "title": "TeachFromHome image",
+                "alt": "TeachFromHome"
+            },
+            {
+                "image": "/images/teachfromhome/image1.jpeg",
+                "title": "TeachFromHome image",
+                "alt": "TeachFromHome"
+            },
+            {
+                "image": "/images/teachfromhome/hero1-mobile.jpeg",
+                "title": "TeachFromHome image",
+                "alt": "TeachFromHome"
+            },
+            {
+                "image": "/images/teachfromhome/hero2-mobile.jpeg",
+                "title": "TeachFromHome image",
+                "alt": "TeachFromHome"
+            }
+        ],
+        "copy": "&copy; 2026 TeachFromHome.app. All rights reserved."
+    },
+    "social": [
+        {
+            "link": "https://facebook.com",
+            "icon": "fab fa-facebook",
+            "title": "Facebook"
+        },
+        {
+            "link": "https://instagram.com",
+            "icon": "fab fa-instagram",
+            "title": "Instagram"
+        },
+        {
+            "link": "https://linkedin.com",
+            "icon": "fab fa-linkedin",
+            "title": "LinkedIn"
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "title": "Teacher Feedback / Utisci predavaca",
+    "rating": {
+        "value": "4.9",
+        "label": "Average onboarding rating / Prosecna ocena onboardinga"
+    },
+    "items": [
+        {
+            "name": "Milena J.",
+            "role": "Online English Teacher",
+            "text": "The process was clear and fast. I received direct trainer feedback and started teaching shortly after approval. / Proces je bio jasan i brz. Dobila sam konkretan feedback i brzo krenula sa casovima."
+        },
+        {
+            "name": "Nikola P.",
+            "role": "Part-time Teacher",
+            "text": "Flexible scheduling helped me combine classes with my full-time obligations. The platform support team was responsive during onboarding. / Fleksibilan raspored mi je pomogao da uskladim posao i obaveze."
+        },
+        {
+            "name": "Ana S.",
+            "role": "University Student",
+            "text": "I joined while studying and built a stable monthly routine. The two-phase process set clear expectations from day one. / Prijavila sam se tokom studija i izgradila stabilan mesecni raspored."
+        }
+    ]
+}

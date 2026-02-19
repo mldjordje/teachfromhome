@@ -1,0 +1,20 @@
+{
+    "items": [
+        {
+            "label": "- Brand Strategy",
+            "link": "/services/service-1"
+        },
+        {
+            "label": "- Creative Direction",
+            "link": "/services/service-2"
+        },
+        {
+            "label": "- Native and Web Apps",
+            "link": "/services/service-3"
+        },
+        {
+            "label": "- Machine Learning / AI",
+            "link": "/services/service-4"
+        }
+    ]
+}

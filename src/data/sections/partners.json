@@ -1,0 +1,46 @@
+{
+    "subtitle": "Fantastic and Premium Clients",
+    "title": "We Have Had the Pleasure of <br/>Working with Some Clients",
+    "items": [
+        {
+            "link": "https://google.com",
+            "label": "Visit Website",
+            "image": "/images/brand1.png"
+        },
+        {
+            "link": "https://google.com",
+            "label": "Visit Website",
+            "image": "/images/brand2.png"
+        },
+        {
+            "link": "https://google.com",
+            "label": "Visit Website",
+            "image": "/images/brand3.png"
+        },
+        {
+            "link": "https://google.com",
+            "label": "Visit Website",
+            "image": "/images/brand4.png"
+        },
+        {
+            "link": "https://google.com",
+            "label": "Visit Website",
+            "image": "/images/brand5.png"
+        },
+        {
+            "link": "https://google.com",
+            "label": "Visit Website",
+            "image": "/images/brand6.png"
+        },
+        {
+            "link": "https://google.com",
+            "label": "Visit Website",
+            "image": "/images/brand7.png"
+        },
+        {
+            "link": "https://google.com",
+            "label": "Visit Website",
+            "image": "/images/brand2.png"
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+{
+    "subtitle": "Featured Projects",
+    "title": "Take a Look at Some <br>of Our Work",
+    "button": {
+        "label": "All Projects",
+        "link": "/projects"
+    },
+    "numOfItems": 8
+}

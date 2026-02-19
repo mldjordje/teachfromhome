@@ -1,0 +1,23 @@
+{
+    "title": "Let's make your <br>brand brilliant",
+    "subtitle": "Have ideas for your business?",
+    "text": "<p>Then let us know about it and we can see what we can do to help. Fill in this very quick enquiry.</p><p><a href=\"tel:+02078523587\">+ (020) 7852 3587</a></p>",
+    "bg_image": "/images/bg_map.jpg",
+    "social": [
+        {
+            "link": "https://twitter.com/",
+            "icon": "fab fa-twitter",
+            "title": "Twitter"
+        },
+        {
+            "link": "https://linkedin.com/",
+            "icon": "fab fa-linkedin-in",
+            "title": "LinkedIn"
+        },
+        {
+            "link": "https://facebook.com/",
+            "icon": "fab fa-behance",
+            "title": "Behance"
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "title": "Positions Are Filling Quickly<br/><strong>Apply Today</strong>",
+    "subtitle": "Final Step / Poslednji korak",
+    "text": "<p>Applications are reviewed daily. If selected, you move through onboarding and can start teaching in around two days.</p><p>Prijave se pregledaju svakodnevno. Ako prodjes selekciju, mozes poceti sa radom za oko dva dana.</p><p><a href=\"mailto:info@teachfromhome.app\">info@teachfromhome.app</a></p>",
+    "bg_image": "/images/teachfromhome/image1.jpeg",
+    "bg_image2": "/images/cta-circle2.png",
+    "social": [
+        {
+            "link": "/contact",
+            "icon": "fas fa-paper-plane",
+            "title": "Apply Now / Prijavi se"
+        },
+        {
+            "link": "/#process",
+            "icon": "fas fa-list-ol",
+            "title": "How It Works / Proces"
+        },
+        {
+            "link": "/faq",
+            "icon": "fas fa-question-circle",
+            "title": "FAQ"
+        }
+    ]
+}

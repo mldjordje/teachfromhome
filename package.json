@@ -1,0 +1,31 @@
+{
+  "name": "onovo-nextjs",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.97.0",
+    "date-fns": "^2.30.0",
+    "formik": "^2.4.2",
+    "gray-matter": "^4.0.3",
+    "isotope-layout": "^3.0.6",
+    "next": "13.4.3",
+    "react": "18.2.0",
+    "react-bootstrap": "^2.8.0",
+    "react-countup": "^6.4.2",
+    "react-dom": "18.2.0",
+    "react-modal-video": "^2.0.1",
+    "react-share": "^4.4.1",
+    "remark": "^14.0.3",
+    "remark-html": "^15.0.2",
+    "sass": "^1.49.7",
+    "scroll-out": "^2.2.12",
+    "splitting": "^1.0.6",
+    "swiper": "10.0.4"
+  }
+}

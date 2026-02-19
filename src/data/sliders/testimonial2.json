@@ -1,0 +1,20 @@
+{
+    "bg_image": "/images/testi-bg.jpg",
+    "items": [
+        {
+            "name": "Thomas Smith",
+            "role": "Customer Support",
+            "text": "Their high level of customer service complemented their technical expertise. They were responsive, supportive, and communicative. Their dedication to the project was impressive."
+        },
+        {
+            "name": "Mike Cameron",
+            "role": "Code Quality",
+            "text": "Their high level of customer service complemented their technical expertise. They were responsive, supportive, and communicative. Their dedication to the project was impressive."
+        },
+        {
+            "name": "Jessica Brown",
+            "role": "Design Quality",
+            "text": "Their high level of customer service complemented their technical expertise. They were responsive, supportive, and communicative. Their dedication to the project was impressive."
+        }
+    ]
+}

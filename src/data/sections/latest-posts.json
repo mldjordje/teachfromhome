@@ -1,0 +1,9 @@
+{
+    "subtitle": "News &amp; Blog",
+    "title": "Insights, Thoughts, Industry <br>Trends, Marketing Tips",
+    "button": {
+        "label": "View All Posts",
+        "link": "/blog"
+    },
+    "numOfItems": 3
+}

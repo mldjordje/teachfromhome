@@ -1,0 +1,19 @@
+{
+    "items": [
+        {
+            "value": "40000",
+            "label": "Monthly earning floor / Pocetna zarada",
+            "after": " RSD"
+        },
+        {
+            "value": "100000",
+            "label": "Monthly earning potential / Potencijal zarade",
+            "after": " RSD"
+        },
+        {
+            "value": "2",
+            "label": "Approx. start after approval / Pocetak nakon odobrenja",
+            "after": " days"
+        }
+    ]
+}

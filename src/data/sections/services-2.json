@@ -1,0 +1,47 @@
+{
+    "subtitle": "Welcome to Onovo",
+    "title": "Digital Creative Agency <br />with Breaking Ideas",
+    "text": "From the moment our company was founded, we have helped our clients find <strong>exceptional solutions for their businesses</strong>, creating memorable brands and digital products. Our expertise grows with each year.",
+    "signature": {
+        "image": "/images/signature.png",
+        "alt": "signature"
+    },
+    "items": [
+        {
+            "icon": "/images/serv-icon4.png",
+            "title": "Brand Creation",
+            "list": [
+                "Brand Strategy",
+                "Visual Identity",
+                "Naming",
+                "Toolkits",
+                "Guidelines"
+            ],
+            "link": "/services/service-1"
+        },
+        {
+            "icon": "/images/serv-icon5.png",
+            "title": "Web Campaigns",
+            "list": [
+                "Creative Strategy",
+                "Creative Direction",
+                "Concepts",
+                "Copywriting",
+                "Social Media"
+            ],
+            "link": "/services/service-2"
+        },
+        {
+            "icon": "/images/serv-icon6.png",
+            "title": "UX / UI Design",
+            "list": [
+                "Native and Web Apps",
+                "Campaign / Brand Sites",
+                "Machine Learning / AI",
+                "Brand Design",
+                "Product Animation Design"
+            ],
+            "link": "/services/service-3"
+        }
+    ]
+}

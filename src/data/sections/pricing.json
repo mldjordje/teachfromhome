@@ -1,0 +1,93 @@
+{
+    "subtitle": "Pricing Plans",
+    "title": "It Helps You Choose <br>Prices to Maximise",
+    "items": [
+        {
+            "active": 0,
+            "title": "Standard Package",
+            "subtitle": "3 Months",
+            "price": "$60.10",
+            "icon": "fas fa-rocket",
+            "list": [
+                {
+                    "label": "Unlimited updates",
+                    "included": 1
+                },
+                {
+                    "label": "Custom permissions",
+                    "included": 1
+                },
+                {
+                    "label": "Custom infrastructure",
+                    "included": 0
+                },
+                {
+                    "label": "Custom design and features",
+                    "included": 0
+                }
+            ],
+            "button": {
+                "label": "Purchase Now",
+                "link": "/contact"
+            }
+        },
+        {
+            "active": 1,
+            "title": "Professional Package",
+            "subtitle": "6 Months",
+            "price": "$120.10",
+            "icon": "fas fa-crown",
+            "list": [
+                {
+                    "label": "Unlimited updates",
+                    "included": 1
+                },
+                {
+                    "label": "Custom permissions",
+                    "included": 1
+                },
+                {
+                    "label": "Custom infrastructure",
+                    "included": 1
+                },
+                {
+                    "label": "Custom design and features",
+                    "included": 0
+                }
+            ],
+            "button": {
+                "label": "Purchase Now",
+                "link": "/contact"
+            }
+        },
+        {
+            "active": 0,
+            "title": "Business Package",
+            "subtitle": "01 Year",
+            "price": "$230.10",
+            "icon": "fas fa-city",
+            "list": [
+                {
+                    "label": "Unlimited updates",
+                    "included": 1
+                },
+                {
+                    "label": "Custom permissions",
+                    "included": 1
+                },
+                {
+                    "label": "Custom infrastructure",
+                    "included": 1
+                },
+                {
+                    "label": "Custom design and features",
+                    "included": 1
+                }
+            ],
+            "button": {
+                "label": "Purchase Now",
+                "link": "/contact"
+            }
+        }
+    ]
+}

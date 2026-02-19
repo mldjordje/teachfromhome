@@ -1,0 +1,15 @@
+{
+    "subtitle": "Welcome to Onovo",
+    "title": "We are a digital agency, <br>passionate about building <br>and designing brands",
+    "text": "From the moment our company was founded, we have helped our clients find <strong>exceptional solutions for their businesses</strong>, creating memorable brands and digital products. Our expertise grows with each year, and our accumulated experience.",
+    "image": {
+        "url": "/images/onovo-about-logo.png",
+        "alt": "image"
+    },
+    "title2": "What We Provide",
+    "button": {
+        "link": "/services",
+        "label": "View All Services"
+    },
+    "numOfItems": 5
+}
