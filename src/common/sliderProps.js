@@ -130,6 +130,7 @@ export const sliderProps = {
     },
     parallax: true,
     loop: false,
+    touchReleaseOnEdges: true,
     mousewheel: {
       releaseOnEdges: true
     },
