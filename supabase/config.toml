@@ -374,6 +374,33 @@ port = 54327
 # Configure one of the supported backends: `postgres`, `bigquery`.
 backend = "postgres"
 
+[functions.teacher_submit_phase1]
+verify_jwt = false
+
+[functions.teacher_create_phase2_submission]
+verify_jwt = false
+
+[functions.teacher_apply_referral_code]
+verify_jwt = false
+
+[functions.admin_move_to_phase2]
+verify_jwt = false
+
+[functions.admin_reject_phase1]
+verify_jwt = false
+
+[functions.admin_review_phase2]
+verify_jwt = false
+
+[functions.create_analytics_event]
+verify_jwt = false
+
+[functions.admin_mark_referral_eligible]
+verify_jwt = false
+
+[functions.admin_approve_referral_reward]
+verify_jwt = false
+
 # Experimental features may be deprecated any time
 [experimental]
 # Configures Postgres storage engine to use OrioleDB (S3)

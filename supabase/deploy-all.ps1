@@ -30,7 +30,7 @@ $functions = @(
 
 foreach ($fn in $functions) {
   Write-Host "Deploying function: $fn"
-  & "C:\Program Files\nodejs\npx.cmd" supabase functions deploy $fn
+  & "C:\Program Files\nodejs\npx.cmd" supabase functions deploy $fn --no-verify-jwt
 }
 
 Write-Host "Done."
