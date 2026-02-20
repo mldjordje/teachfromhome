@@ -9,7 +9,7 @@ This folder contains a complete backend starter for:
 ## 1) Files Included
 
 - Migration:
-  - `migrations/202602190001_backend_starter.sql`
+  - `migrations/*.sql`
 - Shared edge helpers:
   - `functions/_shared/http.ts`
   - `functions/_shared/supabase.ts`
@@ -20,6 +20,7 @@ This folder contains a complete backend starter for:
   - `functions/admin_move_to_phase2/index.ts`
   - `functions/admin_reject_phase1/index.ts`
   - `functions/admin_review_phase2/index.ts`
+  - `functions/admin_cleanup_storage/index.ts`
   - `functions/teacher_submit_phase1/index.ts`
   - `functions/teacher_create_phase2_submission/index.ts`
   - `functions/teacher_apply_referral_code/index.ts`
@@ -73,6 +74,11 @@ npx supabase secrets set SUPABASE_ANON_KEY=<YOUR_ANON_KEY>
 npx supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<YOUR_SERVICE_ROLE_KEY>
 npx supabase secrets set RESEND_API_KEY=<YOUR_RESEND_API_KEY>
 npx supabase secrets set FROM_EMAIL="TeachFromHome <noreply@your-domain.com>"
+npx supabase secrets set PHASE1_MAX_VIDEO_MB=25
+npx supabase secrets set PHASE2_MAX_VIDEO_MB=35
+npx supabase secrets set PHASE1_REJECTED_RETENTION_DAYS=14
+npx supabase secrets set PHASE2_CLOSED_RETENTION_DAYS=30
+npx supabase secrets set ORPHAN_RETENTION_HOURS=24
 ```
 
 Notes:
@@ -82,15 +88,16 @@ Notes:
 ## 5) Deploy Edge Functions
 
 ```bash
-npx supabase functions deploy teacher_submit_phase1
-npx supabase functions deploy teacher_create_phase2_submission
-npx supabase functions deploy teacher_apply_referral_code
-npx supabase functions deploy admin_move_to_phase2
-npx supabase functions deploy admin_reject_phase1
-npx supabase functions deploy admin_review_phase2
-npx supabase functions deploy create_analytics_event
-npx supabase functions deploy admin_mark_referral_eligible
-npx supabase functions deploy admin_approve_referral_reward
+npx supabase functions deploy teacher_submit_phase1 --no-verify-jwt
+npx supabase functions deploy teacher_create_phase2_submission --no-verify-jwt
+npx supabase functions deploy teacher_apply_referral_code --no-verify-jwt
+npx supabase functions deploy admin_move_to_phase2 --no-verify-jwt
+npx supabase functions deploy admin_reject_phase1 --no-verify-jwt
+npx supabase functions deploy admin_review_phase2 --no-verify-jwt
+npx supabase functions deploy create_analytics_event --no-verify-jwt
+npx supabase functions deploy admin_cleanup_storage --no-verify-jwt
+npx supabase functions deploy admin_mark_referral_eligible --no-verify-jwt
+npx supabase functions deploy admin_approve_referral_reward --no-verify-jwt
 ```
 
 ## 6) Storage Buckets & Access
@@ -99,6 +106,10 @@ Buckets are created in migration SQL:
 - `phase1-videos` (private)
 - `phase2-videos` (private)
 - `training-videos` (private bucket + authenticated read policy)
+
+Current hard limits:
+- `phase1-videos`: 25MB per file
+- `phase2-videos`: 35MB per file
 
 Policy summary:
 - Teachers can upload/read their own files in `phase1-videos` and `phase2-videos` under `/{user_id}/...`
@@ -264,6 +275,16 @@ curl -X POST "$PROJECT_URL/functions/v1/admin_approve_referral_reward" \
   -d '{
     "reward_id":"<reward_uuid>"
   }'
+```
+
+### 8.10 admin_cleanup_storage
+
+```bash
+curl -X POST "$PROJECT_URL/functions/v1/admin_cleanup_storage" \
+  -H "Authorization: Bearer $ADMIN_JWT" \
+  -H "apikey: $ANON_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{}'
 ```
 
 ## 9) Security Notes

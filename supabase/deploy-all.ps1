@@ -24,6 +24,7 @@ $functions = @(
   "admin_reject_phase1",
   "admin_review_phase2",
   "create_analytics_event",
+  "admin_cleanup_storage",
   "admin_mark_referral_eligible",
   "admin_approve_referral_reward"
 )

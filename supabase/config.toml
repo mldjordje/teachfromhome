@@ -395,6 +395,9 @@ verify_jwt = false
 [functions.create_analytics_event]
 verify_jwt = false
 
+[functions.admin_cleanup_storage]
+verify_jwt = false
+
 [functions.admin_mark_referral_eligible]
 verify_jwt = false
 

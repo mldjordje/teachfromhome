@@ -1,5 +1,6 @@
 import { json, readJson, handleError, HttpError, preflight, methodNotAllowed } from "../_shared/http.ts";
 import { getServiceClient, requireUser } from "../_shared/supabase.ts";
+import { removeStorageObjectSafe, validateOwnedVideoObject } from "../_shared/storage.ts";
 import { requireNonEmptyString, requireVideoPath } from "../_shared/validators.ts";
 import { createNotification } from "../_shared/notifications.ts";
 
@@ -8,7 +9,14 @@ type Phase2Body = {
   video_path: string;
 };
 
+const PHASE2_MAX_VIDEO_MB = Number(Deno.env.get("PHASE2_MAX_VIDEO_MB") ?? "35");
+const PHASE2_MAX_VIDEO_BYTES = PHASE2_MAX_VIDEO_MB * 1024 * 1024;
+
 Deno.serve(async (req) => {
+  let cleanupTarget: { bucket: string; objectPath: string } | null = null;
+  let shouldCleanup = false;
+  let service: ReturnType<typeof getServiceClient> | null = null;
+
   try {
     const pre = preflight(req);
     if (pre) return pre;
@@ -23,7 +31,15 @@ Deno.serve(async (req) => {
     const taskId = requireNonEmptyString(body.task_id, "task_id");
     const videoPath = requireVideoPath(body.video_path);
 
-    const service = getServiceClient();
+    service = getServiceClient();
+    cleanupTarget = await validateOwnedVideoObject({
+      service,
+      userId: user.id,
+      fullPath: videoPath,
+      expectedBucket: "phase2-videos",
+      maxBytes: PHASE2_MAX_VIDEO_BYTES,
+    });
+    shouldCleanup = true;
 
     const { data: task, error: taskError } = await service
       .from("teacher_phase2_tasks")
@@ -80,6 +96,8 @@ Deno.serve(async (req) => {
       throw new HttpError(500, "Failed to create Phase 2 submission", insertError.message);
     }
 
+    shouldCleanup = false;
+
     const { error: taskUpdateError } = await service
       .from("teacher_phase2_tasks")
       .update({
@@ -94,19 +112,26 @@ Deno.serve(async (req) => {
       throw new HttpError(500, "Failed to update task status", taskUpdateError.message);
     }
 
-    await createNotification(service, {
-      user_id: user.id,
-      type: "phase2",
-      title: "Phase 2 submitted",
-      body: "Your Phase 2 video has been submitted and is pending admin review.",
-      payload: { task_id: task.id, submission_id: insertedSubmission.id, attempt_no: attemptNo },
-    });
+    try {
+      await createNotification(service, {
+        user_id: user.id,
+        type: "phase2",
+        title: "Phase 2 submitted",
+        body: "Your Phase 2 video has been submitted and is pending admin review.",
+        payload: { task_id: task.id, submission_id: insertedSubmission.id, attempt_no: attemptNo },
+      });
+    } catch (_notificationError) {
+      // Keep submission successful even if notification write fails.
+    }
 
     return json({
       ok: true,
       submission: insertedSubmission,
     });
   } catch (error) {
+    if (shouldCleanup && cleanupTarget && service) {
+      await removeStorageObjectSafe(service, cleanupTarget.bucket, cleanupTarget.objectPath);
+    }
     return handleError(error);
   }
 });

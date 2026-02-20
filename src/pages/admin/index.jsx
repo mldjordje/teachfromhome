@@ -3,15 +3,18 @@ import Link from "next/link";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
+import { callEdgeFunction } from "@library/edgeClient";
 
 const AdminDashboardPage = () => {
-  const { supabase, isConfigured, configError } = useAuth();
+  const { supabase, session, isConfigured, configError } = useAuth();
   const [events, setEvents] = useState([]);
   const [phase1Pending, setPhase1Pending] = useState(0);
   const [phase2Pending, setPhase2Pending] = useState(0);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [maintenanceBusy, setMaintenanceBusy] = useState(false);
+  const [maintenanceMessage, setMaintenanceMessage] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -88,6 +91,32 @@ const AdminDashboardPage = () => {
     return summary;
   }, [events]);
 
+  const runStorageCleanup = async () => {
+    setMaintenanceMessage("");
+
+    if (!session?.access_token) {
+      setMaintenanceMessage("Missing admin auth session.");
+      return;
+    }
+
+    setMaintenanceBusy(true);
+    try {
+      const result = await callEdgeFunction({
+        functionName: "admin_cleanup_storage",
+        accessToken: session.access_token,
+        body: {},
+      });
+
+      setMaintenanceMessage(
+        `Cleanup done. Deleted stale: ${result?.deleted?.stale || 0}, orphan: ${result?.deleted?.orphan || 0}.`,
+      );
+    } catch (cleanupError) {
+      setMaintenanceMessage(cleanupError?.message || "Storage cleanup failed.");
+    } finally {
+      setMaintenanceBusy(false);
+    }
+  };
+
   return (
     <RequireAuth adminOnly>
       <AppShell title="Admin Dashboard" subtitle="Overview of queues, approvals and operational actions.">
@@ -156,7 +185,11 @@ const AdminDashboardPage = () => {
                 <Link href="/admin/referrals" className="tfh-btn tfh-btn-outline">
                   Manage Referrals
                 </Link>
+                <button type="button" className="tfh-btn tfh-btn-outline" onClick={runStorageCleanup} disabled={maintenanceBusy}>
+                  {maintenanceBusy ? "Running cleanup..." : "Run Storage Cleanup"}
+                </button>
               </div>
+              {maintenanceMessage && <p style={{ marginTop: "12px" }}>{maintenanceMessage}</p>}
             </div>
           </div>
         )}

@@ -6,6 +6,7 @@ import { useAuth } from "@components/auth/AuthProvider";
 import { callEdgeFunction } from "@library/edgeClient";
 import { getFileExt } from "@library/storage";
 import { trackEvent } from "@library/analytics";
+import { ALLOWED_VIDEO_MIME_TYPES, PHASE2_MAX_VIDEO_MB, bytesFromMb } from "@config/uploadLimits";
 
 const TeacherPhase2Page = () => {
   const { supabase, user, session, isConfigured, configError } = useAuth();
@@ -99,6 +100,14 @@ const TeacherPhase2Page = () => {
     }
     if (!videoFile) {
       setError("Upload Phase 2 video before submit.");
+      return;
+    }
+    if (videoFile.size > bytesFromMb(PHASE2_MAX_VIDEO_MB)) {
+      setError(`Video is too large. Max allowed size is ${PHASE2_MAX_VIDEO_MB}MB.`);
+      return;
+    }
+    if (videoFile.type && !ALLOWED_VIDEO_MIME_TYPES.includes(videoFile.type)) {
+      setError("Unsupported video format. Please upload MP4, WEBM, or MOV.");
       return;
     }
 
@@ -215,6 +224,7 @@ const TeacherPhase2Page = () => {
                 <div>
                   <label>Upload your recording</label>
                   <input type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
+                  <small>Max {PHASE2_MAX_VIDEO_MB}MB (MP4/WEBM/MOV)</small>
                 </div>
                 {error && <div className="tfh-alert tfh-error">{error}</div>}
                 {success && <div className="tfh-alert tfh-success">{success}</div>}

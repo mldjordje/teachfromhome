@@ -1,5 +1,6 @@
 import { json, readJson, handleError, HttpError, preflight, methodNotAllowed } from "../_shared/http.ts";
 import { getServiceClient, requireUser } from "../_shared/supabase.ts";
+import { removeStorageObjectSafe, validateOwnedVideoObject } from "../_shared/storage.ts";
 import {
   requireDate,
   requireEmail,
@@ -22,7 +23,14 @@ type Phase1Body = {
   script_text?: string;
 };
 
+const PHASE1_MAX_VIDEO_MB = Number(Deno.env.get("PHASE1_MAX_VIDEO_MB") ?? "25");
+const PHASE1_MAX_VIDEO_BYTES = PHASE1_MAX_VIDEO_MB * 1024 * 1024;
+
 Deno.serve(async (req) => {
+  let cleanupTarget: { bucket: string; objectPath: string } | null = null;
+  let shouldCleanup = false;
+  let service: ReturnType<typeof getServiceClient> | null = null;
+
   try {
     const pre = preflight(req);
     if (pre) return pre;
@@ -53,7 +61,15 @@ Deno.serve(async (req) => {
       throw new HttpError(400, "email must match auth user email");
     }
 
-    const service = getServiceClient();
+    service = getServiceClient();
+    cleanupTarget = await validateOwnedVideoObject({
+      service,
+      userId: user.id,
+      fullPath: videoPath,
+      expectedBucket: "phase1-videos",
+      maxBytes: PHASE1_MAX_VIDEO_BYTES,
+    });
+    shouldCleanup = true;
 
     const { data: existingAttempts, error: attemptsError } = await service
       .from("teacher_phase1_submissions")
@@ -118,19 +134,28 @@ Deno.serve(async (req) => {
       throw new HttpError(500, "Failed to create Phase 1 submission", insertError.message);
     }
 
-    await createNotification(service, {
-      user_id: user.id,
-      type: "phase1",
-      title: "Phase 1 submitted",
-      body: "Your Phase 1 application has been submitted and is pending review.",
-      payload: { submission_id: insertedSubmission.id, attempt_no: attemptNo },
-    });
+    shouldCleanup = false;
+
+    try {
+      await createNotification(service, {
+        user_id: user.id,
+        type: "phase1",
+        title: "Phase 1 submitted",
+        body: "Your Phase 1 application has been submitted and is pending review.",
+        payload: { submission_id: insertedSubmission.id, attempt_no: attemptNo },
+      });
+    } catch (_notificationError) {
+      // Keep submission successful even if notification write fails.
+    }
 
     return json({
       ok: true,
       submission: insertedSubmission,
     });
   } catch (error) {
+    if (shouldCleanup && cleanupTarget && service) {
+      await removeStorageObjectSafe(service, cleanupTarget.bucket, cleanupTarget.objectPath);
+    }
     return handleError(error);
   }
 });
