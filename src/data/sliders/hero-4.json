@@ -1,26 +1,32 @@
 {
     "items": [
         {
-            "title": "Teach English Online<br/>Teach from Home<br/><span class='tfh-hero-sub'>Predaj engleski online - Radi od kuce</span>",
-            "subtitle": "TeachFromHome.app",
+            "title_sr": "Predaj Engleski Online<br/>Radi Od Kuce<br/><span class='tfh-hero-sub'>TeachFromHome.app</span>",
+            "title_en": "Teach English Online<br/>Teach from Home<br/><span class='tfh-hero-sub'>TeachFromHome.app</span>",
+            "subtitle_sr": "TeachFromHome.app",
+            "subtitle_en": "TeachFromHome.app",
             "image": {
                 "desktop": "/images/teachfromhome/image1.jpeg",
                 "mobile": "/images/teachfromhome/hero1-mobile.jpeg"
             },
             "button": {
-                "label": "Apply Now / Prijavi se",
+                "label_sr": "Prijavi se",
+                "label_en": "Apply now",
                 "link": "/apply"
             }
         },
         {
-            "title": "2-Phase Application Process<br/>Fast Onboarding Support<br/><span class='tfh-hero-sub'>Proces prijave kroz 2 faze</span>",
-            "subtitle": "How it works / Kako funkcionise",
+            "title_sr": "Proces Prijave U 2 Faze<br/>Brz Onboarding Uz Podrsku<br/><span class='tfh-hero-sub'>Od prijave do prvih casova</span>",
+            "title_en": "2-Phase Application Process<br/>Fast Onboarding Support<br/><span class='tfh-hero-sub'>From application to first classes</span>",
+            "subtitle_sr": "Kako funkcionise",
+            "subtitle_en": "How it works",
             "image": {
                 "desktop": "/images/teachfromhome/hero2-mobile.jpeg",
                 "mobile": "/images/teachfromhome/hero2-mobile.jpeg"
             },
             "button": {
-                "label": "How It Works / Kako funkcionise",
+                "label_sr": "Pogledaj proces",
+                "label_en": "See process",
                 "link": "/#process"
             }
         }

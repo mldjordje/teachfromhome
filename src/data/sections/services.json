@@ -2,20 +2,26 @@
     "items": [
         {
             "image": "/images/teachfromhome/hero1-mobile.jpeg",
-            "title": "Work From Home / Rad od kuce",
-            "text": "Teach online from your own space with no commuting and no office overhead. / Predaj online iz svog prostora bez putovanja i kancelarije.",
+            "title_sr": "Rad od kuce",
+            "title_en": "Work from home",
+            "text_sr": "Predaj online iz svog prostora, bez putovanja i kancelarije.",
+            "text_en": "Teach online from your own space with no commuting and no office overhead.",
             "link": "/apply"
         },
         {
             "image": "/images/teachfromhome/hero2-mobile.jpeg",
-            "title": "Flexible Hours / Fleksibilno vreme",
-            "text": "Choose your availability and build a schedule that fits studies or full-time work. / Odaberi dostupnost i napravi raspored koji odgovara studijama ili poslu.",
+            "title_sr": "Fleksibilno vreme",
+            "title_en": "Flexible hours",
+            "text_sr": "Odaberi svoju dostupnost i napravi raspored koji odgovara studijama ili poslu.",
+            "text_en": "Choose your availability and build a schedule that fits studies or full-time work.",
             "link": "/apply"
         },
         {
             "image": "/images/teachfromhome/image1.jpeg",
-            "title": "Stable Opportunity / Dugorocna saradnja",
-            "text": "Competitive compensation, international students, and structured support. / Konkurentna zarada, internacionalni ucenici i jasna podrska.",
+            "title_sr": "Dugorocna saradnja",
+            "title_en": "Stable opportunity",
+            "text_sr": "Konkurentna zarada, internacionalni ucenici i jasna podrska tokom onboardinga.",
+            "text_en": "Competitive compensation, international students, and structured onboarding support.",
             "link": "/apply"
         }
     ]

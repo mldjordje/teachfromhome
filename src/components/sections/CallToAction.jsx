@@ -1,7 +1,15 @@
 import Data from "@data/sections/call-to-action.json";
 import Link from "next/link";
+import { useLanguage } from "@components/i18n/LanguageProvider";
 
 const CallToActionSection = () => {
+  const { language } = useLanguage();
+
+  const pick = (item, key) =>
+    language === "en"
+      ? (item[`${key}_en`] ?? item[key] ?? item[`${key}_sr`] ?? "")
+      : (item[`${key}_sr`] ?? item[key] ?? item[`${key}_en`] ?? "");
+
   return (
     <>
         {/* Onovo CTA */}
@@ -13,15 +21,15 @@ const CallToActionSection = () => {
                         {/* Heading */}
                         <div className="onovo-heading gap-bottom-40 onovo-text-white">
                             <div className="onovo-subtitle-1">
-                                <span>{Data.subtitle}</span>
+                                <span>{pick(Data, "subtitle")}</span>
                             </div>
                             <h2 className="onovo-title-2">
-                                <span dangerouslySetInnerHTML={{__html: Data.title}} />
+                                <span dangerouslySetInnerHTML={{__html: pick(Data, "title")}} />
                             </h2>
                         </div>
 
                         {/* Text */}
-                        <div className="onovo-cta-text" dangerouslySetInnerHTML={{__html: Data.text}} />
+                        <div className="onovo-cta-text" dangerouslySetInnerHTML={{__html: pick(Data, "text")}} />
                             
                     </div>
                     <div className="col-xs-12 col-sm-12 col-md-12 col-lg-6">
@@ -40,7 +48,7 @@ const CallToActionSection = () => {
                                         {(item.link.startsWith("/") || item.link.startsWith("#")) ? (
                                           <Link className="onovo-btn btn--white btn--large btn--icon onovo-hover-btn" href={item.link}>
                                             <i aria-hidden="true" className={item.icon} />
-                                            <span>{item.title}</span>
+                                            <span>{pick(item, "title")}</span>
                                           </Link>
                                         ) : (
                                           <a
@@ -50,7 +58,7 @@ const CallToActionSection = () => {
                                             rel="noreferrer noopener"
                                           >
                                             <i aria-hidden="true" className={item.icon} />
-                                            <span>{item.title}</span>
+                                            <span>{pick(item, "title")}</span>
                                           </a>
                                         )}
                                     </li>

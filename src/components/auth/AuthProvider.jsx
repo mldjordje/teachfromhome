@@ -19,10 +19,17 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    const [{ data: profileData }, { data: adminData }] = await Promise.all([
+    const [{ data: profileData, error: profileError }, { data: adminData, error: adminError }] = await Promise.all([
       client.from("profiles").select("*").eq("user_id", nextUser.id).maybeSingle(),
       client.rpc("is_admin", { _user_id: nextUser.id }),
     ]);
+
+    if (profileError) {
+      console.error("Failed to load profile", profileError);
+    }
+    if (adminError) {
+      console.error("Failed to check admin role", adminError);
+    }
 
     setProfile(profileData ?? null);
     setIsAdmin(adminData === true);
@@ -31,14 +38,20 @@ export const AuthProvider = ({ children }) => {
   const refreshAuthState = async () => {
     if (!supabase) return;
     setLoading(true);
-    const { data } = await supabase.auth.getSession();
-    const nextSession = data.session ?? null;
-    const nextUser = nextSession?.user ?? null;
+    try {
+      const { data } = await supabase.auth.getSession();
+      const nextSession = data.session ?? null;
+      const nextUser = nextSession?.user ?? null;
 
-    setSession(nextSession);
-    setUser(nextUser);
-    await hydrateUserData(supabase, nextUser);
-    setLoading(false);
+      setSession(nextSession);
+      setUser(nextUser);
+      await hydrateUserData(supabase, nextUser);
+    } catch (error) {
+      console.error("refreshAuthState failed", error);
+      setConfigError(error?.message || "Auth refresh failed.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -50,38 +63,46 @@ export const AuthProvider = ({ children }) => {
     let subscription = null;
 
     const boot = async () => {
-      let client;
       try {
-        client = getSupabaseBrowserClient();
+        const client = getSupabaseBrowserClient();
+        if (!mounted) return;
+        setSupabase(client);
+
+        const { data } = await client.auth.getSession();
+        const nextSession = data.session ?? null;
+        const nextUser = nextSession?.user ?? null;
+
+        setSession(nextSession);
+        setUser(nextUser);
+        await hydrateUserData(client, nextUser);
+
+        const { data: authSubscription } = client.auth.onAuthStateChange(async (_event, changedSession) => {
+          try {
+            const changedUser = changedSession?.user ?? null;
+            setSession(changedSession ?? null);
+            setUser(changedUser);
+            await hydrateUserData(client, changedUser);
+          } catch (error) {
+            console.error("onAuthStateChange failed", error);
+            setConfigError(error?.message || "Auth state update failed.");
+          } finally {
+            setLoading(false);
+          }
+        });
+        subscription = authSubscription.subscription;
       } catch (error) {
         if (!mounted) return;
+        console.error("Auth boot failed", error);
         setConfigError(error?.message || "Supabase is not configured.");
-        setLoading(false);
-        return;
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        setIsAdmin(false);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-
-      if (!mounted) return;
-      setSupabase(client);
-
-      const { data } = await client.auth.getSession();
-      const nextSession = data.session ?? null;
-      const nextUser = nextSession?.user ?? null;
-
-      setSession(nextSession);
-      setUser(nextUser);
-      await hydrateUserData(client, nextUser);
-      if (mounted) {
-        setLoading(false);
-      }
-
-      const { data: authSubscription } = client.auth.onAuthStateChange(async (_event, changedSession) => {
-        const changedUser = changedSession?.user ?? null;
-        setSession(changedSession ?? null);
-        setUser(changedUser);
-        await hydrateUserData(client, changedUser);
-        setLoading(false);
-      });
-      subscription = authSubscription.subscription;
     };
 
     boot();

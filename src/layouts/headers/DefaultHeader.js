@@ -2,8 +2,10 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import appData from "@data/app.json";
 import { headerSticky } from "@common/utilits";
+import { useLanguage } from "@components/i18n/LanguageProvider";
 
 const DefaultHeader = ({ darkHeader, cartButton }) => {
+  const { language, setLanguage } = useLanguage();
   const navItems = [];
 
   appData.header.menu.forEach((item, index) => {
@@ -12,7 +14,12 @@ const DefaultHeader = ({ darkHeader, cartButton }) => {
     if ( item.children != 0 ) {
       s_class1 += 'menu-item-has-children';
     }
-    let newobj = Object.assign({}, item, { "classes" :  s_class1 });
+    const localizedLabel =
+      language === "en"
+        ? (item.label_en || item.label || item.label_sr)
+        : (item.label_sr || item.label || item.label_en);
+
+    let newobj = Object.assign({}, item, { "classes" :  s_class1, "localizedLabel": localizedLabel });
     navItems.push(newobj);
   });
   
@@ -64,6 +71,11 @@ const DefaultHeader = ({ darkHeader, cartButton }) => {
     headerSticky();
   }, []);
 
+  const buttonLabel =
+    language === "en"
+      ? (appData.header.button.label_en || appData.header.button.label || appData.header.button.label_sr)
+      : (appData.header.button.label_sr || appData.header.button.label || appData.header.button.label_en);
+
   return (
     <>
       {/* Header */}
@@ -97,7 +109,7 @@ const DefaultHeader = ({ darkHeader, cartButton }) => {
                         <ul className="onovo-menu-nav">
                           {navItems.map((item, key) => (
                           <li key={`header-nav-item-${key}`} className={item.classes}>
-                            <Link className={item.children ? "onovo-lnk lnk--active onovo-dropdown-toggle" : "onovo-lnk lnk--active"} onClick={item.children != 0 ? (e) => clickedMobileMenuItemParent(e) : ""} href={item.link}>{item.label}</Link>
+                            <Link className={item.children ? "onovo-lnk lnk--active onovo-dropdown-toggle" : "onovo-lnk lnk--active"} onClick={item.children != 0 ? (e) => clickedMobileMenuItemParent(e) : ""} href={item.link}>{item.localizedLabel}</Link>
                             {item.children &&
                             <i className="icon fas fa-chevron-down" />
                             }
@@ -105,7 +117,11 @@ const DefaultHeader = ({ darkHeader, cartButton }) => {
                             <ul className="sub-menu">
                               {item.children.map((subitem, key) => (
                               <li key={`header-nav-sub-item-${key}`}>
-                                <Link className="onovo-lnk lnk--active" href={subitem.link}>{subitem.label}</Link>
+                                <Link className="onovo-lnk lnk--active" href={subitem.link}>
+                                  {language === "en"
+                                    ? (subitem.label_en || subitem.label || subitem.label_sr)
+                                    : (subitem.label_sr || subitem.label || subitem.label_en)}
+                                </Link>
                               </li>
                               ))}
                             </ul>
@@ -122,14 +138,33 @@ const DefaultHeader = ({ darkHeader, cartButton }) => {
               <div className="col-4 col-xs-4 col-sm-4 col-md-4 col-lg-3 align-self-center align-right">
 
                 {/* Button */}
-                <Link className="onovo-head-btn onovo-hover-btn" href={appData.header.button.link}>
-                  <span>
-                    <span className="onovo-lnk lnk--active">{appData.header.button.label}</span>
-                  </span>
-                  <i className="arrow">
-                    <span />
-                  </i>
-                </Link>
+                <div className="tfh-head-actions">
+                  <div className="tfh-lang-switch" role="group" aria-label="Language switch">
+                    <button
+                      type="button"
+                      className={language === "sr" ? "active" : ""}
+                      onClick={() => setLanguage("sr")}
+                    >
+                      SR
+                    </button>
+                    <button
+                      type="button"
+                      className={language === "en" ? "active" : ""}
+                      onClick={() => setLanguage("en")}
+                    >
+                      EN
+                    </button>
+                  </div>
+
+                  <Link className="onovo-head-btn onovo-hover-btn" href={appData.header.button.link}>
+                    <span>
+                      <span className="onovo-lnk lnk--active">{buttonLabel}</span>
+                    </span>
+                    <i className="arrow">
+                      <span />
+                    </i>
+                  </Link>
+                </div>
 
               </div>
             </div>

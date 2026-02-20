@@ -1,10 +1,18 @@
 import Data from "@data/sections/services.json";
 import Link from "next/link";
 import { useEffect } from "react";
+import { useLanguage } from "@components/i18n/LanguageProvider";
 
 import { servicesHover } from "@common/utilits";
 
 const ServicesSection = () => {
+  const { language } = useLanguage();
+
+  const pick = (item, key) =>
+    language === "en"
+      ? (item[`${key}_en`] ?? item[key] ?? item[`${key}_sr`] ?? "")
+      : (item[`${key}_sr`] ?? item[key] ?? item[`${key}_en`] ?? "");
+
   useEffect(() => {
     servicesHover();
   }, []);
@@ -27,12 +35,12 @@ const ServicesSection = () => {
                             </div>
                             <h5 className="onovo-title-3">
                                 <a href={item.link}>
-                                    <span>{item.title}</span>
+                                    <span>{pick(item, "title")}</span>
                                 </a>
                             </h5>
                             <div className="onovo-text">
                                 <div>
-                                    <p>{item.text}</p>
+                                    <p>{pick(item, "text")}</p>
                                 </div>
                             </div>
                             <div className="onovo-bubble">

@@ -32,42 +32,58 @@
         },
         "menu": [
             {
-                "label": "Home",
+                "label": "Pocetna",
+                "label_sr": "Pocetna",
+                "label_en": "Home",
                 "link": "/#home",
                 "children": 0
             },
             {
-                "label": "Why Join",
+                "label": "Zasto TeachFromHome",
+                "label_sr": "Zasto TeachFromHome",
+                "label_en": "Why Join",
                 "link": "/#why-join",
                 "children": 0
             },
             {
-                "label": "About Job",
+                "label": "O Poslu",
+                "label_sr": "O Poslu",
+                "label_en": "About Job",
                 "link": "/#about-job",
                 "children": 0
             },
             {
-                "label": "Earnings",
+                "label": "Zarada",
+                "label_sr": "Zarada",
+                "label_en": "Earnings",
                 "link": "/#earnings",
                 "children": 0
             },
             {
-                "label": "Process",
+                "label": "Proces",
+                "label_sr": "Proces",
+                "label_en": "Process",
                 "link": "/#process",
                 "children": 0
             },
             {
-                "label": "Apply",
+                "label": "Prijava",
+                "label_sr": "Prijava",
+                "label_en": "Apply",
                 "link": "/apply",
                 "children": 0
             }
         ],
         "button": {
-            "label": "Apply Now",
+            "label": "Prijavi se",
+            "label_sr": "Prijavi se",
+            "label_en": "Apply Now",
             "link": "/apply"
         },
         "button2": {
-            "label": "Apply Now",
+            "label": "Prijavi se",
+            "label_sr": "Prijavi se",
+            "label_en": "Apply Now",
             "link": "/apply"
         }
     },

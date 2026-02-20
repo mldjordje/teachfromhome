@@ -26,3 +26,48 @@ html {
     font-weight: 500;
     line-height: 1.4;
 }
+
+.tfh-head-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.tfh-lang-switch {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(15, 23, 42, 0.2);
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.tfh-lang-switch button {
+    border: 0;
+    background: transparent;
+    color: #0f172a;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    min-width: 44px;
+    min-height: 34px;
+    padding: 0 10px;
+}
+
+.tfh-lang-switch button.active {
+    background: #f97316;
+    color: #ffffff;
+}
+
+@media (max-width: 991px) {
+    .tfh-head-actions {
+        gap: 6px;
+    }
+
+    .tfh-lang-switch button {
+        min-width: 36px;
+        min-height: 30px;
+        padding: 0 8px;
+    }
+}

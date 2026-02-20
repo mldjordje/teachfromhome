@@ -2,6 +2,7 @@ import React from "react";
 import Head from "next/head";
 import appData from "@data/app.json";
 import { AuthProvider } from "@components/auth/AuthProvider";
+import { LanguageProvider } from "@components/i18n/LanguageProvider";
 
 import '../styles/scss/style.scss';
 import "../styles/globals.css";
@@ -22,9 +23,11 @@ function MyApp({ Component, pageProps }) {
           <meta name="author" content="TeachFromHome.app" />
           {/* seo end */}        
       </Head>
-      <AuthProvider>
-        <Component {...pageProps} />
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <Component {...pageProps} />
+        </AuthProvider>
+      </LanguageProvider>
     </>
   );
 }

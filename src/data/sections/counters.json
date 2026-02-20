@@ -2,18 +2,22 @@
     "items": [
         {
             "value": "40000",
-            "label": "Monthly earning floor / Pocetna zarada",
+            "label_sr": "Pocetna mesecna zarada",
+            "label_en": "Monthly earning floor",
             "after": " RSD"
         },
         {
             "value": "100000",
-            "label": "Monthly earning potential / Potencijal zarade",
+            "label_sr": "Potencijal mesecne zarade",
+            "label_en": "Monthly earning potential",
             "after": " RSD"
         },
         {
             "value": "2",
-            "label": "Approx. start after approval / Pocetak nakon odobrenja",
-            "after": " days"
+            "label_sr": "Pocetak nakon odobrenja",
+            "label_en": "Start after approval",
+            "after_sr": " dana",
+            "after_en": " days"
         }
     ]
 }

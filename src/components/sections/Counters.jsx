@@ -1,7 +1,15 @@
 import Data from "@data/sections/counters.json";
 import CountUp from 'react-countup';
+import { useLanguage } from "@components/i18n/LanguageProvider";
 
 const CountersSection = () => {
+  const { language } = useLanguage();
+
+  const pick = (item, key) =>
+    language === "en"
+      ? (item[`${key}_en`] ?? item[key] ?? item[`${key}_sr`] ?? "")
+      : (item[`${key}_sr`] ?? item[key] ?? item[`${key}_en`] ?? "");
+
   return (
     <>
       {/* Onovo Numbers */}
@@ -16,10 +24,10 @@ const CountersSection = () => {
 							<div className="num onovo-text-white js-counter">
 								<CountUp end={item.value} duration={7} enableScrollSpy={true} scrollSpyOnce={true} />
 							</div>
-							{item.after != '' &&
-							<div className="num-after onovo-text-white">{item.after}</div>
+							{pick(item, "after") != '' &&
+							<div className="num-after onovo-text-white">{pick(item, "after")}</div>
 							}
-							<div className="label">{item.label}</div>
+							<div className="label">{pick(item, "label")}</div>
 						</div>
 					</div>
 					))}

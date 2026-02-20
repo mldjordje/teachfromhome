@@ -19,11 +19,25 @@ export const callEdgeFunction = async ({ functionName, accessToken, body }) => {
     headers.Authorization = `Bearer ${accessToken}`;
   }
 
-  const res = await fetch(`${baseUrl}/functions/v1/${functionName}`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body ?? {}),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+
+  let res;
+  try {
+    res = await fetch(`${baseUrl}/functions/v1/${functionName}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body ?? {}),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error(`Function ${functionName} timed out. Please try again.`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   let payload = null;
   try {

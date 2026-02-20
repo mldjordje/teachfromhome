@@ -1,7 +1,15 @@
 import Data from "@data/sections/about.json";
 import Link from "next/link";
+import { useLanguage } from "@components/i18n/LanguageProvider";
 
 const AboutSection = () => {
+    const { language } = useLanguage();
+
+    const pick = (item, key) =>
+      language === "en"
+        ? (item[`${key}_en`] ?? item[key] ?? item[`${key}_sr`] ?? "")
+        : (item[`${key}_sr`] ?? item[key] ?? item[`${key}_en`] ?? "");
+
     return (
       <>
         {/* Onovo About */}
@@ -16,10 +24,10 @@ const AboutSection = () => {
                     {/* Heading */}
                     <div className="onovo-heading gap-bottom-40">
                       <div className="onovo-subtitle-1">
-                        <span>{Data.subtitle}</span>
+                        <span>{pick(Data, "subtitle")}</span>
                       </div>
                       <h2 className="onovo-title-2">
-                        <span dangerouslySetInnerHTML={{__html: Data.title}} />
+                        <span dangerouslySetInnerHTML={{__html: pick(Data, "title")}} />
                       </h2>
                     </div>
 
@@ -32,7 +40,7 @@ const AboutSection = () => {
                         <span>{Data.number.value}</span>
                       </div>
                       <div className="label onovo-text-black onovo-circle-text-label">
-                        {Data.number.label}
+                        {pick(Data.number, "label")}
                       </div>
                     </div>
 
@@ -43,12 +51,12 @@ const AboutSection = () => {
                 <div className="row">
                   {Data.items.map((item, key) => (
                   <div key={`about-item-${key}`} className="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-                    <h5 className="text-uppercase">{item.title}</h5>
-                    <p dangerouslySetInnerHTML={{__html: item.text}} />
+                    <h5 className="text-uppercase">{pick(item, "title")}</h5>
+                    <p dangerouslySetInnerHTML={{__html: pick(item, "text")}} />
                     {item.button != undefined &&
                     <Link className="onovo-btn onovo-hover-btn" href={item.button.link}>
                       <i className="arrow"><span /></i>
-                      <span>{item.button.label}</span>
+                      <span>{pick(item.button, "label")}</span>
                     </Link>
                     }
                   </div>
@@ -64,7 +72,7 @@ const AboutSection = () => {
                     <span>{Data.number.value}</span>
                   </div>
                   <div className="label onovo-text-black onovo-circle-text-label">
-                    {Data.number.label}
+                    {pick(Data.number, "label")}
                   </div>
                 </div>
 

@@ -1,24 +1,30 @@
 {
-    "title": "Positions Are Filling Quickly<br/><strong>Apply Today</strong>",
-    "subtitle": "Final Step / Poslednji korak",
-    "text": "<p>Applications are reviewed daily. If selected, you move through onboarding and can start teaching in around two days.</p><p>Prijave se pregledaju svakodnevno. Ako prodjes selekciju, mozes poceti sa radom za oko dva dana.</p><p><a href=\"mailto:info@teachfromhome.app\">info@teachfromhome.app</a></p>",
+    "title_sr": "Pozicije Se Brzo Popunjavaju<br/><strong>Prijavi Se Danas</strong>",
+    "title_en": "Positions Are Filling Quickly<br/><strong>Apply Today</strong>",
+    "subtitle_sr": "Poslednji korak",
+    "subtitle_en": "Final step",
+    "text_sr": "<p>Prijave se pregledaju svakodnevno. Ako prodjes selekciju, mozes poceti sa radom za oko dva dana.</p><p><a href=\"mailto:info@teachfromhome.app\">info@teachfromhome.app</a></p>",
+    "text_en": "<p>Applications are reviewed daily. If selected, you move through onboarding and can start teaching in around two days.</p><p><a href=\"mailto:info@teachfromhome.app\">info@teachfromhome.app</a></p>",
     "bg_image": "/images/teachfromhome/image1.jpeg",
     "bg_image2": "/images/cta-circle2.png",
     "social": [
         {
             "link": "/apply",
             "icon": "fas fa-paper-plane",
-            "title": "Apply Now / Prijavi se"
+            "title_sr": "Prijavi se",
+            "title_en": "Apply now"
         },
         {
             "link": "/#process",
             "icon": "fas fa-list-ol",
-            "title": "How It Works / Proces"
+            "title_sr": "Kako funkcionise",
+            "title_en": "How it works"
         },
         {
             "link": "/faq",
             "icon": "fas fa-question-circle",
-            "title": "FAQ"
+            "title_sr": "FAQ",
+            "title_en": "FAQ"
         }
     ]
 }

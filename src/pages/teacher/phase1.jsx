@@ -8,7 +8,7 @@ import { getFileExt } from "@library/storage";
 import { trackEvent } from "@library/analytics";
 
 const TeacherPhase1Page = () => {
-  const { supabase, user, profile, session, refreshAuthState } = useAuth();
+  const { supabase, user, profile, session, refreshAuthState, isConfigured, configError } = useAuth();
   const [firstName, setFirstName] = useState(profile?.first_name || "");
   const [lastName, setLastName] = useState(profile?.last_name || "");
   const [phone, setPhone] = useState(profile?.phone || "");
@@ -23,15 +23,31 @@ const TeacherPhase1Page = () => {
   const [loading, setLoading] = useState(true);
 
   const loadAttempts = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from("teacher_phase1_submissions")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("is_deleted", false)
-      .order("attempt_no", { ascending: true });
-    setAttempts(data ?? []);
-    setLoading(false);
+    if (!user || !supabase) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error: attemptsError } = await supabase
+        .from("teacher_phase1_submissions")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_deleted", false)
+        .order("attempt_no", { ascending: true });
+
+      if (attemptsError) {
+        throw attemptsError;
+      }
+
+      setAttempts(data ?? []);
+    } catch (loadError) {
+      setError(loadError?.message || "Failed to load your Phase 1 attempts.");
+      setAttempts([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -55,6 +71,14 @@ const TeacherPhase1Page = () => {
     setError("");
     setSuccess("");
 
+    if (!supabase || !isConfigured) {
+      setError(configError || "Supabase is not configured.");
+      return;
+    }
+    if (!user) {
+      setError("Missing user session.");
+      return;
+    }
     if (!session?.access_token) {
       setError("Missing auth session.");
       return;
@@ -74,19 +98,17 @@ const TeacherPhase1Page = () => {
     const ext = getFileExt(videoFile.name);
     const objectPath = `${user.id}/phase1-attempt-${nextAttempt}-${Date.now()}.${ext}`;
 
-    const { error: uploadError } = await supabase.storage.from("phase1-videos").upload(objectPath, videoFile, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: videoFile.type || "video/mp4",
-    });
-
-    if (uploadError) {
-      setBusy(false);
-      setError(uploadError.message);
-      return;
-    }
-
     try {
+      const { error: uploadError } = await supabase.storage.from("phase1-videos").upload(objectPath, videoFile, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: videoFile.type || "video/mp4",
+      });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
       await callEdgeFunction({
         functionName: "teacher_submit_phase1",
         accessToken: session.access_token,
@@ -114,9 +136,9 @@ const TeacherPhase1Page = () => {
       await loadAttempts();
     } catch (submitError) {
       setError(submitError.message || "Failed to submit phase 1.");
+    } finally {
+      setBusy(false);
     }
-
-    setBusy(false);
   };
 
   return (

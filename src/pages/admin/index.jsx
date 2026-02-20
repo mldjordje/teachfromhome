@@ -5,51 +5,69 @@ import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 
 const AdminDashboardPage = () => {
-  const { supabase } = useAuth();
+  const { supabase, isConfigured, configError } = useAuth();
   const [events, setEvents] = useState([]);
   const [phase1Pending, setPhase1Pending] = useState(0);
   const [phase2Pending, setPhase2Pending] = useState(0);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const load = async () => {
-      setLoading(true);
-      const [
-        { data: analyticsRows },
-        { count: phase1Count },
-        { count: phase2Count },
-        { count: acceptedProfiles },
-      ] = await Promise.all([
-        supabase
-          .from("analytics_events")
-          .select("event_name")
-          .order("created_at", { ascending: false })
-          .limit(1000),
-        supabase
-          .from("teacher_phase1_submissions")
-          .select("*", { count: "exact", head: true })
-          .eq("status", "pending")
-          .eq("is_deleted", false),
-        supabase
-          .from("teacher_phase2_tasks")
-          .select("*", { count: "exact", head: true })
-          .in("status", ["submitted", "retry", "assigned"]),
-        supabase
-          .from("profiles")
-          .select("*", { count: "exact", head: true })
-          .eq("current_phase", "accepted"),
-      ]);
+      if (!supabase || !isConfigured) {
+        setError(configError || "Supabase is not configured.");
+        setLoading(false);
+        return;
+      }
 
-      setEvents(analyticsRows ?? []);
-      setPhase1Pending(phase1Count ?? 0);
-      setPhase2Pending(phase2Count ?? 0);
-      setAcceptedCount(acceptedProfiles ?? 0);
-      setLoading(false);
+      setLoading(true);
+      try {
+        const [
+          { data: analyticsRows, error: analyticsError },
+          { count: phase1Count, error: phase1Error },
+          { count: phase2Count, error: phase2Error },
+          { count: acceptedProfiles, error: acceptedError },
+        ] = await Promise.all([
+          supabase
+            .from("analytics_events")
+            .select("event_name")
+            .order("created_at", { ascending: false })
+            .limit(1000),
+          supabase
+            .from("teacher_phase1_submissions")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "pending")
+            .eq("is_deleted", false),
+          supabase
+            .from("teacher_phase2_tasks")
+            .select("*", { count: "exact", head: true })
+            .in("status", ["submitted", "retry", "assigned"]),
+          supabase
+            .from("profiles")
+            .select("*", { count: "exact", head: true })
+            .eq("current_phase", "accepted"),
+        ]);
+
+        const firstError = analyticsError || phase1Error || phase2Error || acceptedError;
+        if (firstError) {
+          throw firstError;
+        }
+
+        setEvents(analyticsRows ?? []);
+        setPhase1Pending(phase1Count ?? 0);
+        setPhase2Pending(phase2Count ?? 0);
+        setAcceptedCount(acceptedProfiles ?? 0);
+        setError("");
+      } catch (loadError) {
+        setError(loadError?.message || "Failed to load admin dashboard.");
+      } finally {
+        setLoading(false);
+      }
     };
 
     load();
-  }, [supabase]);
+  }, [configError, isConfigured, supabase]);
 
   const analyticsSummary = useMemo(() => {
     const summary = {
@@ -73,6 +91,7 @@ const AdminDashboardPage = () => {
   return (
     <RequireAuth adminOnly>
       <AppShell title="Admin Dashboard" subtitle="Overview of queues, approvals and operational actions.">
+        {error && <div className="tfh-alert tfh-error">{error}</div>}
         {loading ? (
           <div className="tfh-alert">Loading admin metrics...</div>
         ) : (

@@ -1,38 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
 import { sliderProps } from "@common/sliderProps";
 import { Swiper, SwiperSlide } from "swiper/react";
-import Data from "@data/sliders/hero-4";
+
+import Data from '@data/sliders/hero-4';
 import Link from "next/link";
+import { useLanguage } from "@components/i18n/LanguageProvider";
 
 const Hero4Slider = () => {
-  const [isMobileTouch, setIsMobileTouch] = useState(false);
+  const { language } = useLanguage();
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const media = window.matchMedia("(max-width: 991px), (pointer: coarse)");
-    const apply = () => setIsMobileTouch(media.matches);
-    apply();
-    if (media.addEventListener) {
-      media.addEventListener("change", apply);
-      return () => media.removeEventListener("change", apply);
-    }
-    media.addListener(apply);
-    return () => media.removeListener(apply);
-  }, []);
-
-  const heroSliderConfig = useMemo(() => {
-    if (!isMobileTouch) return sliderProps.hero4Slider;
-
-    return {
-      ...sliderProps.hero4Slider,
-      direction: "horizontal",
-      mousewheel: false,
-      allowTouchMove: false,
-      simulateTouch: false,
-      touchRatio: 0,
-      touchReleaseOnEdges: false,
-    };
-  }, [isMobileTouch]);
+  const pick = (item, key) =>
+    language === "en"
+      ? (item[`${key}_en`] ?? item[key] ?? item[`${key}_sr`] ?? "")
+      : (item[`${key}_sr`] ?? item[key] ?? item[`${key}_en`] ?? "");
 
   return (
     <>
@@ -40,8 +19,8 @@ const Hero4Slider = () => {
         <section className="onovo-section">
             
             <Swiper
-                {...heroSliderConfig}
-                className="swiper-container onovo-hero-parallax"
+                {...sliderProps.hero4Slider}
+                className="swiper-container onovo-hero-parallax js-hero-parallax"
             >
                 {Data.items.map((item, key) => (
                 <SwiperSlide key={`h4s-slide-${key}`} className="swiper-slide">
@@ -49,10 +28,10 @@ const Hero4Slider = () => {
                     <div className="image" data-dimg={item.image.desktop} data-mimg={item.image.mobile} />
                     <div className="container">
                         <div className="onovo-subtitle-1 onovo-text-white">
-                            <span data-splitting>{item.subtitle}</span>
+                            <span data-splitting>{pick(item, "subtitle")}</span>
                         </div>
                         <div className="title onovo-text-white">
-                            <span data-splitting dangerouslySetInnerHTML={{__html: item.title}} />
+                            <span data-splitting dangerouslySetInnerHTML={{__html: pick(item, "title")}} />
                             <span className="sep" style={{"backgroundImage": "url(/images/title_after.svg)"}} />
                         </div>
                         <div className="onovo-bts">
@@ -60,7 +39,7 @@ const Hero4Slider = () => {
                                 <i className="arrow">
                                     <span></span>
                                 </i>
-                                <span>{item.button.label}</span>
+                                <span>{pick(item.button, "label")}</span>
                             </Link>
                         </div>
                     </div>

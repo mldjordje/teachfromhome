@@ -8,7 +8,7 @@ import { getFileExt } from "@library/storage";
 import { trackEvent } from "@library/analytics";
 
 const TeacherPhase2Page = () => {
-  const { supabase, user, session } = useAuth();
+  const { supabase, user, session, isConfigured, configError } = useAuth();
   const [task, setTask] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [trainingVideos, setTrainingVideos] = useState([]);
@@ -19,37 +19,58 @@ const TeacherPhase2Page = () => {
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
-    if (!user) return;
+    if (!user || !supabase) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
+    try {
+      const [
+        { data: taskData, error: taskError },
+        { data: submissionsData, error: submissionsError },
+        { data: videosData, error: videosError },
+      ] = await Promise.all([
+        supabase.from("teacher_phase2_tasks").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase
+          .from("teacher_phase2_submissions")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("is_deleted", false)
+          .order("attempt_no", { ascending: true }),
+        supabase
+          .from("training_videos")
+          .select("*")
+          .eq("is_active", true)
+          .order("category", { ascending: true })
+          .order("order_index", { ascending: true }),
+      ]);
 
-    const [{ data: taskData }, { data: submissionsData }, { data: videosData }] = await Promise.all([
-      supabase.from("teacher_phase2_tasks").select("*").eq("user_id", user.id).maybeSingle(),
-      supabase
-        .from("teacher_phase2_submissions")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("is_deleted", false)
-        .order("attempt_no", { ascending: true }),
-      supabase
-        .from("training_videos")
-        .select("*")
-        .eq("is_active", true)
-        .order("category", { ascending: true })
-        .order("order_index", { ascending: true }),
-    ]);
+      const firstError = taskError || submissionsError || videosError;
+      if (firstError) {
+        throw firstError;
+      }
 
-    const safeVideos = videosData ?? [];
-    const signedVideos = await Promise.all(
-      safeVideos.map(async (video) => {
-        const { data: signed } = await supabase.storage.from("training-videos").createSignedUrl(video.storage_path, 60 * 60);
-        return { ...video, signed_url: signed?.signedUrl || null };
-      }),
-    );
+      const safeVideos = videosData ?? [];
+      const signedVideos = await Promise.all(
+        safeVideos.map(async (video) => {
+          const { data: signed } = await supabase.storage.from("training-videos").createSignedUrl(video.storage_path, 60 * 60);
+          return { ...video, signed_url: signed?.signedUrl || null };
+        }),
+      );
 
-    setTask(taskData ?? null);
-    setSubmissions(submissionsData ?? []);
-    setTrainingVideos(signedVideos);
-    setLoading(false);
+      setTask(taskData ?? null);
+      setSubmissions(submissionsData ?? []);
+      setTrainingVideos(signedVideos);
+      setError("");
+    } catch (loadError) {
+      setError(loadError?.message || "Failed to load Phase 2 data.");
+      setTask(null);
+      setSubmissions([]);
+      setTrainingVideos([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -64,6 +85,10 @@ const TeacherPhase2Page = () => {
     setError("");
     setSuccess("");
 
+    if (!supabase || !isConfigured) {
+      setError(configError || "Supabase is not configured.");
+      return;
+    }
     if (!task) {
       setError("No phase 2 task assigned yet.");
       return;
@@ -82,19 +107,17 @@ const TeacherPhase2Page = () => {
     const ext = getFileExt(videoFile.name);
     const objectPath = `${user.id}/phase2-attempt-${nextAttempt}-${Date.now()}.${ext}`;
 
-    const { error: uploadError } = await supabase.storage.from("phase2-videos").upload(objectPath, videoFile, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: videoFile.type || "video/mp4",
-    });
-
-    if (uploadError) {
-      setBusy(false);
-      setError(uploadError.message);
-      return;
-    }
-
     try {
+      const { error: uploadError } = await supabase.storage.from("phase2-videos").upload(objectPath, videoFile, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: videoFile.type || "video/mp4",
+      });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
       await callEdgeFunction({
         functionName: "teacher_create_phase2_submission",
         accessToken: session.access_token,
@@ -115,9 +138,9 @@ const TeacherPhase2Page = () => {
       await loadData();
     } catch (submitError) {
       setError(submitError.message || "Failed to submit phase 2");
+    } finally {
+      setBusy(false);
     }
-
-    setBusy(false);
   };
 
   const markVideoViewed = async (videoId) => {
