@@ -49,7 +49,7 @@ const AdminDashboardPage = () => {
     };
 
     load();
-  }, []);
+  }, [supabase]);
 
   const analyticsSummary = useMemo(() => {
     const summary = {
@@ -60,62 +60,82 @@ const AdminDashboardPage = () => {
       phase2_submitted: 0,
       accepted: 0,
     };
+
     events.forEach((row) => {
       if (Object.prototype.hasOwnProperty.call(summary, row.event_name)) {
         summary[row.event_name] += 1;
       }
     });
+
     return summary;
   }, [events]);
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Admin Dashboard" subtitle="Queues, key metrics and review entry points.">
+      <AppShell title="Admin Dashboard" subtitle="Overview of queues, approvals and operational actions.">
         {loading ? (
           <div className="tfh-alert">Loading admin metrics...</div>
         ) : (
           <div className="tfh-grid">
-            <div className="tfh-grid tfh-grid-3">
-              <div className="tfh-card">
-                <h3>Phase 1 queue</h3>
-                <p>{phase1Pending}</p>
+            <div className="tfh-kpi-grid">
+              <div className="tfh-kpi-card">
+                <span className="tfh-kpi-label">Phase 1 Pending</span>
+                <strong className="tfh-kpi-value">{phase1Pending}</strong>
               </div>
-              <div className="tfh-card">
-                <h3>Phase 2 queue</h3>
-                <p>{phase2Pending}</p>
+              <div className="tfh-kpi-card">
+                <span className="tfh-kpi-label">Phase 2 Pending</span>
+                <strong className="tfh-kpi-value">{phase2Pending}</strong>
               </div>
-              <div className="tfh-card">
-                <h3>Accepted teachers</h3>
-                <p>{acceptedCount}</p>
-              </div>
-            </div>
-
-            <div className="tfh-card">
-              <h3>Analytics events (MVP)</h3>
-              <div className="tfh-grid tfh-grid-3">
-                <div>visits: {analyticsSummary.visits}</div>
-                <div>started_signup: {analyticsSummary.started_signup}</div>
-                <div>phase1_submitted: {analyticsSummary.phase1_submitted}</div>
-                <div>phase1_passed: {analyticsSummary.phase1_passed}</div>
-                <div>phase2_submitted: {analyticsSummary.phase2_submitted}</div>
-                <div>accepted: {analyticsSummary.accepted}</div>
+              <div className="tfh-kpi-card">
+                <span className="tfh-kpi-label">Accepted Teachers</span>
+                <strong className="tfh-kpi-value">{acceptedCount}</strong>
               </div>
             </div>
 
             <div className="tfh-card">
-              <h3>Quick actions</h3>
-              <div className="tfh-actions">
+              <h3>Analytics (MVP)</h3>
+              <div className="tfh-analytics-grid">
+                <div>
+                  <span>Visits</span>
+                  <strong>{analyticsSummary.visits}</strong>
+                </div>
+                <div>
+                  <span>Started signup</span>
+                  <strong>{analyticsSummary.started_signup}</strong>
+                </div>
+                <div>
+                  <span>Phase 1 submitted</span>
+                  <strong>{analyticsSummary.phase1_submitted}</strong>
+                </div>
+                <div>
+                  <span>Phase 1 passed</span>
+                  <strong>{analyticsSummary.phase1_passed}</strong>
+                </div>
+                <div>
+                  <span>Phase 2 submitted</span>
+                  <strong>{analyticsSummary.phase2_submitted}</strong>
+                </div>
+                <div>
+                  <span>Accepted</span>
+                  <strong>{analyticsSummary.accepted}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="tfh-card">
+              <h3>Quick Actions</h3>
+              <div className="tfh-quick-grid">
                 <Link href="/admin/phase1" className="tfh-btn">
-                  Open Phase 1 queue
+                  Open Phase 1 Queue
                 </Link>
-                <Link href="/admin/phase2" className="tfh-btn tfh-btn-outline">
-                  Open Phase 2 queue
+                <Link href="/admin/phase2" className="tfh-btn">
+                  Open Phase 2 Queue
                 </Link>
                 <Link href="/admin/training" className="tfh-btn tfh-btn-outline">
-                  Manage training videos
+                  Manage Training Videos
                 </Link>
                 <Link href="/admin/referrals" className="tfh-btn tfh-btn-outline">
-                  Manage referrals
+                  Manage Referrals
                 </Link>
               </div>
             </div>

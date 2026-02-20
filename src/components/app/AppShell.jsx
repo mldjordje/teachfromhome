@@ -1,16 +1,47 @@
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import appData from "@data/app.json";
 import { useAuth } from "@components/auth/AuthProvider";
+
+const teacherLinks = [
+  { href: "/teacher/dashboard", label: "Dashboard" },
+  { href: "/teacher/phase1", label: "Phase 1" },
+  { href: "/teacher/phase2", label: "Phase 2" },
+  { href: "/teacher/notifications", label: "Notifications" },
+  { href: "/teacher/profile", label: "Profile" },
+];
+
+const adminLinks = [
+  { href: "/admin", label: "Admin Home" },
+  { href: "/admin/phase1", label: "Admin Phase 1" },
+  { href: "/admin/phase2", label: "Admin Phase 2" },
+  { href: "/admin/training", label: "Training Videos" },
+  { href: "/admin/referrals", label: "Referrals" },
+];
 
 const linkClass = (active) => (active ? "tfh-nav-link active" : "tfh-nav-link");
 
 const AppShell = ({ title, subtitle, children }) => {
   const router = useRouter();
   const { user, isAdmin, signOut, isConfigured, configError, loading } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const isAdminRoute = router.pathname.startsWith("/admin");
+  const showTeacherNav = Boolean(user && (!isAdmin || !isAdminRoute));
+  const showAdminNav = Boolean(user && isAdmin);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [router.asPath]);
 
   const onSignOut = async () => {
     await signOut();
     router.push("/login");
+  };
+
+  const isActive = (href) => {
+    if (href === "/admin") return router.pathname.startsWith("/admin");
+    return router.pathname === href;
   };
 
   return (
@@ -18,69 +49,79 @@ const AppShell = ({ title, subtitle, children }) => {
       <header className="tfh-app-header">
         <div className="tfh-app-header-inner">
           <Link href="/" className="tfh-brand">
-            TeachFromHome
+            <img src={appData.header.logo.image_white} alt="TeachFromHome" className="tfh-brand-logo" />
+            <span className="tfh-brand-text">
+              <strong>TeachFromHome</strong>
+              <span>Teacher Portal</span>
+            </span>
           </Link>
 
-          {user && (
-            <nav className="tfh-nav">
-              <Link href="/teacher/dashboard" className={linkClass(router.pathname === "/teacher/dashboard")}>
-                Dashboard
-              </Link>
-              <Link href="/teacher/phase1" className={linkClass(router.pathname === "/teacher/phase1")}>
-                Phase 1
-              </Link>
-              <Link href="/teacher/phase2" className={linkClass(router.pathname === "/teacher/phase2")}>
-                Phase 2
-              </Link>
-              <Link href="/teacher/notifications" className={linkClass(router.pathname === "/teacher/notifications")}>
-                Notifications
-              </Link>
-              <Link href="/teacher/profile" className={linkClass(router.pathname === "/teacher/profile")}>
-                Profile
-              </Link>
+          <div className="tfh-header-right">
+            {user && <span className="tfh-user-email">{user.email}</span>}
 
-              {isAdmin && (
+            {user && (
+              <button
+                type="button"
+                className={`tfh-menu-toggle ${menuOpen ? "active" : ""}`}
+                onClick={() => setMenuOpen((prev) => !prev)}
+                aria-label="Toggle navigation"
+                aria-expanded={menuOpen}
+              >
+                Menu
+              </button>
+            )}
+
+            <div className="tfh-auth-box">
+              {user ? (
                 <>
-                  <Link href="/admin" className={linkClass(router.pathname === "/admin")}>
-                    Admin
+                  {isAdmin && <span className="tfh-role-pill">Admin</span>}
+                  <button className="tfh-btn tfh-btn-outline" type="button" onClick={onSignOut}>
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href={isAdminRoute ? "/admin/login" : "/login"} className="tfh-btn tfh-btn-outline">
+                    Login
                   </Link>
-                  <Link href="/admin/phase1" className={linkClass(router.pathname === "/admin/phase1")}>
-                    Admin Phase1
-                  </Link>
-                  <Link href="/admin/phase2" className={linkClass(router.pathname === "/admin/phase2")}>
-                    Admin Phase2
-                  </Link>
-                  <Link href="/admin/training" className={linkClass(router.pathname === "/admin/training")}>
-                    Training
-                  </Link>
-                  <Link href="/admin/referrals" className={linkClass(router.pathname === "/admin/referrals")}>
-                    Referrals
+                  <Link href="/apply" className="tfh-btn">
+                    Apply now
                   </Link>
                 </>
               )}
-            </nav>
-          )}
-
-          <div className="tfh-auth-box">
-            {user ? (
-              <>
-                <span className="tfh-user-email">{user.email}</span>
-                <button className="tfh-btn tfh-btn-outline" type="button" onClick={onSignOut}>
-                  Sign out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/login" className="tfh-btn tfh-btn-outline">
-                  Login
-                </Link>
-                <Link href="/signup" className="tfh-btn">
-                  Sign up
-                </Link>
-              </>
-            )}
+            </div>
           </div>
         </div>
+
+        {user && (
+          <div className={`tfh-nav-shell ${menuOpen ? "open" : ""}`}>
+            {showTeacherNav && (
+              <div className="tfh-nav-group">
+                <span className="tfh-nav-label">Teacher</span>
+                <nav className="tfh-nav" aria-label="Teacher navigation">
+                  {teacherLinks.map((item) => (
+                    <Link key={item.href} href={item.href} className={linkClass(isActive(item.href))}>
+                      {item.label}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+            )}
+
+            {showAdminNav && (
+              <div className="tfh-nav-group tfh-nav-group-admin">
+                <span className="tfh-nav-label">Admin</span>
+                <nav className="tfh-nav" aria-label="Admin navigation">
+                  {adminLinks.map((item) => (
+                    <Link key={item.href} href={item.href} className={linkClass(isActive(item.href))}>
+                      {item.label}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       <main className="tfh-page">

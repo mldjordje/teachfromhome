@@ -19,12 +19,19 @@ const SignupPage = () => {
 
   const nextFromQuery =
     typeof router.query.next === "string" && router.query.next.startsWith("/") ? router.query.next : null;
-  const nextTarget = nextFromQuery || (isAdmin ? "/admin" : "/teacher/dashboard");
+  const nextTarget = nextFromQuery || "/teacher/dashboard";
 
   useEffect(() => {
     if (loading || !user) return;
+
+    if (isAdmin) {
+      const adminTarget = nextFromQuery?.startsWith("/admin") ? nextFromQuery : "/admin";
+      router.replace(adminTarget);
+      return;
+    }
+
     router.replace(nextTarget);
-  }, [loading, nextTarget, router, user]);
+  }, [isAdmin, loading, nextFromQuery, nextTarget, router, user]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -129,3 +136,4 @@ const SignupPage = () => {
 };
 
 export default SignupPage;
+

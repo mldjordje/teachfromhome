@@ -10,7 +10,8 @@ const RequireAuth = ({ children, adminOnly = false }) => {
     if (loading) return;
 
     if (!user) {
-      router.replace(`/login?next=${encodeURIComponent(router.asPath)}`);
+      const loginPath = adminOnly ? "/admin/login" : "/login";
+      router.replace(`${loginPath}?next=${encodeURIComponent(router.asPath)}`);
       return;
     }
 

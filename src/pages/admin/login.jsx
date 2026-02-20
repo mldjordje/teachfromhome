@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 
-const LoginPage = () => {
+const AdminLoginPage = () => {
   const router = useRouter();
   const { supabase, user, isAdmin, loading, isConfigured, configError } = useAuth();
   const [email, setEmail] = useState("");
@@ -13,20 +13,19 @@ const LoginPage = () => {
   const [busy, setBusy] = useState(false);
 
   const nextFromQuery =
-    typeof router.query.next === "string" && router.query.next.startsWith("/") ? router.query.next : null;
-  const nextTarget = nextFromQuery || "/teacher/dashboard";
+    typeof router.query.next === "string" && router.query.next.startsWith("/admin") ? router.query.next : null;
+  const adminNext = useMemo(() => nextFromQuery || "/admin", [nextFromQuery]);
 
   useEffect(() => {
     if (loading || !user) return;
 
     if (isAdmin) {
-      const adminTarget = nextFromQuery?.startsWith("/admin") ? nextFromQuery : "/admin";
-      router.replace(adminTarget);
+      router.replace(adminNext);
       return;
     }
 
-    router.replace(nextFromQuery || "/teacher/dashboard");
-  }, [isAdmin, loading, nextFromQuery, router, user]);
+    router.replace("/teacher/dashboard");
+  }, [adminNext, isAdmin, loading, router, user]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -35,25 +34,24 @@ const LoginPage = () => {
       setError(configError || "Supabase is not configured.");
       return;
     }
-    setBusy(true);
 
+    setBusy(true);
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
     setBusy(false);
+
     if (signInError) {
       setError(signInError.message);
-      return;
     }
   };
 
   return (
-    <AppShell title="Login" subtitle="Access your teacher onboarding account.">
+    <AppShell title="Admin Login" subtitle="Owner/admin access to review queues and workflows.">
       <div className="tfh-grid tfh-grid-2">
         <div className="tfh-card">
-          <h3>Sign in</h3>
+          <h3>Admin sign in</h3>
           <form className="tfh-form" onSubmit={onSubmit}>
             <div>
               <label>Email</label>
@@ -69,30 +67,23 @@ const LoginPage = () => {
 
             <div className="tfh-actions">
               <button className="tfh-btn" type="submit" disabled={busy}>
-                {busy ? "Signing in..." : "Login"}
+                {busy ? "Signing in..." : "Login as admin"}
               </button>
-              <Link href={`/signup?next=${encodeURIComponent(nextTarget)}`} className="tfh-btn tfh-btn-outline">
-                Create account
+              <Link href="/login" className="tfh-btn tfh-btn-outline">
+                Teacher login
               </Link>
             </div>
           </form>
         </div>
 
         <div className="tfh-card">
-          <h3>TeachFromHome access</h3>
-          <p>
-            Use this login to continue your onboarding process:
-            <br />
-            Phase 1 submission, Phase 2 training, notifications and profile management.
-          </p>
-          <p>
-            New here? <Link href={`/signup?next=${encodeURIComponent(nextTarget)}`}>Create your account</Link>.
-          </p>
+          <h3>Admin workspace</h3>
+          <p>From here you can review Phase 1 and Phase 2 queues, manage training videos, and control referrals.</p>
+          <p>Only accounts registered in the `admin_users` table can access the admin panel.</p>
         </div>
       </div>
     </AppShell>
   );
 };
 
-export default LoginPage;
-
+export default AdminLoginPage;
