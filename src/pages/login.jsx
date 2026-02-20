@@ -37,15 +37,20 @@ const LoginPage = () => {
     }
     setBusy(true);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    setBusy(false);
-    if (signInError) {
-      setError(signInError.message);
-      return;
+      if (signInError) {
+        setError(signInError.message);
+      }
+    } catch (err) {
+      const msg = err?.message || "Login failed. Please try again.";
+      setError(msg.includes("LockManager") ? "Session lock timeout. Close duplicate tabs and try again." : msg);
+    } finally {
+      setBusy(false);
     }
   };
 

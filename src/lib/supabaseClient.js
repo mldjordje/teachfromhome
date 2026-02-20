@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 let browserClient = null;
+const authLockFallback = async (_name, _acquireTimeout, fn) => await fn();
 
 export const getSupabaseBrowserClient = () => {
   if (browserClient) {
@@ -23,6 +24,8 @@ export const getSupabaseBrowserClient = () => {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      lock: authLockFallback,
+      lockAcquireTimeout: 2000,
     },
   });
 

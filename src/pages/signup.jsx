@@ -53,37 +53,41 @@ const SignupPage = () => {
     }
 
     setBusy(true);
-    await trackEvent({ eventName: "started_signup", metadata: { channel: "web" } });
+    try {
+      await trackEvent({ eventName: "started_signup", metadata: { channel: "web" } });
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-    if (signUpError) {
-      setBusy(false);
-      setError(signUpError.message);
-      return;
-    }
-
-    const accessToken = data.session?.access_token || null;
-    if (accessToken && referralCode.trim()) {
-      try {
-        await callEdgeFunction({
-          functionName: "teacher_apply_referral_code",
-          accessToken,
-          body: { referral_code: referralCode.trim() },
-        });
-      } catch (refError) {
-        console.warn("Referral link failed", refError);
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
       }
-    }
 
-    setBusy(false);
-    setSuccess("Account created. You can now continue to your dashboard.");
-    if (data.session) {
-      router.push(nextTarget);
-      return;
+      const accessToken = data.session?.access_token || null;
+      if (accessToken && referralCode.trim()) {
+        try {
+          await callEdgeFunction({
+            functionName: "teacher_apply_referral_code",
+            accessToken,
+            body: { referral_code: referralCode.trim() },
+          });
+        } catch (refError) {
+          console.warn("Referral link failed", refError);
+        }
+      }
+
+      setSuccess("Account created. You can now continue to your dashboard.");
+      if (data.session) {
+        router.push(nextTarget);
+      }
+    } catch (err) {
+      const msg = err?.message || "Signup failed. Please try again.";
+      setError(msg.includes("LockManager") ? "Session lock timeout. Close duplicate tabs and try again." : msg);
+    } finally {
+      setBusy(false);
     }
   };
 
