@@ -1,4 +1,4 @@
-﻿import { json, readJson, handleError, HttpError } from "../_shared/http.ts";
+import { json, readJson, handleError, HttpError, preflight, methodNotAllowed } from "../_shared/http.ts";
 import { getServiceClient, requireUser } from "../_shared/supabase.ts";
 import {
   requireDate,
@@ -24,8 +24,11 @@ type Phase1Body = {
 
 Deno.serve(async (req) => {
   try {
+    const pre = preflight(req);
+    if (pre) return pre;
+
     if (req.method !== "POST") {
-      throw new HttpError(405, "Method not allowed");
+      throw methodNotAllowed();
     }
 
     const { user } = await requireUser(req);
@@ -131,3 +134,4 @@ Deno.serve(async (req) => {
     return handleError(error);
   }
 });
+

@@ -1,4 +1,4 @@
-﻿import { json, readJson, handleError, HttpError } from "../_shared/http.ts";
+import { json, readJson, handleError, HttpError, preflight, methodNotAllowed } from "../_shared/http.ts";
 import { getServiceClient, getUserClient } from "../_shared/supabase.ts";
 import { requireNonEmptyString } from "../_shared/validators.ts";
 
@@ -20,8 +20,11 @@ const allowedEvents = new Set([
 
 Deno.serve(async (req) => {
   try {
+    const pre = preflight(req);
+    if (pre) return pre;
+
     if (req.method !== "POST") {
-      throw new HttpError(405, "Method not allowed");
+      throw methodNotAllowed();
     }
 
     const body = await readJson<AnalyticsBody>(req);
@@ -65,3 +68,4 @@ Deno.serve(async (req) => {
     return handleError(error);
   }
 });
+
