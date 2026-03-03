@@ -942,5 +942,51 @@
   }
 }
 
+.tfh-admin-panel-card .nextui-card-header {
+  padding: 16px 18px !important;
+}
+
+.tfh-admin-panel-card .nextui-card-body {
+  color: #1e293b;
+}
+
+.tfh-admin-filter-select {
+  min-height: 42px;
+  min-width: 180px;
+  border-radius: 12px;
+  border: 1px solid #cfd9e8;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 0 12px;
+}
+
+.tfh-admin-filter-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+  outline: none;
+}
+
+.tfh-table {
+  border-radius: 14px;
+  border: 1px solid #d9e3ef;
+  background: #ffffff;
+}
+
+.tfh-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+.tfh-table td {
+  color: #1e293b;
+}
+
+@media (max-width: 560px) {
+  .tfh-portal-nav {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 

@@ -128,7 +128,7 @@ const AdminTrainingVideosPage = () => {
         {error && <Alert color="danger" title={error} className="mb-4" />}
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <Card>
+          <Card className="tfh-admin-panel-card">
             <CardHeader>
               <h3 className="text-lg font-semibold">Upload training video</h3>
             </CardHeader>
@@ -180,7 +180,7 @@ const AdminTrainingVideosPage = () => {
             </CardBody>
           </Card>
 
-          <Card>
+          <Card className="tfh-admin-panel-card">
             <CardHeader>
               <h3 className="text-lg font-semibold">Existing training videos</h3>
             </CardHeader>

@@ -98,10 +98,10 @@ const AdminPhase2Page = () => {
   return (
     <RequireAuth adminOnly>
       <AppShell title="Admin Phase 2 Queue" subtitle="Review latest Phase 2 submissions and decide accept/retry/reject.">
-        <Card className="mb-4">
+        <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <select
-              className="h-10 rounded-xl border border-slate-300 px-3 text-sm"
+              className="tfh-admin-filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -112,13 +112,15 @@ const AdminPhase2Page = () => {
               <option value="accepted">Accepted</option>
               <option value="rejected">Rejected</option>
             </select>
-            <Button variant="bordered" onPress={loadRows}>Refresh</Button>
+            <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn">
+              Refresh
+            </Button>
           </CardBody>
         </Card>
 
         {error && <Alert color="danger" title={error} className="mb-4" />}
 
-        <Card>
+        <Card className="tfh-admin-panel-card">
           <CardHeader>
             <h3 className="text-lg font-semibold">Phase 2 queue</h3>
           </CardHeader>

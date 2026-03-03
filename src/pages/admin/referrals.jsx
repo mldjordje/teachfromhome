@@ -99,7 +99,7 @@ const AdminReferralsPage = () => {
         {error && <Alert color="danger" title={error} className="mb-4" />}
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <Card>
+          <Card className="tfh-admin-panel-card">
             <CardHeader>
               <h3 className="text-lg font-semibold">Mark referral eligible</h3>
             </CardHeader>
@@ -128,7 +128,7 @@ const AdminReferralsPage = () => {
             </CardBody>
           </Card>
 
-          <Card>
+          <Card className="tfh-admin-panel-card">
             <CardHeader>
               <h3 className="text-lg font-semibold">Reward list</h3>
             </CardHeader>
