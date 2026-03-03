@@ -75,14 +75,18 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
       <Navbar maxWidth="2xl" isBordered className={navbarClassName}>
         <NavbarBrand>
           <Link href="/" className={`inline-flex items-center gap-3 ${isPublicEntry ? "text-slate-900" : "text-white"}`}>
-            <img src={brandLogo} alt="TeachFromHome" className="h-9 w-9 rounded-lg object-cover" />
-            <span className={`font-semibold tracking-wide ${isPublicEntry ? "text-sm text-slate-900" : "text-sm"}`}>
+            <img src={brandLogo} alt="TeachFromHome" className="h-9 w-9 rounded-lg object-cover tfh-brand-mark" />
+            <span
+              className={`font-semibold tracking-wide tfh-brand-copy ${
+                isPublicEntry ? "tfh-brand-copy--public text-sm text-slate-900" : "text-sm"
+              }`}
+            >
               TeachFromHome Portal
             </span>
           </Link>
         </NavbarBrand>
 
-        <NavbarContent justify="end" className="items-center gap-2">
+        <NavbarContent justify="end" className="items-center gap-2 tfh-shell-actions">
           {user ? (
             <>
               <Chip size="sm" variant="flat" className={isPublicEntry ? "hidden bg-slate-100 text-slate-700 md:inline-flex" : "hidden bg-white/15 text-white md:inline-flex"}>
@@ -93,22 +97,35 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
                   Admin
                 </Chip>
               )}
-              <Button size="sm" variant="flat" color={isPublicEntry ? "primary" : "default"} onPress={onSignOut}>
+              <Button
+                size="sm"
+                variant={isPublicEntry ? "flat" : "solid"}
+                color={isPublicEntry ? "primary" : "default"}
+                className={isPublicEntry ? "tfh-shell-btn tfh-shell-btn--ghost" : "tfh-shell-btn"}
+                onPress={onSignOut}
+              >
                 Sign out
               </Button>
             </>
           ) : (
             <>
               {isPublicEntry ? (
-                <Button as={Link} href={guestAction?.href || "/apply"} size="sm" color="primary" variant="flat">
+                <Link href={guestAction?.href || "/apply"} className="tfh-public-nav-btn">
                   {guestAction?.label || "Apply now"}
-                </Button>
+                </Link>
               ) : (
                 <>
-                  <Button as={Link} href={isAdminRoute ? "/admin/login" : "/login"} size="sm" variant="flat" color="default">
+                  <Button
+                    as={Link}
+                    href={isAdminRoute ? "/admin/login" : "/login"}
+                    size="sm"
+                    variant="flat"
+                    color="default"
+                    className="tfh-shell-btn tfh-shell-btn--ghost"
+                  >
                     Login
                   </Button>
-                  <Button as={Link} href="/apply" size="sm" color="primary">
+                  <Button as={Link} href="/apply" size="sm" color="primary" className="tfh-shell-btn">
                     Apply now
                   </Button>
                 </>

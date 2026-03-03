@@ -72,14 +72,14 @@ const AdminLoginPage = () => {
             <h3>Admin Google sign-in</h3>
             <p>Only accounts listed in admin_users can enter panel.</p>
 
-            <Button color="primary" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
+            <Button size="lg" onPress={onGoogleLogin} isLoading={busy} className="tfh-action-btn" fullWidth>
               {busy ? "Redirecting..." : "Login with Google"}
             </Button>
 
             {error && <Alert color="danger" title={error} />}
             {!isConfigured && <Alert color="danger" title={configError || "Supabase is not configured."} />}
 
-            <Button as={Link} href="/login" variant="light" fullWidth>
+            <Button as={Link} href="/login" variant="flat" className="tfh-action-btn tfh-action-btn--ghost" fullWidth>
               Candidate login
             </Button>
           </CardBody>

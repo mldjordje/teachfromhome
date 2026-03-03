@@ -40,7 +40,7 @@ const ApplyPage = () => {
             <CardBody className="gap-4">
               <h3>I already have account</h3>
               <p>Continue directly to your onboarding dashboard and Phase 1 form.</p>
-              <Button as={Link} href={loginLink} color="primary" size="lg" fullWidth>
+              <Button as={Link} href={loginLink} size="lg" className="tfh-action-btn" fullWidth>
                 Login
               </Button>
             </CardBody>
@@ -50,7 +50,7 @@ const ApplyPage = () => {
             <CardBody className="gap-4">
               <h3>I am a new candidate</h3>
               <p>Create account instantly with Google auth and start application.</p>
-              <Button as={Link} href={signupLink} color="default" variant="bordered" size="lg" fullWidth>
+              <Button as={Link} href={signupLink} variant="flat" size="lg" className="tfh-action-btn tfh-action-btn--ghost" fullWidth>
                 Create account
               </Button>
             </CardBody>

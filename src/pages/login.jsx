@@ -66,14 +66,20 @@ const LoginPage = () => {
             <h3>Continue with Google</h3>
             <p>Use your existing Google account to continue onboarding.</p>
 
-            <Button color="primary" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
+            <Button className="tfh-action-btn" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
               {busy ? "Redirecting..." : "Sign in with Google"}
             </Button>
 
             {error && <Alert color="danger" title={error} />}
             {!isConfigured && <Alert color="danger" title={configError || "Supabase is not configured."} />}
 
-            <Button as={Link} href={`/signup?next=${encodeURIComponent(nextFromQuery)}`} variant="light" fullWidth>
+            <Button
+              as={Link}
+              href={`/signup?next=${encodeURIComponent(nextFromQuery)}`}
+              className="tfh-action-btn tfh-action-btn--ghost"
+              variant="flat"
+              fullWidth
+            >
               Need a new account?
             </Button>
           </CardBody>

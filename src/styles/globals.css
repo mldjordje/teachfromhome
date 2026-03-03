@@ -307,6 +307,67 @@ html {
     border-bottom: 1px solid #e2e8f0 !important;
 }
 
+.tfh-shell-actions {
+    min-width: 0;
+    flex-wrap: nowrap !important;
+}
+
+.tfh-brand-mark {
+    width: 36px !important;
+    height: 36px !important;
+    object-fit: cover;
+}
+
+.tfh-brand-copy--public {
+    display: inline-block;
+}
+
+.tfh-public-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    min-width: 92px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid #0f172a;
+    background: #0f172a;
+    color: #ffffff !important;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+}
+
+.tfh-public-nav-btn:hover {
+    background: #1e293b;
+    border-color: #1e293b;
+    color: #ffffff !important;
+}
+
+.tfh-shell-btn {
+    min-height: 36px !important;
+    border-radius: 999px !important;
+    padding: 0 14px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em;
+}
+
+.tfh-shell-btn--ghost {
+    border: 1px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+
+.tfh-shell-btn--ghost:hover {
+    border-color: #94a3b8 !important;
+    background: #f8fafc !important;
+    color: #0f172a !important;
+}
+
 .tfh-minimal-head {
     margin-bottom: 18px;
 }
@@ -420,6 +481,38 @@ html {
 
 .tfh-minimal-primary {
     box-shadow: 0 18px 30px rgba(15, 23, 42, 0.1);
+}
+
+.tfh-action-btn {
+    width: 100%;
+    min-height: 52px !important;
+    border-radius: 16px !important;
+    border: 1px solid #111827 !important;
+    background: #0f172a !important;
+    color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em;
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.16);
+}
+
+.tfh-action-btn:hover {
+    background: #1f2937 !important;
+    border-color: #1f2937 !important;
+    color: #ffffff !important;
+}
+
+.tfh-action-btn--ghost {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #d0d8e3 !important;
+    box-shadow: none !important;
+}
+
+.tfh-action-btn--ghost:hover {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
 }
 
 .tfh-auth-grid {
@@ -561,6 +654,27 @@ html {
 
     .tfh-minimal-list li {
         font-size: 15px;
+    }
+
+    .tfh-brand-copy--public {
+        display: none;
+    }
+
+    .tfh-shell-actions {
+        gap: 6px !important;
+    }
+
+    .tfh-public-nav-btn {
+        min-width: 82px;
+        min-height: 34px;
+        padding: 0 12px;
+        font-size: 12px;
+    }
+
+    .tfh-shell-btn {
+        min-height: 34px !important;
+        padding: 0 12px !important;
+        font-size: 12px !important;
     }
 }
 

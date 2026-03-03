@@ -117,7 +117,7 @@ const SignupPage = () => {
               variant="bordered"
             />
 
-            <Button color="primary" size="lg" onPress={onGoogleSignup} isLoading={busy} fullWidth>
+            <Button size="lg" onPress={onGoogleSignup} isLoading={busy} className="tfh-action-btn" fullWidth>
               {busy ? "Redirecting..." : "Continue with Google"}
             </Button>
 
@@ -125,7 +125,13 @@ const SignupPage = () => {
             {success && <Alert color="success" title={success} />}
             {!isConfigured && <Alert color="danger" title={configError || "Supabase is not configured."} />}
 
-            <Button as={Link} href={`/login?next=${encodeURIComponent(nextTarget)}`} variant="light" fullWidth>
+            <Button
+              as={Link}
+              href={`/login?next=${encodeURIComponent(nextTarget)}`}
+              variant="flat"
+              className="tfh-action-btn tfh-action-btn--ghost"
+              fullWidth
+            >
               I already have account
             </Button>
           </CardBody>
