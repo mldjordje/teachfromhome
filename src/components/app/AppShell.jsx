@@ -64,13 +64,19 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
     return { href: "/apply", label: "Apply now" };
   }, [isPublicEntry, router.pathname]);
 
+  const navbarClassName = isPublicEntry
+    ? "tfh-public-navbar"
+    : "bg-slate-950 text-white";
+
+  const brandLogo = isPublicEntry ? appData.header.logo.image : appData.header.logo.image_white;
+
   return (
     <div className="tfh-app-shell min-h-screen bg-gradient-to-b from-slate-100 via-white to-slate-100">
-      <Navbar maxWidth="2xl" isBordered className="bg-slate-950 text-white">
+      <Navbar maxWidth="2xl" isBordered className={navbarClassName}>
         <NavbarBrand>
-          <Link href="/" className="inline-flex items-center gap-3 text-white">
-            <img src={appData.header.logo.image_white} alt="TeachFromHome" className="h-9 w-9 rounded-lg object-cover" />
-            <span className={`font-semibold tracking-wide ${isPublicEntry ? "text-xs sm:text-sm" : "text-sm"}`}>
+          <Link href="/" className={`inline-flex items-center gap-3 ${isPublicEntry ? "text-slate-900" : "text-white"}`}>
+            <img src={brandLogo} alt="TeachFromHome" className="h-9 w-9 rounded-lg object-cover" />
+            <span className={`font-semibold tracking-wide ${isPublicEntry ? "text-sm text-slate-900" : "text-sm"}`}>
               TeachFromHome Portal
             </span>
           </Link>
@@ -79,7 +85,7 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
         <NavbarContent justify="end" className="items-center gap-2">
           {user ? (
             <>
-              <Chip size="sm" variant="flat" className="hidden bg-white/15 text-white md:inline-flex">
+              <Chip size="sm" variant="flat" className={isPublicEntry ? "hidden bg-slate-100 text-slate-700 md:inline-flex" : "hidden bg-white/15 text-white md:inline-flex"}>
                 {user.email}
               </Chip>
               {isAdmin && (
@@ -87,14 +93,14 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
                   Admin
                 </Chip>
               )}
-              <Button size="sm" variant="flat" color="default" onPress={onSignOut}>
+              <Button size="sm" variant="flat" color={isPublicEntry ? "primary" : "default"} onPress={onSignOut}>
                 Sign out
               </Button>
             </>
           ) : (
             <>
               {isPublicEntry ? (
-                <Button as={Link} href={guestAction?.href || "/apply"} size="sm" color="primary">
+                <Button as={Link} href={guestAction?.href || "/apply"} size="sm" color="primary" variant="flat">
                   {guestAction?.label || "Apply now"}
                 </Button>
               ) : (
@@ -129,11 +135,11 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
         </div>
       )}
 
-      <main className={`tfh-page mx-auto w-full px-4 pb-10 ${isPublicEntry ? "max-w-[1040px] pt-6" : "max-w-[1220px] pt-3"}`}>
+      <main className={`tfh-page mx-auto w-full px-4 pb-10 ${isPublicEntry ? "max-w-[1120px] pt-8" : "max-w-[1220px] pt-3"}`}>
         {isPublicEntry ? (
-          <div className="mb-5">
-            <h1 className="text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">{title}</h1>
-            {subtitle && <p className="mt-2 text-base text-slate-600">{subtitle}</p>}
+          <div className="tfh-minimal-head">
+            <h1>{title}</h1>
+            {subtitle && <p>{subtitle}</p>}
           </div>
         ) : (
           <Card shadow="sm" className="mb-4 border border-slate-200">

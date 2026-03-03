@@ -1,7 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Alert, Button, Card, CardBody, Chip } from "@heroui/react";
+import { Alert, Button, Card, CardBody } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { sanitizeNextPath, signInWithGoogle } from "@library/auth";
@@ -52,22 +52,25 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <AppShell title="Admin Login" subtitle="Restricted access for owner and admin accounts." publicView>
-      <section className="tfh-auth-grid">
-        <div className="tfh-auth-visual">
-          <img src="/images/teachfromhome/hero1-mobile.jpeg" alt="Admin Login" />
-          <div className="tfh-auth-overlay" />
-          <div className="tfh-auth-visual-content">
-            <Chip color="warning" variant="flat" size="sm">Admin access</Chip>
-            <h2>Review queues and approvals</h2>
-            <p>Phase 1, Phase 2, training videos, referrals, and system operations.</p>
-          </div>
+    <AppShell title="Admin Login" subtitle="Restricted entry for owner/admin accounts." publicView>
+      <section className="tfh-minimal-auth">
+        <div className="tfh-minimal-left">
+          <span className="tfh-minimal-kicker">Admin workspace</span>
+          <h2>Operations and queue control</h2>
+          <p>
+            Access candidate reviews, training management, referrals, and maintenance actions from one dashboard.
+          </p>
+          <ul className="tfh-minimal-list">
+            <li>Phase 1 and Phase 2 review</li>
+            <li>Training videos and referral tools</li>
+            <li>Role-based secure access</li>
+          </ul>
         </div>
 
-        <Card className="tfh-auth-card">
+        <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
             <h3>Admin Google sign-in</h3>
-            <p>Only accounts from admin_users can access the admin panel.</p>
+            <p>Only accounts listed in admin_users can enter panel.</p>
 
             <Button color="primary" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
               {busy ? "Redirecting..." : "Login with Google"}

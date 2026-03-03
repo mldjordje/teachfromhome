@@ -1,7 +1,7 @@
 ﻿import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Button, Card, CardBody, Chip } from "@heroui/react";
+import { Button, Card, CardBody } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 
@@ -20,35 +20,38 @@ const ApplyPage = () => {
   const signupLink = `/signup?next=${encodeURIComponent(NEXT_PHASE1)}`;
 
   return (
-    <AppShell title="Start Application" subtitle="Login or create account to begin Phase 1." publicView>
-      <section className="tfh-auth-grid">
-        <div className="tfh-auth-visual">
-          <img src="/images/teachfromhome/hero1-mobile.jpeg" alt="TeachFromHome" />
-          <div className="tfh-auth-overlay" />
-          <div className="tfh-auth-visual-content">
-            <Chip color="primary" variant="flat" size="sm">TeachFromHome</Chip>
-            <h2>Fast 2-step onboarding</h2>
-            <p>Open account, submit Phase 1, and move quickly into review.</p>
-          </div>
+    <AppShell title="Start Application" subtitle="Create account or continue where you left off." publicView>
+      <section className="tfh-minimal-auth">
+        <div className="tfh-minimal-left">
+          <span className="tfh-minimal-kicker">Teacher onboarding</span>
+          <h2>Start in under 2 minutes</h2>
+          <p>
+            Clean, fast flow. Login with Google, fill Phase 1 details, upload your intro, and move into review.
+          </p>
+          <ul className="tfh-minimal-list">
+            <li>No password setup</li>
+            <li>Direct access to dashboard</li>
+            <li>Mobile-first workflow</li>
+          </ul>
         </div>
 
-        <div className="tfh-auth-cards">
-          <Card className="tfh-auth-card">
+        <div className="tfh-minimal-right">
+          <Card className="tfh-minimal-card">
             <CardBody className="gap-4">
               <h3>I already have account</h3>
-              <p>Sign in and continue directly to the Phase 1 form and video upload.</p>
+              <p>Continue directly to your onboarding dashboard and Phase 1 form.</p>
               <Button as={Link} href={loginLink} color="primary" size="lg" fullWidth>
                 Login
               </Button>
             </CardBody>
           </Card>
 
-          <Card className="tfh-auth-card">
+          <Card className="tfh-minimal-card">
             <CardBody className="gap-4">
               <h3>I am a new candidate</h3>
-              <p>Create your account and continue directly to Phase 1.</p>
-              <Button as={Link} href={signupLink} color="primary" variant="flat" size="lg" fullWidth>
-                Register
+              <p>Create account instantly with Google auth and start application.</p>
+              <Button as={Link} href={signupLink} color="default" variant="bordered" size="lg" fullWidth>
+                Create account
               </Button>
             </CardBody>
           </Card>

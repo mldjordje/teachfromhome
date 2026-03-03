@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Alert, Button, Card, CardBody, Chip } from "@heroui/react";
+import { Alert, Button, Card, CardBody } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { sanitizeNextPath, signInWithGoogle } from "@library/auth";
@@ -46,22 +46,25 @@ const LoginPage = () => {
   };
 
   return (
-    <AppShell title="Login" subtitle="Secure sign in for candidates and admins." publicView>
-      <section className="tfh-auth-grid">
-        <div className="tfh-auth-visual">
-          <img src="/images/teachfromhome/hero1-mobile.jpeg" alt="TeachFromHome Login" />
-          <div className="tfh-auth-overlay" />
-          <div className="tfh-auth-visual-content">
-            <Chip color="primary" variant="flat" size="sm">Google Auth</Chip>
-            <h2>One-click login</h2>
-            <p>Use your Google account to continue onboarding and upload tasks.</p>
-          </div>
+    <AppShell title="Login" subtitle="Access candidate or admin workspace with Google." publicView>
+      <section className="tfh-minimal-auth">
+        <div className="tfh-minimal-left">
+          <span className="tfh-minimal-kicker">Secure access</span>
+          <h2>Single sign-on, zero friction</h2>
+          <p>
+            Sign in once with Google. System auto-detects role and routes you to candidate dashboard or admin panel.
+          </p>
+          <ul className="tfh-minimal-list">
+            <li>Google OAuth only</li>
+            <li>No manual password resets</li>
+            <li>Optimized for phone and desktop</li>
+          </ul>
         </div>
 
-        <Card className="tfh-auth-card">
+        <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
             <h3>Continue with Google</h3>
-            <p>System automatically routes you to candidate or admin workspace.</p>
+            <p>Use your existing Google account to continue onboarding.</p>
 
             <Button color="primary" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
               {busy ? "Redirecting..." : "Sign in with Google"}

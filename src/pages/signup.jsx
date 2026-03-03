@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Alert, Button, Card, CardBody, Chip, Input } from "@heroui/react";
+import { Alert, Button, Card, CardBody, Input } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { callEdgeFunction } from "@library/edgeClient";
@@ -89,22 +89,25 @@ const SignupPage = () => {
   };
 
   return (
-    <AppShell title="Create account" subtitle="Create candidate account with Google auth." publicView>
-      <section className="tfh-auth-grid">
-        <div className="tfh-auth-visual">
-          <img src="/images/teachfromhome/hero1-mobile.jpeg" alt="Create Account" />
-          <div className="tfh-auth-overlay" />
-          <div className="tfh-auth-visual-content">
-            <Chip color="primary" variant="flat" size="sm">Signup</Chip>
-            <h2>Start teaching workflow</h2>
-            <p>Create account, complete Phase 1, and move through review stages quickly.</p>
-          </div>
+    <AppShell title="Create account" subtitle="Open candidate account in one step." publicView>
+      <section className="tfh-minimal-auth">
+        <div className="tfh-minimal-left">
+          <span className="tfh-minimal-kicker">New candidate</span>
+          <h2>Minimal signup flow</h2>
+          <p>
+            Google sign-up creates your account instantly and sends you straight to Phase 1 onboarding.
+          </p>
+          <ul className="tfh-minimal-list">
+            <li>Quick account creation</li>
+            <li>Optional referral support</li>
+            <li>Direct dashboard access</li>
+          </ul>
         </div>
 
-        <Card className="tfh-auth-card">
+        <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
-            <h3>Google signup</h3>
-            <p>One click account creation with optional referral code.</p>
+            <h3>Create with Google</h3>
+            <p>Add referral code if you have one, then continue.</p>
 
             <Input
               label="Referral code (optional)"
