@@ -1,7 +1,7 @@
-﻿import { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Alert, Button, Card, CardBody, Chip, Navbar, NavbarBrand, NavbarContent } from "@heroui/react";
+import { Alert, Card, CardBody, Chip } from "@heroui/react";
 import appData from "@data/app.json";
 import { useAuth } from "@components/auth/AuthProvider";
 
@@ -41,7 +41,7 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
   };
 
   const isActive = (href) => {
-    if (href === "/admin") return router.pathname.startsWith("/admin");
+    if (href === "/admin") return router.pathname === "/admin";
     return router.pathname === href;
   };
 
@@ -64,104 +64,90 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
     return { href: "/apply", label: "Apply now" };
   }, [isPublicEntry, router.pathname]);
 
-  const navbarClassName = isPublicEntry
-    ? "tfh-public-navbar"
-    : "bg-slate-950 text-white";
-
   const brandLogo = isPublicEntry ? appData.header.logo.image : appData.header.logo.image_white;
+  const shellTone = isAdminRoute ? "admin" : "teacher";
 
   return (
-    <div className="tfh-app-shell min-h-screen bg-gradient-to-b from-slate-100 via-white to-slate-100">
-      <Navbar maxWidth="2xl" isBordered className={navbarClassName}>
-        <NavbarBrand>
-          <Link href="/" className={`inline-flex items-center gap-3 ${isPublicEntry ? "text-slate-900" : "text-white"}`}>
-            <img src={brandLogo} alt="TeachFromHome" className="h-9 w-9 rounded-lg object-cover tfh-brand-mark" />
-            <span
-              className={`font-semibold tracking-wide tfh-brand-copy ${
-                isPublicEntry ? "tfh-brand-copy--public text-sm text-slate-900" : "text-sm"
-              }`}
-            >
-              TeachFromHome Portal
+    <div
+      className={`tfh-app-shell ${isPublicEntry ? "tfh-app-shell--public" : "tfh-app-shell--portal"} ${
+        isPublicEntry ? "" : `tfh-app-shell--${shellTone}`
+      }`}
+    >
+      <header className={isPublicEntry ? "tfh-topbar tfh-topbar--public" : "tfh-topbar tfh-topbar--portal"}>
+        <div className="tfh-topbar-inner">
+          <Link href="/" className="tfh-shell-brand">
+            <img src={brandLogo} alt="TeachFromHome" className="tfh-brand-mark" />
+            <span className="tfh-brand-copy">
+              <strong>TeachFromHome</strong>
+              <small>{isAdminRoute ? "Admin Portal" : "Teacher Portal"}</small>
             </span>
           </Link>
-        </NavbarBrand>
 
-        <NavbarContent justify="end" className="items-center gap-2 tfh-shell-actions">
-          {user ? (
-            <>
-              <Chip size="sm" variant="flat" className={isPublicEntry ? "hidden bg-slate-100 text-slate-700 md:inline-flex" : "hidden bg-white/15 text-white md:inline-flex"}>
-                {user.email}
-              </Chip>
-              {isAdmin && (
-                <Chip size="sm" color="warning" variant="flat">
-                  Admin
+          <div className="tfh-shell-actions">
+            {user ? (
+              <>
+                <Chip size="sm" variant="flat" className="tfh-user-chip hidden md:inline-flex">
+                  {user.email}
                 </Chip>
-              )}
-              <Button
-                size="sm"
-                variant={isPublicEntry ? "flat" : "solid"}
-                color={isPublicEntry ? "primary" : "default"}
-                className={isPublicEntry ? "tfh-shell-btn tfh-shell-btn--ghost" : "tfh-shell-btn"}
-                onPress={onSignOut}
-              >
-                Sign out
-              </Button>
-            </>
-          ) : (
-            <>
-              {isPublicEntry ? (
-                <Link href={guestAction?.href || "/apply"} className="tfh-public-nav-btn">
-                  {guestAction?.label || "Apply now"}
-                </Link>
-              ) : (
-                <>
-                  <Button
-                    as={Link}
-                    href={isAdminRoute ? "/admin/login" : "/login"}
-                    size="sm"
-                    variant="flat"
-                    color="default"
-                    className="tfh-shell-btn tfh-shell-btn--ghost"
-                  >
-                    Login
-                  </Button>
-                  <Button as={Link} href="/apply" size="sm" color="primary" className="tfh-shell-btn">
-                    Apply now
-                  </Button>
-                </>
-              )}
-            </>
-          )}
-        </NavbarContent>
-      </Navbar>
-
-      {user && allLinks.length > 0 && (
-        <div className="mx-auto flex w-full max-w-[1220px] flex-wrap items-center gap-2 px-4 py-4">
-          {allLinks.map((item) => (
-            <Button
-              key={item.href}
-              as={Link}
-              href={item.href}
-              size="sm"
-              variant={isActive(item.href) ? "solid" : "bordered"}
-              color={item.scope === "Admin" ? "warning" : "primary"}
-            >
-              {item.label}
-            </Button>
-          ))}
+                {isAdmin && (
+                  <Chip size="sm" variant="flat" className="tfh-admin-chip">
+                    Admin
+                  </Chip>
+                )}
+                <button type="button" className="tfh-topbar-btn tfh-topbar-btn--ghost" onClick={onSignOut}>
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                {isPublicEntry ? (
+                  <Link href={guestAction?.href || "/apply"} className="tfh-topbar-btn tfh-topbar-btn--solid">
+                    {guestAction?.label || "Apply now"}
+                  </Link>
+                ) : (
+                  <>
+                    <Link href={isAdminRoute ? "/admin/login" : "/login"} className="tfh-topbar-btn tfh-topbar-btn--ghost">
+                      Login
+                    </Link>
+                    <Link href="/apply" className="tfh-topbar-btn tfh-topbar-btn--solid">
+                      Apply now
+                    </Link>
+                  </>
+                )}
+              </>
+            )}
+          </div>
         </div>
+      </header>
+
+      {user && allLinks.length > 0 && !isPublicEntry && (
+        <nav className="tfh-portal-nav-wrap">
+          <div className="tfh-portal-nav">
+            {allLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`tfh-portal-nav-link ${item.scope === "Admin" ? "is-admin" : "is-teacher"} ${
+                  isActive(item.href) ? "is-active" : ""
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </nav>
       )}
 
-      <main className={`tfh-page mx-auto w-full px-4 pb-10 ${isPublicEntry ? "max-w-[1120px] pt-8" : "max-w-[1220px] pt-3"}`}>
+      <main className={`tfh-page mx-auto w-full px-4 pb-10 ${isPublicEntry ? "max-w-[1120px] pt-8" : "max-w-[1220px] pt-6"}`}>
         {isPublicEntry ? (
           <div className="tfh-minimal-head">
             <h1>{title}</h1>
             {subtitle && <p>{subtitle}</p>}
           </div>
         ) : (
-          <Card shadow="sm" className="mb-4 border border-slate-200">
-            <CardBody className="gap-2">
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">{title}</h1>
+          <Card shadow="none" className="tfh-page-head-card mb-5">
+            <CardBody className="tfh-page-head-body gap-2">
+              <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">{title}</h1>
               {subtitle && <p className="text-sm text-slate-600 md:text-base">{subtitle}</p>}
             </CardBody>
           </Card>

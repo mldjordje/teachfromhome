@@ -631,5 +631,316 @@
   }
 }
 
+/* Portal refresh */
+.tfh-app-shell--portal {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 8% -12%, rgba(14, 165, 233, 0.2), transparent 36%),
+    radial-gradient(circle at 92% 0%, rgba(59, 130, 246, 0.12), transparent 38%),
+    linear-gradient(180deg, #eef3fb 0%, #f7f9fc 56%, #f2f5fa 100%);
+}
+
+.tfh-app-shell--admin {
+  --tfh-highlight: #2563eb;
+}
+
+.tfh-app-shell--teacher {
+  --tfh-highlight: #0891b2;
+}
+
+.tfh-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 120;
+}
+
+.tfh-topbar--portal {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+  backdrop-filter: blur(14px);
+  background: linear-gradient(100deg, rgba(7, 15, 30, 0.92), rgba(15, 23, 42, 0.9));
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.24);
+}
+
+.tfh-topbar--public {
+  border-bottom: 1px solid #dce4ef;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+.tfh-topbar-inner {
+  width: 100%;
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tfh-shell-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.tfh-brand-mark {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.tfh-topbar--public .tfh-brand-mark {
+  border-color: #d4dce8;
+}
+
+.tfh-brand-copy {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.tfh-brand-copy strong {
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+
+.tfh-brand-copy small {
+  margin-top: 2px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.tfh-topbar--portal .tfh-brand-copy strong {
+  color: #ffffff;
+}
+
+.tfh-topbar--portal .tfh-brand-copy small {
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.tfh-topbar--public .tfh-brand-copy strong {
+  color: #0f172a;
+}
+
+.tfh-topbar--public .tfh-brand-copy small {
+  color: #64748b;
+}
+
+.tfh-shell-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tfh-user-chip {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #e2e8f0 !important;
+}
+
+.tfh-admin-chip {
+  background: #facc15 !important;
+  color: #111827 !important;
+  font-weight: 700;
+}
+
+.tfh-topbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tfh-topbar-btn--ghost {
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+.tfh-topbar-btn--ghost:hover {
+  border-color: rgba(148, 163, 184, 0.95);
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.tfh-topbar--public .tfh-topbar-btn--ghost {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.tfh-topbar--public .tfh-topbar-btn--ghost:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.tfh-topbar-btn--solid {
+  border: 1px solid var(--tfh-highlight, #2563eb);
+  background: var(--tfh-highlight, #2563eb);
+  color: #ffffff !important;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+}
+
+.tfh-topbar-btn--solid:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.tfh-portal-nav-wrap {
+  width: 100%;
+  max-width: 1220px;
+  margin: 14px auto 0;
+  padding: 0 16px;
+}
+
+.tfh-portal-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tfh-portal-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #d4deea;
+  background: rgba(255, 255, 255, 0.86);
+  color: #1e293b !important;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.tfh-portal-nav-link:hover {
+  border-color: #aab7cb;
+  background: #ffffff;
+}
+
+.tfh-portal-nav-link.is-active {
+  border-color: transparent;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.26);
+}
+
+.tfh-portal-nav-link.is-teacher.is-active {
+  background: linear-gradient(135deg, #0e7490, #0891b2);
+  box-shadow: 0 12px 24px rgba(8, 145, 178, 0.24);
+}
+
+.tfh-page-head-card {
+  border: 1px solid #d9e3ef !important;
+  border-radius: 22px !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(191, 219, 254, 0.4), transparent 38%),
+    linear-gradient(120deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 255, 0.92));
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+}
+
+.tfh-page-head-body {
+  padding: clamp(20px, 3vw, 28px) !important;
+}
+
+.tfh-admin-panel-card {
+  border: 1px solid #d8e2ef !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.tfh-kpi-panel {
+  border: 1px solid #d8e2ef !important;
+  border-radius: 18px !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(191, 219, 254, 0.28), transparent 42%),
+    #ffffff !important;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+}
+
+.tfh-kpi-panel .nextui-card-body {
+  gap: 8px !important;
+}
+
+.tfh-analytics-tile {
+  border: 1px solid #d8e2ef !important;
+  border-radius: 14px !important;
+  background: #f8fbff !important;
+}
+
+.tfh-analytics-chip {
+  font-weight: 700 !important;
+}
+
+.tfh-action-grid-btn {
+  min-height: 42px !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+}
+
+@media (max-width: 900px) {
+  .tfh-brand-copy strong {
+    font-size: 16px;
+  }
+
+  .tfh-brand-copy small {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 767px) {
+  .tfh-topbar-inner {
+    padding: 10px 12px;
+  }
+
+  .tfh-brand-mark {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px;
+  }
+
+  .tfh-brand-copy small {
+    display: none;
+  }
+
+  .tfh-portal-nav-wrap {
+    padding: 0 12px;
+    margin-top: 10px;
+  }
+
+  .tfh-portal-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .tfh-portal-nav-link {
+    width: 100%;
+  }
+}
+
 
 

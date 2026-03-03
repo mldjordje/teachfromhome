@@ -118,28 +118,28 @@ const AdminDashboardPage = () => {
         {error && <Alert color="danger" title={error} className="mb-4" />}
 
         {loading ? (
-          <Card>
+          <Card className="tfh-admin-panel-card">
             <CardBody className="flex flex-row items-center gap-3 py-8">
               <Spinner size="sm" />
               <p>Loading admin metrics...</p>
             </CardBody>
           </Card>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-5">
             <div className="grid gap-4 md:grid-cols-3">
-              <Card>
+              <Card className="tfh-kpi-panel">
                 <CardBody>
                   <span className="text-sm text-slate-500">Phase 1 Pending</span>
                   <strong className="text-4xl font-semibold text-slate-900">{phase1Pending}</strong>
                 </CardBody>
               </Card>
-              <Card>
+              <Card className="tfh-kpi-panel">
                 <CardBody>
                   <span className="text-sm text-slate-500">Phase 2 Pending</span>
                   <strong className="text-4xl font-semibold text-slate-900">{phase2Pending}</strong>
                 </CardBody>
               </Card>
-              <Card>
+              <Card className="tfh-kpi-panel">
                 <CardBody>
                   <span className="text-sm text-slate-500">Accepted Teachers</span>
                   <strong className="text-4xl font-semibold text-slate-900">{acceptedCount}</strong>
@@ -147,7 +147,7 @@ const AdminDashboardPage = () => {
               </Card>
             </div>
 
-            <Card>
+            <Card className="tfh-admin-panel-card">
               <CardHeader>
                 <h3 className="text-lg font-semibold">Analytics (MVP)</h3>
               </CardHeader>
@@ -155,10 +155,10 @@ const AdminDashboardPage = () => {
               <CardBody>
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {trackedEvents.map((eventName) => (
-                    <Card key={eventName} className="border border-slate-200 bg-slate-50" shadow="none">
+                    <Card key={eventName} className="tfh-analytics-tile" shadow="none">
                       <CardBody className="py-3">
                         <span className="text-xs uppercase tracking-wide text-slate-500">{eventName.replaceAll("_", " ")}</span>
-                        <Chip color="primary" variant="flat" className="mt-2 w-fit">
+                        <Chip color="primary" variant="flat" className="mt-2 w-fit tfh-analytics-chip">
                           {analyticsSummary[eventName] ?? 0}
                         </Chip>
                       </CardBody>
@@ -168,25 +168,34 @@ const AdminDashboardPage = () => {
               </CardBody>
             </Card>
 
-            <Card>
+            <Card className="tfh-admin-panel-card">
               <CardHeader>
                 <h3 className="text-lg font-semibold">Quick Actions</h3>
               </CardHeader>
               <Divider />
               <CardBody className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                <Button as={Link} href="/admin/phase1" color="primary">
+                <Button as={Link} href="/admin/phase1" color="primary" className="tfh-action-grid-btn">
                   Open Phase 1 Queue
                 </Button>
-                <Button as={Link} href="/admin/phase2" color="primary">
+                <Button as={Link} href="/admin/phase2" color="primary" className="tfh-action-grid-btn">
                   Open Phase 2 Queue
                 </Button>
-                <Button as={Link} href="/admin/training" variant="bordered">
+                <Button as={Link} href="/admin/training" variant="bordered" className="tfh-action-grid-btn">
                   Manage Training Videos
                 </Button>
-                <Button as={Link} href="/admin/referrals" variant="bordered">
+                <Button as={Link} href="/admin/showcase" variant="bordered" className="tfh-action-grid-btn">
+                  Manage Showcase Clips
+                </Button>
+                <Button as={Link} href="/admin/referrals" variant="bordered" className="tfh-action-grid-btn">
                   Manage Referrals
                 </Button>
-                <Button color="warning" variant="flat" onPress={runStorageCleanup} isLoading={maintenanceBusy}>
+                <Button
+                  color="warning"
+                  variant="flat"
+                  className="tfh-action-grid-btn"
+                  onPress={runStorageCleanup}
+                  isLoading={maintenanceBusy}
+                >
                   {maintenanceBusy ? "Running cleanup..." : "Run Storage Cleanup"}
                 </Button>
               </CardBody>
