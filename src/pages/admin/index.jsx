@@ -183,9 +183,6 @@ const AdminDashboardPage = () => {
                 <Button as={Link} href="/admin/training" variant="bordered" className="tfh-action-grid-btn">
                   Manage Training Videos
                 </Button>
-                <Button as={Link} href="/admin/showcase" variant="bordered" className="tfh-action-grid-btn">
-                  Manage Showcase Clips
-                </Button>
                 <Button as={Link} href="/admin/referrals" variant="bordered" className="tfh-action-grid-btn">
                   Manage Referrals
                 </Button>

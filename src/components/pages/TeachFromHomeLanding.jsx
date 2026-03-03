@@ -1,5 +1,6 @@
 ﻿import Link from "next/link";
 import { useLanguage } from "@components/i18n/LanguageProvider";
+import ShowcaseVideoGrid from "@components/videos/ShowcaseVideoGrid";
 
 const content = {
   sr: {
@@ -43,6 +44,9 @@ const content = {
       "Ako prodjes, dobijas Phase 2 zadatak.",
       "Nakon prihvatanja, tim te kontaktira za start.",
     ],
+    showcaseTitle: "Klipovi primljenih kandidata",
+    showcaseText: "Pogledaj kratke YouTube klipove kandidata koji su uspesno prosli proces.",
+    showcaseCta: "Pogledaj sve klipove",
     finalTitle: "Pozicije se brzo popunjavaju",
     finalText: "Prijave se pregledaju svakodnevno. Ako prodjes selekciju, mozes brzo da krenes sa radom.",
   },
@@ -87,6 +91,9 @@ const content = {
       "If approved, receive your Phase 2 task.",
       "After acceptance, team reaches out for onboarding.",
     ],
+    showcaseTitle: "Accepted Candidate Clips",
+    showcaseText: "Watch short YouTube clips from candidates who successfully completed the process.",
+    showcaseCta: "See all clips",
     finalTitle: "Open slots are filling quickly",
     finalText: "Applications are reviewed daily. If selected, you can start quickly.",
   },
@@ -173,6 +180,23 @@ const TeachFromHomeLanding = () => {
                 <li key={step}>{step}</li>
               ))}
             </ol>
+          </div>
+        </div>
+      </section>
+
+      <section id="clips" className="tfh-anchor-section tfh-landing-section tfh-showcase-section">
+        <div className="container">
+          <div className="tfh-showcase-head">
+            <h2>{t.showcaseTitle}</h2>
+            <p>{t.showcaseText}</p>
+          </div>
+
+          <ShowcaseVideoGrid limit={3} compact />
+
+          <div className="tfh-showcase-bottom">
+            <Link href="/clips" className="tfh-public-nav-btn">
+              {t.showcaseCta}
+            </Link>
           </div>
         </div>
       </section>

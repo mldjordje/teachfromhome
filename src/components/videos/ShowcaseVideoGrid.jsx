@@ -1,0 +1,97 @@
+import { useEffect, useState } from "react";
+import { Spinner } from "@heroui/react";
+import { getSupabaseBrowserClient } from "@library/supabaseClient";
+import { extractYouTubeVideoId, toYouTubeEmbedUrl } from "@library/youtube";
+
+const ShowcaseVideoGrid = ({ limit = 0, compact = false }) => {
+  const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let alive = true;
+
+    const load = async () => {
+      try {
+        const supabase = getSupabaseBrowserClient();
+        let query = supabase
+          .from("showcase_videos")
+          .select("id, title, youtube_url, youtube_video_id, thumbnail_url, order_index, created_at")
+          .eq("is_active", true)
+          .order("order_index", { ascending: true })
+          .order("created_at", { ascending: false });
+
+        if (limit > 0) {
+          query = query.limit(limit);
+        }
+
+        const { data, error: loadError } = await query;
+        if (loadError) throw loadError;
+
+        const normalized = (data ?? [])
+          .map((row) => {
+            const videoId = row.youtube_video_id || extractYouTubeVideoId(row.youtube_url);
+            const embedUrl = toYouTubeEmbedUrl(videoId);
+            if (!videoId || !embedUrl) return null;
+            return { ...row, videoId, embedUrl };
+          })
+          .filter(Boolean);
+
+        if (!alive) return;
+        setVideos(normalized);
+        setError("");
+      } catch (loadErr) {
+        if (!alive) return;
+        setError(loadErr?.message || "Could not load showcase videos.");
+        setVideos([]);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      alive = false;
+    };
+  }, [limit]);
+
+  if (loading) {
+    return (
+      <div className="tfh-showcase-loading">
+        <Spinner size="sm" />
+        <span>Loading videos...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <p className="tfh-showcase-error">{error}</p>;
+  }
+
+  if (!videos.length) {
+    return <p className="tfh-showcase-empty">No clips available yet.</p>;
+  }
+
+  return (
+    <div className={`tfh-showcase-grid ${compact ? "tfh-showcase-grid--compact" : ""}`}>
+      {videos.map((video) => (
+        <article key={video.id} className="tfh-showcase-card">
+          <div className="tfh-showcase-frame-wrap">
+            <iframe
+              src={video.embedUrl}
+              title={video.title}
+              className="tfh-showcase-frame"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
+          <h3>{video.title}</h3>
+        </article>
+      ))}
+    </div>
+  );
+};
+
+export default ShowcaseVideoGrid;
