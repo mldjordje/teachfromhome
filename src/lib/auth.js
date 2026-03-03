@@ -5,14 +5,57 @@ export const sanitizeNextPath = (candidate, fallback = "/teacher/dashboard") => 
   return candidate;
 };
 
-export const getOAuthRedirectUrl = (nextPath) => {
-  if (typeof window === "undefined") {
-    return undefined;
+const normalizeOrigin = (value) => {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+
+  try {
+    const parsed = new URL(withProtocol);
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch {
+    return null;
   }
+};
+
+const isLocalOrigin = (origin) => {
+  if (typeof origin !== "string") return false;
+  return /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i.test(origin);
+};
+
+const getPreferredOAuthOrigin = () => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const browserOrigin = normalizeOrigin(window.location.origin);
+  const configuredOrigin = normalizeOrigin(
+    process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXT_PUBLIC_VERCEL_URL,
+  );
+
+  if (!browserOrigin) {
+    return configuredOrigin;
+  }
+
+  // If app is opened from localhost but production URL is configured, use production.
+  if (isLocalOrigin(browserOrigin) && configuredOrigin) {
+    return configuredOrigin;
+  }
+
+  return browserOrigin;
+};
+
+export const getOAuthRedirectUrl = (nextPath) => {
+  const origin = getPreferredOAuthOrigin();
+  if (!origin) return undefined;
 
   const target = sanitizeNextPath(nextPath);
   const nextQuery = encodeURIComponent(target);
-  return `${window.location.origin}/login?next=${nextQuery}`;
+  return `${origin}/login?next=${nextQuery}`;
 };
 
 export const signInWithGoogle = async ({ supabase, nextPath }) => {
