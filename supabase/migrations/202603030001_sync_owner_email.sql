@@ -1,4 +1,4 @@
-﻿begin;
+begin;
 
 -- Optional DB setting for owner email:
 -- alter database postgres set app.settings.owner_email = 'you@example.com';

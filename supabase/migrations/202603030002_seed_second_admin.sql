@@ -1,4 +1,4 @@
-﻿begin;
+begin;
 
 insert into public.admin_users (user_id, role)
 select u.id, 'owner'::public.app_role

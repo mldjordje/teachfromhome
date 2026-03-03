@@ -1,7 +1,7 @@
 ﻿import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Button, Card, CardBody, CardHeader, Divider } from "@heroui/react";
+import { Button, Card, CardBody, Chip } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 
@@ -20,34 +20,40 @@ const ApplyPage = () => {
   const signupLink = `/signup?next=${encodeURIComponent(NEXT_PHASE1)}`;
 
   return (
-    <AppShell title="Start Application" subtitle="Login or create account to begin Phase 1.">
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold">I already have account</h3>
-          </CardHeader>
-          <Divider />
-          <CardBody className="gap-4">
-            <p>Sign in and continue directly to the Phase 1 form and video upload.</p>
-            <Button as={Link} href={loginLink} color="primary">
-              Login
-            </Button>
-          </CardBody>
-        </Card>
+    <AppShell title="Start Application" subtitle="Login or create account to begin Phase 1." publicView>
+      <section className="tfh-auth-grid">
+        <div className="tfh-auth-visual">
+          <img src="/images/teachfromhome/hero1-mobile.jpeg" alt="TeachFromHome" />
+          <div className="tfh-auth-overlay" />
+          <div className="tfh-auth-visual-content">
+            <Chip color="primary" variant="flat" size="sm">TeachFromHome</Chip>
+            <h2>Fast 2-step onboarding</h2>
+            <p>Open account, submit Phase 1, and move quickly into review.</p>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold">I am a new candidate</h3>
-          </CardHeader>
-          <Divider />
-          <CardBody className="gap-4">
-            <p>Create your account and continue directly to Phase 1.</p>
-            <Button as={Link} href={signupLink} color="primary" variant="flat">
-              Register
-            </Button>
-          </CardBody>
-        </Card>
-      </div>
+        <div className="tfh-auth-cards">
+          <Card className="tfh-auth-card">
+            <CardBody className="gap-4">
+              <h3>I already have account</h3>
+              <p>Sign in and continue directly to the Phase 1 form and video upload.</p>
+              <Button as={Link} href={loginLink} color="primary" size="lg" fullWidth>
+                Login
+              </Button>
+            </CardBody>
+          </Card>
+
+          <Card className="tfh-auth-card">
+            <CardBody className="gap-4">
+              <h3>I am a new candidate</h3>
+              <p>Create your account and continue directly to Phase 1.</p>
+              <Button as={Link} href={signupLink} color="primary" variant="flat" size="lg" fullWidth>
+                Register
+              </Button>
+            </CardBody>
+          </Card>
+        </div>
+      </section>
     </AppShell>
   );
 };

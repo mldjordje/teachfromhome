@@ -1,7 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Alert, Button, Card, CardBody, CardHeader, Divider } from "@heroui/react";
+import { Alert, Button, Card, CardBody, Chip } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { sanitizeNextPath, signInWithGoogle } from "@library/auth";
@@ -30,7 +30,7 @@ const AdminLoginPage = () => {
       return;
     }
 
-    setError("This account is not in admin_users yet. Add admin privileges and sign in again.");
+    setError("This account is not in admin_users yet. Add admin role and sign in again.");
   }, [adminNext, isAdmin, loading, router, user]);
 
   const onGoogleLogin = async () => {
@@ -52,43 +52,36 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <AppShell title="Admin Login" subtitle="Pristup admin panelu preko Google auth naloga sa owner/admin rolom.">
-      <div className="tfh-grid tfh-grid-2">
-        <Card className="shadow-sm">
-          <CardHeader className="flex-col items-start gap-1">
-            <h3 className="text-2xl font-semibold text-slate-800">Admin Google sign-in</h3>
-            <p className="text-sm text-slate-500">Samo nalozi iz `admin_users` mogu da uđu u admin panel.</p>
-          </CardHeader>
-          <Divider />
+    <AppShell title="Admin Login" subtitle="Restricted access for owner and admin accounts." publicView>
+      <section className="tfh-auth-grid">
+        <div className="tfh-auth-visual">
+          <img src="/images/teachfromhome/hero1-mobile.jpeg" alt="Admin Login" />
+          <div className="tfh-auth-overlay" />
+          <div className="tfh-auth-visual-content">
+            <Chip color="warning" variant="flat" size="sm">Admin access</Chip>
+            <h2>Review queues and approvals</h2>
+            <p>Phase 1, Phase 2, training videos, referrals, and system operations.</p>
+          </div>
+        </div>
+
+        <Card className="tfh-auth-card">
           <CardBody className="gap-4">
+            <h3>Admin Google sign-in</h3>
+            <p>Only accounts from admin_users can access the admin panel.</p>
+
             <Button color="primary" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
               {busy ? "Redirecting..." : "Login with Google"}
             </Button>
 
             {error && <Alert color="danger" title={error} />}
-            {!isConfigured && (
-              <Alert color="danger" title={configError || "Supabase is not configured."} />
-            )}
+            {!isConfigured && <Alert color="danger" title={configError || "Supabase is not configured."} />}
 
             <Button as={Link} href="/login" variant="light" fullWidth>
               Candidate login
             </Button>
           </CardBody>
         </Card>
-
-        <Card className="shadow-sm">
-          <CardHeader className="flex-col items-start gap-1">
-            <h3 className="text-2xl font-semibold text-slate-800">Admin access checklist</h3>
-            <p className="text-sm text-slate-500">Ako vidiš unauthorized, najčešći uzrok je da nalog nema admin rolu.</p>
-          </CardHeader>
-          <Divider />
-          <CardBody className="text-sm leading-6 text-slate-600">
-            <p>1. Nalog mora postojati u Supabase Auth.</p>
-            <p>2. Isti email mora biti upisan u `admin_users` kao `owner` ili `admin`.</p>
-            <p>3. Posle promene role: logout/login da se osveži session.</p>
-          </CardBody>
-        </Card>
-      </div>
+      </section>
     </AppShell>
   );
 };

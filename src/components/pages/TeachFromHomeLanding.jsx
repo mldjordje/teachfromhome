@@ -100,8 +100,7 @@ const TeachFromHomeLanding = () => {
     <div className="tfh-landing">
       <section id="home" className="tfh-landing-hero tfh-anchor-section">
         <picture className="tfh-hero-media">
-          <source media="(max-width: 767px)" srcSet="/images/teachfromhome/hero1-mobile.jpeg" />
-          <img src="/images/teachfromhome/hero1-desktop.jpeg" alt="TeachFromHome Hero" />
+          <img src="/images/teachfromhome/hero1-mobile.jpeg" alt="TeachFromHome Hero" />
         </picture>
 
         <div className="tfh-hero-overlay" />
@@ -146,7 +145,7 @@ const TeachFromHomeLanding = () => {
             <h2>{t.aboutTitle}</h2>
             <p>{t.aboutText}</p>
           </div>
-          <img src="/images/teachfromhome/hero2-desktop.jpeg" alt="About job" />
+          <img src="/images/teachfromhome/hero2-mobile.jpeg" alt="About job" />
         </div>
       </section>
 

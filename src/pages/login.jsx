@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Alert, Button, Card, CardBody, CardHeader, Divider } from "@heroui/react";
+import { Alert, Button, Card, CardBody, Chip } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { sanitizeNextPath, signInWithGoogle } from "@library/auth";
@@ -46,42 +46,36 @@ const LoginPage = () => {
   };
 
   return (
-    <AppShell title="Login" subtitle="Prijava za kandidate i admin tim preko Google naloga.">
-      <div className="tfh-grid tfh-grid-2">
-        <Card className="shadow-sm">
-          <CardHeader className="flex-col items-start gap-1">
-            <h3 className="text-2xl font-semibold text-slate-800">Continue with Google</h3>
-            <p className="text-sm text-slate-500">Koristi isti Google nalog za kandidat i admin pristup.</p>
-          </CardHeader>
-          <Divider />
+    <AppShell title="Login" subtitle="Secure sign in for candidates and admins." publicView>
+      <section className="tfh-auth-grid">
+        <div className="tfh-auth-visual">
+          <img src="/images/teachfromhome/hero1-mobile.jpeg" alt="TeachFromHome Login" />
+          <div className="tfh-auth-overlay" />
+          <div className="tfh-auth-visual-content">
+            <Chip color="primary" variant="flat" size="sm">Google Auth</Chip>
+            <h2>One-click login</h2>
+            <p>Use your Google account to continue onboarding and upload tasks.</p>
+          </div>
+        </div>
+
+        <Card className="tfh-auth-card">
           <CardBody className="gap-4">
+            <h3>Continue with Google</h3>
+            <p>System automatically routes you to candidate or admin workspace.</p>
+
             <Button color="primary" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
               {busy ? "Redirecting..." : "Sign in with Google"}
             </Button>
 
-            {!isConfigured && (
-              <Alert color="danger" title={configError || "Supabase is not configured."} />
-            )}
             {error && <Alert color="danger" title={error} />}
+            {!isConfigured && <Alert color="danger" title={configError || "Supabase is not configured."} />}
 
             <Button as={Link} href={`/signup?next=${encodeURIComponent(nextFromQuery)}`} variant="light" fullWidth>
               Need a new account?
             </Button>
           </CardBody>
         </Card>
-
-        <Card className="shadow-sm">
-          <CardHeader className="flex-col items-start gap-1">
-            <h3 className="text-2xl font-semibold text-slate-800">After login</h3>
-            <p className="text-sm text-slate-500">Sistem automatski prepoznaje da li je nalog admin ili kandidat.</p>
-          </CardHeader>
-          <Divider />
-          <CardBody className="text-sm leading-6 text-slate-600">
-            <p>Candidate: dashboard, Phase 1, Phase 2, notifications i profile.</p>
-            <p>Admin: queue review, training videos, referrals i operativne akcije.</p>
-          </CardBody>
-        </Card>
-      </div>
+      </section>
     </AppShell>
   );
 };

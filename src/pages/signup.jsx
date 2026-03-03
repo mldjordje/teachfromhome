@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Alert, Button, Card, CardBody, CardHeader, Divider, Input } from "@heroui/react";
+import { Alert, Button, Card, CardBody, Chip, Input } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { callEdgeFunction } from "@library/edgeClient";
@@ -47,7 +47,7 @@ const SignupPage = () => {
         });
 
         window.localStorage.removeItem(REFERRAL_STORAGE_KEY);
-        setSuccess("Referral code successfully linked to your account.");
+        setSuccess("Referral code linked to your account.");
       } catch (refError) {
         setError(refError?.message || "Referral code could not be applied.");
       } finally {
@@ -89,15 +89,23 @@ const SignupPage = () => {
   };
 
   return (
-    <AppShell title="Create account" subtitle="Otvaranje naloga za kandidate kroz Google auth.">
-      <div className="tfh-grid tfh-grid-2">
-        <Card className="shadow-sm">
-          <CardHeader className="flex-col items-start gap-1">
-            <h3 className="text-2xl font-semibold text-slate-800">Google signup</h3>
-            <p className="text-sm text-slate-500">Jedan klik i prelaziš direktno na onboarding dashboard.</p>
-          </CardHeader>
-          <Divider />
+    <AppShell title="Create account" subtitle="Create candidate account with Google auth." publicView>
+      <section className="tfh-auth-grid">
+        <div className="tfh-auth-visual">
+          <img src="/images/teachfromhome/hero1-mobile.jpeg" alt="Create Account" />
+          <div className="tfh-auth-overlay" />
+          <div className="tfh-auth-visual-content">
+            <Chip color="primary" variant="flat" size="sm">Signup</Chip>
+            <h2>Start teaching workflow</h2>
+            <p>Create account, complete Phase 1, and move through review stages quickly.</p>
+          </div>
+        </div>
+
+        <Card className="tfh-auth-card">
           <CardBody className="gap-4">
+            <h3>Google signup</h3>
+            <p>One click account creation with optional referral code.</p>
+
             <Input
               label="Referral code (optional)"
               placeholder="ABC123DEF4"
@@ -112,29 +120,14 @@ const SignupPage = () => {
 
             {error && <Alert color="danger" title={error} />}
             {success && <Alert color="success" title={success} />}
-            {!isConfigured && (
-              <Alert color="danger" title={configError || "Supabase is not configured."} />
-            )}
+            {!isConfigured && <Alert color="danger" title={configError || "Supabase is not configured."} />}
 
             <Button as={Link} href={`/login?next=${encodeURIComponent(nextTarget)}`} variant="light" fullWidth>
               I already have account
             </Button>
           </CardBody>
         </Card>
-
-        <Card className="shadow-sm">
-          <CardHeader className="flex-col items-start gap-1">
-            <h3 className="text-2xl font-semibold text-slate-800">What happens next?</h3>
-            <p className="text-sm text-slate-500">Nakon prijave ideš direktno na Phase 1 unos podataka i videa.</p>
-          </CardHeader>
-          <Divider />
-          <CardBody className="text-sm leading-6 text-slate-600">
-            <p>1. Popuni profil i pošalji Phase 1 video.</p>
-            <p>2. Ako prođeš selekciju, dobijaš Phase 2 zadatak i trening materijal.</p>
-            <p>3. Posle prihvatanja, admin tim te kontaktira za start.</p>
-          </CardBody>
-        </Card>
-      </div>
+      </section>
     </AppShell>
   );
 };
