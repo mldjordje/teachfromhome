@@ -1,143 +1,142 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { Alert, Button, Card, CardBody, CardHeader, Divider, Input } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { callEdgeFunction } from "@library/edgeClient";
 import { trackEvent } from "@library/analytics";
+import { getAccessTokenOrThrow, sanitizeNextPath, signInWithGoogle } from "@library/auth";
+
+const REFERRAL_STORAGE_KEY = "tfh_pending_referral_code";
 
 const SignupPage = () => {
   const router = useRouter();
   const { supabase, user, isAdmin, loading, isConfigured, configError } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const nextFromQuery =
-    typeof router.query.next === "string" && router.query.next.startsWith("/") ? router.query.next : null;
-  const nextTarget = nextFromQuery || "/teacher/dashboard";
+  const nextTarget = sanitizeNextPath(
+    typeof router.query.next === "string" ? router.query.next : null,
+    "/teacher/dashboard",
+  );
 
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading || !user || typeof window === "undefined") return;
 
-    if (isAdmin) {
-      const adminTarget = nextFromQuery?.startsWith("/admin") ? nextFromQuery : "/admin";
-      router.replace(adminTarget);
-      return;
-    }
+    const finalizeSignup = async () => {
+      if (!supabase) {
+        router.replace(nextTarget);
+        return;
+      }
 
-    router.replace(nextTarget);
-  }, [isAdmin, loading, nextFromQuery, nextTarget, router, user]);
+      const pendingCode = window.localStorage.getItem(REFERRAL_STORAGE_KEY)?.trim();
+      if (!pendingCode) {
+        router.replace(isAdmin ? "/admin" : nextTarget);
+        return;
+      }
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
+      try {
+        const accessToken = await getAccessTokenOrThrow(supabase);
+        await callEdgeFunction({
+          functionName: "teacher_apply_referral_code",
+          accessToken,
+          body: { referral_code: pendingCode },
+        });
+
+        window.localStorage.removeItem(REFERRAL_STORAGE_KEY);
+        setSuccess("Referral code successfully linked to your account.");
+      } catch (refError) {
+        setError(refError?.message || "Referral code could not be applied.");
+      } finally {
+        router.replace(isAdmin ? "/admin" : nextTarget);
+      }
+    };
+
+    finalizeSignup();
+  }, [isAdmin, loading, nextTarget, router, supabase, user]);
+
+  const onGoogleSignup = async () => {
     setError("");
     setSuccess("");
+
     if (!supabase) {
       setError(configError || "Supabase is not configured.");
       return;
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
     setBusy(true);
+
     try {
-      await trackEvent({ eventName: "started_signup", metadata: { channel: "web" } });
+      await trackEvent({ eventName: "started_signup", metadata: { channel: "google_oauth" } });
 
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (signUpError) {
-        setError(signUpError.message);
-        return;
-      }
-
-      const accessToken = data.session?.access_token || null;
-      if (accessToken && referralCode.trim()) {
-        try {
-          await callEdgeFunction({
-            functionName: "teacher_apply_referral_code",
-            accessToken,
-            body: { referral_code: referralCode.trim() },
-          });
-        } catch (refError) {
-          console.warn("Referral link failed", refError);
+      if (typeof window !== "undefined") {
+        const trimmed = referralCode.trim();
+        if (trimmed) {
+          window.localStorage.setItem(REFERRAL_STORAGE_KEY, trimmed);
+        } else {
+          window.localStorage.removeItem(REFERRAL_STORAGE_KEY);
         }
       }
 
-      setSuccess("Account created. You can now continue to your dashboard.");
-      if (data.session) {
-        router.push(nextTarget);
-      }
+      await signInWithGoogle({ supabase, nextPath: nextTarget });
     } catch (err) {
-      const msg = err?.message || "Signup failed. Please try again.";
-      setError(msg.includes("LockManager") ? "Session lock timeout. Close duplicate tabs and try again." : msg);
-    } finally {
+      setError(err?.message || "Signup failed. Please try again.");
       setBusy(false);
     }
   };
 
   return (
-    <AppShell title="Create account" subtitle="Register as a teacher candidate.">
+    <AppShell title="Create account" subtitle="Otvaranje naloga za kandidate kroz Google auth.">
       <div className="tfh-grid tfh-grid-2">
-        <div className="tfh-card">
-          <h3>Sign up</h3>
-          <form className="tfh-form" onSubmit={onSubmit}>
-            <div>
-              <label>Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div>
-              <label>Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            </div>
-            <div>
-              <label>Confirm password</label>
-              <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-            </div>
-            <div>
-              <label>Referral code (optional)</label>
-              <input value={referralCode} onChange={(e) => setReferralCode(e.target.value)} />
-            </div>
+        <Card className="shadow-sm">
+          <CardHeader className="flex-col items-start gap-1">
+            <h3 className="text-2xl font-semibold text-slate-800">Google signup</h3>
+            <p className="text-sm text-slate-500">Jedan klik i prelaziš direktno na onboarding dashboard.</p>
+          </CardHeader>
+          <Divider />
+          <CardBody className="gap-4">
+            <Input
+              label="Referral code (optional)"
+              placeholder="ABC123DEF4"
+              value={referralCode}
+              onValueChange={setReferralCode}
+              variant="bordered"
+            />
 
-            {error && <div className="tfh-alert tfh-error">{error}</div>}
-            {success && <div className="tfh-alert tfh-success">{success}</div>}
-            {!isConfigured && <div className="tfh-alert tfh-error">{configError || "Supabase is not configured."}</div>}
+            <Button color="primary" size="lg" onPress={onGoogleSignup} isLoading={busy} fullWidth>
+              {busy ? "Redirecting..." : "Continue with Google"}
+            </Button>
 
-            <div className="tfh-actions">
-              <button className="tfh-btn" type="submit" disabled={busy}>
-                {busy ? "Creating account..." : "Create account"}
-              </button>
-              <Link href={`/login?next=${encodeURIComponent(nextTarget)}`} className="tfh-btn tfh-btn-outline">
-                I already have account
-              </Link>
-            </div>
-          </form>
-        </div>
+            {error && <Alert color="danger" title={error} />}
+            {success && <Alert color="success" title={success} />}
+            {!isConfigured && (
+              <Alert color="danger" title={configError || "Supabase is not configured."} />
+            )}
 
-        <div className="tfh-card">
-          <h3>What happens next?</h3>
-          <p>After signup, complete your profile and submit your Phase 1 intro video.</p>
-          <p>Selected candidates move to Phase 2 where training videos and assigned sentence are provided.</p>
-        </div>
+            <Button as={Link} href={`/login?next=${encodeURIComponent(nextTarget)}`} variant="light" fullWidth>
+              I already have account
+            </Button>
+          </CardBody>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader className="flex-col items-start gap-1">
+            <h3 className="text-2xl font-semibold text-slate-800">What happens next?</h3>
+            <p className="text-sm text-slate-500">Nakon prijave ideš direktno na Phase 1 unos podataka i videa.</p>
+          </CardHeader>
+          <Divider />
+          <CardBody className="text-sm leading-6 text-slate-600">
+            <p>1. Popuni profil i pošalji Phase 1 video.</p>
+            <p>2. Ako prođeš selekciju, dobijaš Phase 2 zadatak i trening materijal.</p>
+            <p>3. Posle prihvatanja, admin tim te kontaktira za start.</p>
+          </CardBody>
+        </Card>
       </div>
     </AppShell>
   );
 };
 
 export default SignupPage;
-

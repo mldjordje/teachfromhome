@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* image popup */
 img.mfp-img {
     box-shadow: 0 0 8px rgb(0 0 0 / 60%);
@@ -69,5 +73,273 @@ html {
         min-width: 36px;
         min-height: 30px;
         padding: 0 8px;
+    }
+}
+
+.tfh-landing {
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 45%, #f8fafc 100%);
+}
+
+.tfh-landing-section {
+    padding: 84px 0;
+}
+
+.tfh-landing-hero {
+    position: relative;
+    min-height: 86vh;
+    display: flex;
+    align-items: center;
+}
+
+.tfh-hero-media,
+.tfh-hero-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.tfh-hero-media img {
+    object-fit: cover;
+}
+
+.tfh-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.25));
+}
+
+.tfh-hero-content {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    max-width: 760px;
+}
+
+.tfh-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.tfh-hero-content h1 {
+    margin: 18px 0 12px;
+    color: #ffffff;
+    font-size: clamp(34px, 6vw, 64px);
+    line-height: 1.08;
+}
+
+.tfh-hero-content p {
+    margin: 0;
+    max-width: 640px;
+    color: rgba(241, 245, 249, 0.96);
+    font-size: clamp(16px, 2.2vw, 22px);
+    line-height: 1.55;
+}
+
+.tfh-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.tfh-why-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.tfh-why-card {
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid #dde6f1;
+    background: #ffffff;
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.07);
+}
+
+.tfh-why-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.tfh-why-card h3,
+.tfh-why-card p {
+    padding: 0 16px;
+}
+
+.tfh-why-card h3 {
+    margin: 16px 0 8px;
+    font-size: 24px;
+}
+
+.tfh-why-card p {
+    margin: 0 0 20px;
+    color: #475569;
+}
+
+.tfh-about-section {
+    background: #ffffff;
+}
+
+.tfh-about-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 18px;
+    align-items: center;
+}
+
+.tfh-about-grid h2,
+.tfh-earnings-section h2,
+.tfh-process-grid h2,
+.tfh-final-card h2 {
+    margin: 0 0 12px;
+    color: #0f172a;
+    font-size: clamp(30px, 4vw, 48px);
+    line-height: 1.1;
+}
+
+.tfh-about-grid p {
+    margin: 0;
+    color: #334155;
+    font-size: 18px;
+    line-height: 1.7;
+}
+
+.tfh-about-grid img,
+.tfh-process-grid img {
+    width: 100%;
+    border-radius: 20px;
+    object-fit: cover;
+    min-height: 320px;
+    box-shadow: 0 18px 30px rgba(15, 23, 42, 0.1);
+}
+
+.tfh-earnings-section {
+    background: radial-gradient(circle at 0% 0%, #dbeafe, #eff6ff 35%, #f8fafc 70%);
+}
+
+.tfh-earnings-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.tfh-earnings-grid article {
+    border: 1px solid #d2deed;
+    border-radius: 16px;
+    background: #ffffff;
+    padding: 16px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.tfh-earnings-grid span {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.tfh-earnings-grid strong {
+    display: block;
+    margin-top: 8px;
+    color: #0f172a;
+    font-size: clamp(26px, 3vw, 38px);
+    line-height: 1.1;
+}
+
+.tfh-process-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: center;
+}
+
+.tfh-process-grid ol {
+    margin: 0;
+    padding-left: 20px;
+    color: #1e293b;
+    font-size: 18px;
+    line-height: 1.75;
+}
+
+.tfh-final-section {
+    padding-top: 20px;
+    padding-bottom: 94px;
+}
+
+.tfh-final-card {
+    border-radius: 22px;
+    background: linear-gradient(120deg, #0f172a, #1e3a8a);
+    color: #ffffff;
+    text-align: center;
+    padding: 46px 22px;
+    box-shadow: 0 20px 36px rgba(15, 23, 42, 0.24);
+}
+
+.tfh-final-card h2 {
+    color: #ffffff;
+}
+
+.tfh-final-card p {
+    margin: 0 auto 20px;
+    max-width: 760px;
+    color: rgba(226, 232, 240, 0.94);
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+.tfh-final-card .onovo-btn {
+    display: inline-flex;
+}
+
+@media (max-width: 991px) {
+    .tfh-landing-section {
+        padding: 66px 0;
+    }
+
+    .tfh-about-grid,
+    .tfh-process-grid,
+    .tfh-why-grid,
+    .tfh-earnings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tfh-about-grid img,
+    .tfh-process-grid img {
+        min-height: 250px;
+    }
+}
+
+@media (max-width: 767px) {
+    .tfh-landing-hero {
+        min-height: 72vh;
+        padding: 90px 0 50px;
+    }
+
+    .tfh-hero-content h1 {
+        font-size: clamp(30px, 9vw, 42px);
+    }
+
+    .tfh-hero-content p,
+    .tfh-about-grid p,
+    .tfh-process-grid ol,
+    .tfh-final-card p {
+        font-size: 16px;
+    }
+
+    .tfh-why-card img {
+        height: 180px;
+    }
+
+    .tfh-final-card {
+        padding: 34px 16px;
     }
 }

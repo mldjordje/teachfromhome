@@ -3,6 +3,7 @@ import Head from "next/head";
 import appData from "@data/app.json";
 import { AuthProvider } from "@components/auth/AuthProvider";
 import { LanguageProvider } from "@components/i18n/LanguageProvider";
+import { HeroUIProvider } from "@heroui/react";
 
 import '../styles/scss/style.scss';
 import "../styles/globals.css";
@@ -24,9 +25,11 @@ function MyApp({ Component, pageProps }) {
           {/* seo end */}        
       </Head>
       <LanguageProvider>
-        <AuthProvider>
-          <Component {...pageProps} />
-        </AuthProvider>
+        <HeroUIProvider>
+          <AuthProvider>
+            <Component {...pageProps} />
+          </AuthProvider>
+        </HeroUIProvider>
       </LanguageProvider>
     </>
   );

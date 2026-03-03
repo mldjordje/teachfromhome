@@ -120,6 +120,7 @@ Policy summary:
 
 Migration attempts to seed owner role for:
 - `milos93tutor@gmail.com`
+- `web.wise018@gmail.com` (as `admin`, via `202603030002_seed_second_admin.sql`)
 
 If this user did not exist at migration time, run after signup:
 
@@ -130,6 +131,14 @@ from auth.users
 where lower(email) = lower('milos93tutor@gmail.com')
 on conflict (user_id) do nothing;
 ```
+
+You can also configure owner email globally and re-run migrations:
+
+```sql
+alter database postgres set app.settings.owner_email = 'your-admin-email@example.com';
+```
+
+Then apply migration `202603030001_sync_owner_email.sql` to sync `admin_users` for that email.
 
 ## 8) Test With curl
 

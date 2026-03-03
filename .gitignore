@@ -6,3 +6,4 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 supabase/.temp/
+client_secret_*.json

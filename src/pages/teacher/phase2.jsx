@@ -4,12 +4,13 @@ import AppShell from "@components/app/AppShell";
 import StatusBadge from "@components/app/StatusBadge";
 import { useAuth } from "@components/auth/AuthProvider";
 import { callEdgeFunction } from "@library/edgeClient";
+import { getAccessTokenOrThrow } from "@library/auth";
 import { getFileExt } from "@library/storage";
 import { trackEvent } from "@library/analytics";
 import { ALLOWED_VIDEO_MIME_TYPES, PHASE2_MAX_VIDEO_MB, bytesFromMb } from "@config/uploadLimits";
 
 const TeacherPhase2Page = () => {
-  const { supabase, user, session, isConfigured, configError } = useAuth();
+  const { supabase, user, isConfigured, configError } = useAuth();
   const [task, setTask] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [trainingVideos, setTrainingVideos] = useState([]);
@@ -94,10 +95,6 @@ const TeacherPhase2Page = () => {
       setError("No phase 2 task assigned yet.");
       return;
     }
-    if (!session?.access_token) {
-      setError("Missing auth session.");
-      return;
-    }
     if (!videoFile) {
       setError("Upload Phase 2 video before submit.");
       return;
@@ -117,6 +114,8 @@ const TeacherPhase2Page = () => {
     const objectPath = `${user.id}/phase2-attempt-${nextAttempt}-${Date.now()}.${ext}`;
 
     try {
+      const accessToken = await getAccessTokenOrThrow(supabase);
+
       const { error: uploadError } = await supabase.storage.from("phase2-videos").upload(objectPath, videoFile, {
         cacheControl: "3600",
         upsert: false,
@@ -129,7 +128,7 @@ const TeacherPhase2Page = () => {
 
       await callEdgeFunction({
         functionName: "teacher_create_phase2_submission",
-        accessToken: session.access_token,
+        accessToken,
         body: {
           task_id: task.id,
           video_path: `phase2-videos/${objectPath}`,
@@ -139,7 +138,7 @@ const TeacherPhase2Page = () => {
       await trackEvent({
         eventName: "phase2_submitted",
         metadata: { attempt_no: nextAttempt },
-        accessToken: session.access_token,
+        accessToken,
       });
 
       setSuccess("Phase 2 submission sent.");

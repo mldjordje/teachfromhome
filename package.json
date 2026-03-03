@@ -9,12 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroui/react": "^2.8.9",
     "@supabase/supabase-js": "^2.97.0",
+    "@tailwindcss/postcss": "^4.2.1",
     "date-fns": "^2.30.0",
     "formik": "^2.4.2",
+    "framer-motion": "^12.34.5",
     "gray-matter": "^4.0.3",
     "isotope-layout": "^3.0.6",
     "next": "13.4.3",
+    "postcss": "^8.5.8",
     "react": "18.2.0",
     "react-bootstrap": "^2.8.0",
     "react-countup": "^6.4.2",
@@ -26,6 +30,7 @@
     "sass": "^1.49.7",
     "scroll-out": "^2.2.12",
     "splitting": "^1.0.6",
-    "swiper": "10.0.4"
+    "swiper": "10.0.4",
+    "tailwindcss": "^4.2.1"
   }
 }

@@ -1,103 +1,89 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { Alert, Button, Card, CardBody, CardHeader, Divider } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
+import { sanitizeNextPath, signInWithGoogle } from "@library/auth";
 
 const LoginPage = () => {
   const router = useRouter();
   const { supabase, user, isAdmin, loading, isConfigured, configError } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const nextFromQuery =
-    typeof router.query.next === "string" && router.query.next.startsWith("/") ? router.query.next : null;
-  const nextTarget = nextFromQuery || "/teacher/dashboard";
+  const nextFromQuery = sanitizeNextPath(
+    typeof router.query.next === "string" ? router.query.next : null,
+    "/teacher/dashboard",
+  );
 
   useEffect(() => {
     if (loading || !user) return;
 
     if (isAdmin) {
-      const adminTarget = nextFromQuery?.startsWith("/admin") ? nextFromQuery : "/admin";
+      const adminTarget = nextFromQuery.startsWith("/admin") ? nextFromQuery : "/admin";
       router.replace(adminTarget);
       return;
     }
 
-    router.replace(nextFromQuery || "/teacher/dashboard");
+    router.replace(nextFromQuery);
   }, [isAdmin, loading, nextFromQuery, router, user]);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  const onGoogleLogin = async () => {
     setError("");
     if (!supabase) {
       setError(configError || "Supabase is not configured.");
       return;
     }
+
     setBusy(true);
-
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) {
-        setError(signInError.message);
-      }
+      await signInWithGoogle({ supabase, nextPath: nextFromQuery });
     } catch (err) {
-      const msg = err?.message || "Login failed. Please try again.";
-      setError(msg.includes("LockManager") ? "Session lock timeout. Close duplicate tabs and try again." : msg);
-    } finally {
+      setError(err?.message || "Google login failed. Please try again.");
       setBusy(false);
     }
   };
 
   return (
-    <AppShell title="Login" subtitle="Access your teacher onboarding account.">
+    <AppShell title="Login" subtitle="Prijava za kandidate i admin tim preko Google naloga.">
       <div className="tfh-grid tfh-grid-2">
-        <div className="tfh-card">
-          <h3>Sign in</h3>
-          <form className="tfh-form" onSubmit={onSubmit}>
-            <div>
-              <label>Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div>
-              <label>Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            </div>
+        <Card className="shadow-sm">
+          <CardHeader className="flex-col items-start gap-1">
+            <h3 className="text-2xl font-semibold text-slate-800">Continue with Google</h3>
+            <p className="text-sm text-slate-500">Koristi isti Google nalog za kandidat i admin pristup.</p>
+          </CardHeader>
+          <Divider />
+          <CardBody className="gap-4">
+            <Button color="primary" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
+              {busy ? "Redirecting..." : "Sign in with Google"}
+            </Button>
 
-            {error && <div className="tfh-alert tfh-error">{error}</div>}
-            {!isConfigured && <div className="tfh-alert tfh-error">{configError || "Supabase is not configured."}</div>}
+            {!isConfigured && (
+              <Alert color="danger" title={configError || "Supabase is not configured."} />
+            )}
+            {error && <Alert color="danger" title={error} />}
 
-            <div className="tfh-actions">
-              <button className="tfh-btn" type="submit" disabled={busy}>
-                {busy ? "Signing in..." : "Login"}
-              </button>
-              <Link href={`/signup?next=${encodeURIComponent(nextTarget)}`} className="tfh-btn tfh-btn-outline">
-                Create account
-              </Link>
-            </div>
-          </form>
-        </div>
+            <Button as={Link} href={`/signup?next=${encodeURIComponent(nextFromQuery)}`} variant="light" fullWidth>
+              Need a new account?
+            </Button>
+          </CardBody>
+        </Card>
 
-        <div className="tfh-card">
-          <h3>TeachFromHome access</h3>
-          <p>
-            Use this login to continue your onboarding process:
-            <br />
-            Phase 1 submission, Phase 2 training, notifications and profile management.
-          </p>
-          <p>
-            New here? <Link href={`/signup?next=${encodeURIComponent(nextTarget)}`}>Create your account</Link>.
-          </p>
-        </div>
+        <Card className="shadow-sm">
+          <CardHeader className="flex-col items-start gap-1">
+            <h3 className="text-2xl font-semibold text-slate-800">After login</h3>
+            <p className="text-sm text-slate-500">Sistem automatski prepoznaje da li je nalog admin ili kandidat.</p>
+          </CardHeader>
+          <Divider />
+          <CardBody className="text-sm leading-6 text-slate-600">
+            <p>Candidate: dashboard, Phase 1, Phase 2, notifications i profile.</p>
+            <p>Admin: queue review, training videos, referrals i operativne akcije.</p>
+          </CardBody>
+        </Card>
       </div>
     </AppShell>
   );
 };
 
 export default LoginPage;
-

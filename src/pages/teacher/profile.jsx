@@ -3,10 +3,11 @@ import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import StatusBadge from "@components/app/StatusBadge";
 import { useAuth } from "@components/auth/AuthProvider";
+import { getAccessTokenOrThrow } from "@library/auth";
 import { callEdgeFunction } from "@library/edgeClient";
 
 const TeacherProfilePage = () => {
-  const { supabase, user, profile, session, refreshAuthState } = useAuth();
+  const { supabase, user, profile, refreshAuthState } = useAuth();
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -79,10 +80,6 @@ const TeacherProfilePage = () => {
     setError("");
     setSuccess("");
 
-    if (!session?.access_token) {
-      setError("Missing auth session.");
-      return;
-    }
     if (!referralCodeInput.trim()) {
       setError("Enter referral code first.");
       return;
@@ -90,9 +87,10 @@ const TeacherProfilePage = () => {
 
     setBusy(true);
     try {
+      const accessToken = await getAccessTokenOrThrow(supabase);
       await callEdgeFunction({
         functionName: "teacher_apply_referral_code",
-        accessToken: session.access_token,
+        accessToken,
         body: { referral_code: referralCodeInput.trim() },
       });
       setSuccess("Referral code applied.");

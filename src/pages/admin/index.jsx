@@ -1,16 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Alert, Button, Card, CardBody, CardHeader, Chip, Divider, Spinner } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { callEdgeFunction } from "@library/edgeClient";
+import { getAccessTokenOrThrow } from "@library/auth";
+
+const trackedEvents = ["visits", "started_signup", "phase1_submitted", "phase1_passed", "phase2_submitted", "accepted"];
 
 const AdminDashboardPage = () => {
-  const { supabase, session, isConfigured, configError } = useAuth();
-  const [events, setEvents] = useState([]);
+  const { supabase, isConfigured, configError } = useAuth();
   const [phase1Pending, setPhase1Pending] = useState(0);
   const [phase2Pending, setPhase2Pending] = useState(0);
   const [acceptedCount, setAcceptedCount] = useState(0);
+  const [analyticsSummary, setAnalyticsSummary] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [maintenanceBusy, setMaintenanceBusy] = useState(false);
@@ -25,18 +29,9 @@ const AdminDashboardPage = () => {
       }
 
       setLoading(true);
+
       try {
-        const [
-          { data: analyticsRows, error: analyticsError },
-          { count: phase1Count, error: phase1Error },
-          { count: phase2Count, error: phase2Error },
-          { count: acceptedProfiles, error: acceptedError },
-        ] = await Promise.all([
-          supabase
-            .from("analytics_events")
-            .select("event_name")
-            .order("created_at", { ascending: false })
-            .limit(1000),
+        const baseRequests = [
           supabase
             .from("teacher_phase1_submissions")
             .select("*", { count: "exact", head: true })
@@ -50,17 +45,34 @@ const AdminDashboardPage = () => {
             .from("profiles")
             .select("*", { count: "exact", head: true })
             .eq("current_phase", "accepted"),
-        ]);
+        ];
 
-        const firstError = analyticsError || phase1Error || phase2Error || acceptedError;
+        const analyticsRequests = trackedEvents.map((eventName) =>
+          supabase.from("analytics_events").select("*", { count: "exact", head: true }).eq("event_name", eventName),
+        );
+
+        const responses = await Promise.all([...baseRequests, ...analyticsRequests]);
+        const [phase1Res, phase2Res, acceptedRes, ...analyticsRes] = responses;
+
+        const firstError =
+          phase1Res.error ||
+          phase2Res.error ||
+          acceptedRes.error ||
+          analyticsRes.find((row) => row.error)?.error;
+
         if (firstError) {
           throw firstError;
         }
 
-        setEvents(analyticsRows ?? []);
-        setPhase1Pending(phase1Count ?? 0);
-        setPhase2Pending(phase2Count ?? 0);
-        setAcceptedCount(acceptedProfiles ?? 0);
+        const summary = trackedEvents.reduce((acc, eventName, index) => {
+          acc[eventName] = analyticsRes[index].count ?? 0;
+          return acc;
+        }, {});
+
+        setPhase1Pending(phase1Res.count ?? 0);
+        setPhase2Pending(phase2Res.count ?? 0);
+        setAcceptedCount(acceptedRes.count ?? 0);
+        setAnalyticsSummary(summary);
         setError("");
       } catch (loadError) {
         setError(loadError?.message || "Failed to load admin dashboard.");
@@ -72,38 +84,21 @@ const AdminDashboardPage = () => {
     load();
   }, [configError, isConfigured, supabase]);
 
-  const analyticsSummary = useMemo(() => {
-    const summary = {
-      visits: 0,
-      started_signup: 0,
-      phase1_submitted: 0,
-      phase1_passed: 0,
-      phase2_submitted: 0,
-      accepted: 0,
-    };
-
-    events.forEach((row) => {
-      if (Object.prototype.hasOwnProperty.call(summary, row.event_name)) {
-        summary[row.event_name] += 1;
-      }
-    });
-
-    return summary;
-  }, [events]);
-
   const runStorageCleanup = async () => {
     setMaintenanceMessage("");
 
-    if (!session?.access_token) {
-      setMaintenanceMessage("Missing admin auth session.");
+    if (!supabase) {
+      setMaintenanceMessage("Supabase client missing.");
       return;
     }
 
     setMaintenanceBusy(true);
+
     try {
+      const accessToken = await getAccessTokenOrThrow(supabase);
       const result = await callEdgeFunction({
         functionName: "admin_cleanup_storage",
-        accessToken: session.access_token,
+        accessToken,
         body: {},
       });
 
@@ -119,78 +114,90 @@ const AdminDashboardPage = () => {
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Admin Dashboard" subtitle="Overview of queues, approvals and operational actions.">
-        {error && <div className="tfh-alert tfh-error">{error}</div>}
+      <AppShell title="Admin Dashboard" subtitle="Pregled queue-ova, metrika i operativnih akcija.">
+        {error && <Alert color="danger" title={error} className="mb-4" />}
+
         {loading ? (
-          <div className="tfh-alert">Loading admin metrics...</div>
+          <Card>
+            <CardBody className="flex flex-row items-center gap-3 py-8">
+              <Spinner size="sm" />
+              <p>Loading admin metrics...</p>
+            </CardBody>
+          </Card>
         ) : (
-          <div className="tfh-grid">
-            <div className="tfh-kpi-grid">
-              <div className="tfh-kpi-card">
-                <span className="tfh-kpi-label">Phase 1 Pending</span>
-                <strong className="tfh-kpi-value">{phase1Pending}</strong>
-              </div>
-              <div className="tfh-kpi-card">
-                <span className="tfh-kpi-label">Phase 2 Pending</span>
-                <strong className="tfh-kpi-value">{phase2Pending}</strong>
-              </div>
-              <div className="tfh-kpi-card">
-                <span className="tfh-kpi-label">Accepted Teachers</span>
-                <strong className="tfh-kpi-value">{acceptedCount}</strong>
-              </div>
+          <div className="grid gap-4">
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <CardBody>
+                  <span className="text-sm text-slate-500">Phase 1 Pending</span>
+                  <strong className="text-4xl font-semibold text-slate-900">{phase1Pending}</strong>
+                </CardBody>
+              </Card>
+              <Card>
+                <CardBody>
+                  <span className="text-sm text-slate-500">Phase 2 Pending</span>
+                  <strong className="text-4xl font-semibold text-slate-900">{phase2Pending}</strong>
+                </CardBody>
+              </Card>
+              <Card>
+                <CardBody>
+                  <span className="text-sm text-slate-500">Accepted Teachers</span>
+                  <strong className="text-4xl font-semibold text-slate-900">{acceptedCount}</strong>
+                </CardBody>
+              </Card>
             </div>
 
-            <div className="tfh-card">
-              <h3>Analytics (MVP)</h3>
-              <div className="tfh-analytics-grid">
-                <div>
-                  <span>Visits</span>
-                  <strong>{analyticsSummary.visits}</strong>
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Analytics (MVP)</h3>
+              </CardHeader>
+              <Divider />
+              <CardBody>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {trackedEvents.map((eventName) => (
+                    <Card key={eventName} className="border border-slate-200 bg-slate-50" shadow="none">
+                      <CardBody className="py-3">
+                        <span className="text-xs uppercase tracking-wide text-slate-500">{eventName.replaceAll("_", " ")}</span>
+                        <Chip color="primary" variant="flat" className="mt-2 w-fit">
+                          {analyticsSummary[eventName] ?? 0}
+                        </Chip>
+                      </CardBody>
+                    </Card>
+                  ))}
                 </div>
-                <div>
-                  <span>Started signup</span>
-                  <strong>{analyticsSummary.started_signup}</strong>
-                </div>
-                <div>
-                  <span>Phase 1 submitted</span>
-                  <strong>{analyticsSummary.phase1_submitted}</strong>
-                </div>
-                <div>
-                  <span>Phase 1 passed</span>
-                  <strong>{analyticsSummary.phase1_passed}</strong>
-                </div>
-                <div>
-                  <span>Phase 2 submitted</span>
-                  <strong>{analyticsSummary.phase2_submitted}</strong>
-                </div>
-                <div>
-                  <span>Accepted</span>
-                  <strong>{analyticsSummary.accepted}</strong>
-                </div>
-              </div>
-            </div>
+              </CardBody>
+            </Card>
 
-            <div className="tfh-card">
-              <h3>Quick Actions</h3>
-              <div className="tfh-quick-grid">
-                <Link href="/admin/phase1" className="tfh-btn">
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Quick Actions</h3>
+              </CardHeader>
+              <Divider />
+              <CardBody className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                <Button as={Link} href="/admin/phase1" color="primary">
                   Open Phase 1 Queue
-                </Link>
-                <Link href="/admin/phase2" className="tfh-btn">
+                </Button>
+                <Button as={Link} href="/admin/phase2" color="primary">
                   Open Phase 2 Queue
-                </Link>
-                <Link href="/admin/training" className="tfh-btn tfh-btn-outline">
+                </Button>
+                <Button as={Link} href="/admin/training" variant="bordered">
                   Manage Training Videos
-                </Link>
-                <Link href="/admin/referrals" className="tfh-btn tfh-btn-outline">
+                </Button>
+                <Button as={Link} href="/admin/referrals" variant="bordered">
                   Manage Referrals
-                </Link>
-                <button type="button" className="tfh-btn tfh-btn-outline" onClick={runStorageCleanup} disabled={maintenanceBusy}>
+                </Button>
+                <Button color="warning" variant="flat" onPress={runStorageCleanup} isLoading={maintenanceBusy}>
                   {maintenanceBusy ? "Running cleanup..." : "Run Storage Cleanup"}
-                </button>
-              </div>
-              {maintenanceMessage && <p style={{ marginTop: "12px" }}>{maintenanceMessage}</p>}
-            </div>
+                </Button>
+              </CardBody>
+            </Card>
+
+            {maintenanceMessage && (
+              <Alert
+                color={maintenanceMessage.toLowerCase().includes("failed") ? "danger" : "success"}
+                title={maintenanceMessage}
+              />
+            )}
           </div>
         )}
       </AppShell>

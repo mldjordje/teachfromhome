@@ -7,6 +7,7 @@
       "@library/*": ["./src/lib/*"],
       "@data/*": ["./src/data/*"],
       "@common/*": ["./src/common/*"],
+      "@config/*": ["./src/config/*"]
     }
   }
 }

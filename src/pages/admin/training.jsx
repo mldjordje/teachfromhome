@@ -1,8 +1,15 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
+import { Alert, Button, Card, CardBody, CardHeader, Checkbox, Divider, Input, Select, SelectItem, Spinner } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { getFileExt } from "@library/storage";
+
+const categoryOptions = [
+  { key: "about_us", label: "about_us" },
+  { key: "bright_sample", label: "bright_sample" },
+  { key: "tips", label: "tips" },
+];
 
 const AdminTrainingVideosPage = () => {
   const { supabase, user } = useAuth();
@@ -14,20 +21,28 @@ const AdminTrainingVideosPage = () => {
   const [videos, setVideos] = useState([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const loadVideos = async () => {
+    if (!supabase) return;
+
+    setLoading(true);
+
     const { data, error: loadError } = await supabase
       .from("training_videos")
       .select("*")
       .order("category", { ascending: true })
       .order("order_index", { ascending: true });
+
     if (loadError) {
       setError(loadError.message);
       setVideos([]);
-      return;
+    } else {
+      setError("");
+      setVideos(data ?? []);
     }
-    setError("");
-    setVideos(data ?? []);
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -37,10 +52,12 @@ const AdminTrainingVideosPage = () => {
   const uploadVideo = async (e) => {
     e.preventDefault();
     setError("");
+
     if (!videoFile) {
       setError("Select training video file.");
       return;
     }
+
     setBusy(true);
 
     const ext = getFileExt(videoFile.name);
@@ -68,6 +85,7 @@ const AdminTrainingVideosPage = () => {
     });
 
     setBusy(false);
+
     if (insertError) {
       setError(insertError.message);
       return;
@@ -92,6 +110,7 @@ const AdminTrainingVideosPage = () => {
       setError(storageError.message);
       return;
     }
+
     await supabase.from("training_videos").delete().eq("id", video.id);
     await loadVideos();
   };
@@ -106,89 +125,114 @@ const AdminTrainingVideosPage = () => {
   return (
     <RequireAuth adminOnly>
       <AppShell title="Training Videos" subtitle="Upload and manage Phase 2 training videos.">
-        <div className="tfh-grid tfh-grid-2">
-          <div className="tfh-card">
-            <h3>Upload training video</h3>
-            <form className="tfh-form" onSubmit={uploadVideo}>
-              <div>
-                <label>Title</label>
-                <input value={title} onChange={(e) => setTitle(e.target.value)} required />
-              </div>
-              <div>
-                <label>Category</label>
-                <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                  <option value="about_us">about_us</option>
-                  <option value="bright_sample">bright_sample</option>
-                  <option value="tips">tips</option>
-                </select>
-              </div>
-              <div>
-                <label>Order index</label>
-                <input type="number" value={orderIndex} onChange={(e) => setOrderIndex(e.target.value)} />
-              </div>
-              <div>
-                <label>Active</label>
-                <select value={isActive ? "yes" : "no"} onChange={(e) => setIsActive(e.target.value === "yes")}>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-              </div>
-              <div>
-                <label>Video file</label>
-                <input type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
-              </div>
-              {error && <div className="tfh-alert tfh-error">{error}</div>}
-              <div className="tfh-actions">
-                <button className="tfh-btn" type="submit" disabled={busy}>
-                  {busy ? "Uploading..." : "Upload video"}
-                </button>
-              </div>
-            </form>
-          </div>
+        {error && <Alert color="danger" title={error} className="mb-4" />}
 
-          <div className="tfh-card">
-            <h3>Existing training videos</h3>
-            {videos.length ? (
-              <div className="tfh-table-wrap">
-                <table className="tfh-table">
-                  <thead>
-                    <tr>
-                      <th>Title</th>
-                      <th>Category</th>
-                      <th>Order</th>
-                      <th>Active</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {videos.map((video) => (
-                      <tr key={video.id}>
-                        <td>{video.title}</td>
-                        <td>{video.category}</td>
-                        <td>{video.order_index}</td>
-                        <td>{video.is_active ? "yes" : "no"}</td>
-                        <td>
-                          <div className="tfh-actions">
-                            <button className="tfh-btn tfh-btn-outline" type="button" onClick={() => getPreviewUrl(video.storage_path)}>
-                              Preview
-                            </button>
-                            <button className="tfh-btn tfh-btn-outline" type="button" onClick={() => toggleActive(video)}>
-                              Toggle
-                            </button>
-                            <button className="tfh-btn tfh-btn-outline" type="button" onClick={() => deleteVideo(video)}>
-                              Delete
-                            </button>
-                          </div>
-                        </td>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-semibold">Upload training video</h3>
+            </CardHeader>
+            <Divider />
+            <CardBody>
+              <form className="flex flex-col gap-3" onSubmit={uploadVideo}>
+                <Input label="Title" value={title} onValueChange={setTitle} variant="bordered" isRequired />
+
+                <Select
+                  label="Category"
+                  selectedKeys={[category]}
+                  onSelectionChange={(keys) => {
+                    const next = Array.from(keys)[0];
+                    if (typeof next === "string") {
+                      setCategory(next);
+                    }
+                  }}
+                  variant="bordered"
+                >
+                  {categoryOptions.map((item) => (
+                    <SelectItem key={item.key}>{item.label}</SelectItem>
+                  ))}
+                </Select>
+
+                <Input
+                  type="number"
+                  label="Order index"
+                  value={String(orderIndex)}
+                  onValueChange={(value) => setOrderIndex(Number(value || 0))}
+                  variant="bordered"
+                />
+
+                <Checkbox isSelected={isActive} onValueChange={setIsActive}>
+                  Active
+                </Checkbox>
+
+                <Input
+                  type="file"
+                  label="Video file"
+                  accept="video/*"
+                  variant="bordered"
+                  onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                />
+
+                <Button color="primary" type="submit" isLoading={busy}>
+                  {busy ? "Uploading..." : "Upload video"}
+                </Button>
+              </form>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-semibold">Existing training videos</h3>
+            </CardHeader>
+            <Divider />
+            <CardBody>
+              {loading ? (
+                <div className="flex items-center gap-3 py-6">
+                  <Spinner size="sm" />
+                  <p>Loading training videos...</p>
+                </div>
+              ) : videos.length ? (
+                <div className="tfh-table-wrap">
+                  <table className="tfh-table">
+                    <thead>
+                      <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Order</th>
+                        <th>Active</th>
+                        <th>Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p>No training videos yet.</p>
-            )}
-          </div>
+                    </thead>
+                    <tbody>
+                      {videos.map((video) => (
+                        <tr key={video.id}>
+                          <td>{video.title}</td>
+                          <td>{video.category}</td>
+                          <td>{video.order_index}</td>
+                          <td>{video.is_active ? "yes" : "no"}</td>
+                          <td>
+                            <div className="flex flex-wrap gap-2">
+                              <Button size="sm" variant="bordered" onPress={() => getPreviewUrl(video.storage_path)}>
+                                Preview
+                              </Button>
+                              <Button size="sm" variant="flat" color="warning" onPress={() => toggleActive(video)}>
+                                Toggle
+                              </Button>
+                              <Button size="sm" variant="flat" color="danger" onPress={() => deleteVideo(video)}>
+                                Delete
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p>No training videos yet.</p>
+              )}
+            </CardBody>
+          </Card>
         </div>
       </AppShell>
     </RequireAuth>

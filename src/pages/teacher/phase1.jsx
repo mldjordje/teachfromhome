@@ -4,12 +4,13 @@ import AppShell from "@components/app/AppShell";
 import StatusBadge from "@components/app/StatusBadge";
 import { useAuth } from "@components/auth/AuthProvider";
 import { callEdgeFunction } from "@library/edgeClient";
+import { getAccessTokenOrThrow } from "@library/auth";
 import { getFileExt } from "@library/storage";
 import { trackEvent } from "@library/analytics";
 import { ALLOWED_VIDEO_MIME_TYPES, PHASE1_MAX_VIDEO_MB, bytesFromMb } from "@config/uploadLimits";
 
 const TeacherPhase1Page = () => {
-  const { supabase, user, profile, session, refreshAuthState, isConfigured, configError } = useAuth();
+  const { supabase, user, profile, refreshAuthState, isConfigured, configError } = useAuth();
   const [firstName, setFirstName] = useState(profile?.first_name || "");
   const [lastName, setLastName] = useState(profile?.last_name || "");
   const [phone, setPhone] = useState(profile?.phone || "");
@@ -80,10 +81,6 @@ const TeacherPhase1Page = () => {
       setError("Missing user session.");
       return;
     }
-    if (!session?.access_token) {
-      setError("Missing auth session.");
-      return;
-    }
     if (!videoFile) {
       setError("Please upload your Phase 1 intro video.");
       return;
@@ -108,6 +105,8 @@ const TeacherPhase1Page = () => {
     const objectPath = `${user.id}/phase1-attempt-${nextAttempt}-${Date.now()}.${ext}`;
 
     try {
+      const accessToken = await getAccessTokenOrThrow(supabase);
+
       const { error: uploadError } = await supabase.storage.from("phase1-videos").upload(objectPath, videoFile, {
         cacheControl: "3600",
         upsert: false,
@@ -120,7 +119,7 @@ const TeacherPhase1Page = () => {
 
       await callEdgeFunction({
         functionName: "teacher_submit_phase1",
-        accessToken: session.access_token,
+        accessToken,
         body: {
           first_name: firstName,
           last_name: lastName,
@@ -136,7 +135,7 @@ const TeacherPhase1Page = () => {
       await trackEvent({
         eventName: "phase1_submitted",
         metadata: { attempt_no: nextAttempt },
-        accessToken: session.access_token,
+        accessToken,
       });
 
       setSuccess("Phase 1 submitted successfully.");
