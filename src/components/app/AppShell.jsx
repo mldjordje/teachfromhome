@@ -61,10 +61,10 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
 
   const guestAction = useMemo(() => {
     if (!isPublicEntry) return null;
-    if (pathname === "/apply") return { href: "/login", label: "Login" };
-    if (pathname === "/signup") return { href: "/login", label: "Login" };
-    if (pathname === "/admin/login") return { href: "/login", label: "Teacher login" };
-    return { href: "/apply", label: "Apply now" };
+    if (pathname === "/apply") return { href: "/login", label: "Prijava" };
+    if (pathname === "/signup") return { href: "/login", label: "Prijava" };
+    if (pathname === "/admin/login") return { href: "/login", label: "Prijava kandidata" };
+    return { href: "/apply", label: "Prijavi se" };
   }, [isPublicEntry, pathname]);
 
   const brandLogo = isPublicEntry ? appData.header.logo.image : appData.header.logo.image_white;
@@ -98,7 +98,7 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
                   </Chip>
                 )}
                 <button type="button" className="tfh-topbar-btn tfh-topbar-btn--ghost" onClick={onSignOut}>
-                  Sign out
+                  Odjavi se
                 </button>
               </>
             ) : (
@@ -110,10 +110,10 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
                 ) : (
                   <>
                   <Link href={isAdminRoute ? "/admin/login" : "/login"} className="tfh-topbar-btn tfh-topbar-btn--ghost">
-                      Login
+                      Prijava
                     </Link>
                     <Link href="/apply" className="tfh-topbar-btn tfh-topbar-btn--solid">
-                      Apply now
+                      Prijavi se
                     </Link>
                   </>
                 )}

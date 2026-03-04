@@ -9,7 +9,25 @@ export const sanitizeNextPath = (candidate, fallback = "/teacher/dashboard") => 
 
 export const signInWithGoogle = async ({ nextPath }) => {
   const callbackUrl = sanitizeNextPath(nextPath, "/teacher/dashboard");
-  await signIn("google", { callbackUrl });
+  const result = await signIn("google", {
+    callbackUrl,
+    redirect: false,
+  });
+
+  if (!result) {
+    throw new Error("Google prijava nije uspela. Pokušaj ponovo.");
+  }
+
+  if (result.error) {
+    throw new Error(result.error);
+  }
+
+  if (result.url && typeof window !== "undefined") {
+    window.location.assign(result.url);
+    return;
+  }
+
+  throw new Error("Google prijava nije uspela. Pokušaj ponovo.");
 };
 
 export const getAccessTokenOrThrow = async () => {

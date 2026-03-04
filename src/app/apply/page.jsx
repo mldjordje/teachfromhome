@@ -22,34 +22,35 @@ const ApplyPage = () => {
   const signupLink = `/signup?next=${encodeURIComponent(NEXT_PHASE1)}`;
 
   return (
-    <AppShell title="Start Application" subtitle="Create account or continue where you left off." publicView>
+    <AppShell title="Prijava kandidata" subtitle="Uloguj se ili napravi nalog i kreni odmah sa Faza 1." publicView>
       <section className="tfh-minimal-auth">
         <div className="tfh-minimal-left">
-          <span className="tfh-minimal-kicker">Teacher onboarding</span>
-          <h2>Start in under 2 minutes</h2>
-          <p>Clean, fast flow. Login with Google, fill Phase 1 details, upload your intro, and move into review.</p>
+          <span className="tfh-minimal-kicker">Onboarding proces</span>
+          <h2>3 faze selekcije</h2>
+          <p>Kratko i jasno: šta radiš po fazama i šta treba da pripremiš pre slanja.</p>
           <ul className="tfh-minimal-list">
-            <li>No password setup</li>
-            <li>Direct access to dashboard</li>
-            <li>Mobile-first workflow</li>
+            <li>Faza 1: popuni osnovne podatke i snimi kratak video.</li>
+            <li>Za Fazu 1 sam biraš tekst koji izgovaraš i unosiš ga u input polje.</li>
+            <li>Faza 2: detaljniji zadatak dobijaš tek nakon prolaska Faze 1.</li>
+            <li>Priprema: stabilan internet, tih prostor i jasno osvetljenje za snimanje.</li>
           </ul>
         </div>
 
         <div className="tfh-minimal-right">
           <Card className="tfh-minimal-card">
             <CardBody className="gap-4">
-              <h3>I already have account</h3>
-              <p>Continue directly to your onboarding dashboard and Phase 1 form.</p>
+              <h3>Već imam nalog</h3>
+              <p>Nastavi direktno na dashboard i Fazu 1.</p>
               <Button as={Link} href={loginLink} size="lg" className="tfh-action-btn" fullWidth>
-                Login
+                Prijava
               </Button>
             </CardBody>
           </Card>
 
           <Card className="tfh-minimal-card">
             <CardBody className="gap-4">
-              <h3>I am a new candidate</h3>
-              <p>Create account instantly with Google auth and start application.</p>
+              <h3>Novi kandidat</h3>
+              <p>Napravi nalog preko Google-a i odmah započni proces.</p>
               <Button
                 as={Link}
                 href={signupLink}
@@ -58,7 +59,7 @@ const ApplyPage = () => {
                 className="tfh-action-btn tfh-action-btn--ghost"
                 fullWidth
               >
-                Create account
+                Registracija
               </Button>
             </CardBody>
           </Card>

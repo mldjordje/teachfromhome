@@ -42,9 +42,9 @@ const SignupPage = () => {
         });
 
         window.localStorage.removeItem(REFERRAL_STORAGE_KEY);
-        setSuccess("Referral code linked to your account.");
+        setSuccess("Referral kod je povezan sa vašim nalogom.");
       } catch (refError) {
-        setError(refError?.message || "Referral code could not be applied.");
+        setError(refError?.message || "Referral kod nije moguće primeniti.");
       } finally {
         router.replace(isAdmin ? "/admin" : nextTarget);
       }
@@ -72,32 +72,32 @@ const SignupPage = () => {
 
       await signInWithGoogle({ nextPath: nextTarget });
     } catch (err) {
-      setError(err?.message || "Signup failed. Please try again.");
+      setError(err?.message || "Registracija nije uspela. Pokušajte ponovo.");
       setBusy(false);
     }
   };
 
   return (
-    <AppShell title="Create account" subtitle="Open candidate account in one step." publicView>
+    <AppShell title="Registracija" subtitle="Otvorite kandidatski nalog u jednom koraku." publicView>
       <section className="tfh-minimal-auth">
         <div className="tfh-minimal-left">
-          <span className="tfh-minimal-kicker">New candidate</span>
-          <h2>Minimal signup flow</h2>
-          <p>Google sign-up creates your account instantly and sends you straight to Phase 1 onboarding.</p>
+          <span className="tfh-minimal-kicker">Novi kandidat</span>
+          <h2>Brza registracija</h2>
+          <p>Registracija preko Google-a odmah kreira nalog i vodi vas direktno na Fazu 1.</p>
           <ul className="tfh-minimal-list">
-            <li>Quick account creation</li>
-            <li>Optional referral support</li>
-            <li>Direct dashboard access</li>
+            <li>Brzo kreiranje naloga</li>
+            <li>Opcioni referral kod</li>
+            <li>Direktan pristup dashboard-u</li>
           </ul>
         </div>
 
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
-            <h3>Create with Google</h3>
-            <p>Add referral code if you have one, then continue.</p>
+            <h3>Registracija preko Google-a</h3>
+            <p>Unesite referral kod ako ga imate, zatim nastavite.</p>
 
             <Input
-              label="Referral code (optional)"
+              label="Referral kod (opciono)"
               placeholder="ABC123DEF4"
               value={referralCode}
               onValueChange={setReferralCode}
@@ -105,7 +105,7 @@ const SignupPage = () => {
             />
 
             <Button size="lg" onPress={onGoogleSignup} isLoading={busy} className="tfh-action-btn" fullWidth>
-              {busy ? "Redirecting..." : "Continue with Google"}
+              {busy ? "Preusmeravanje..." : "Nastavi preko Google-a"}
             </Button>
 
             {error && <Alert color="danger" title={error} />}
@@ -118,7 +118,7 @@ const SignupPage = () => {
               className="tfh-action-btn tfh-action-btn--ghost"
               fullWidth
             >
-              I already have account
+              Već imam nalog
             </Button>
           </CardBody>
         </Card>

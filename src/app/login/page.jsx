@@ -39,32 +39,32 @@ const LoginPage = () => {
     try {
       await signInWithGoogle({ nextPath: nextFromQuery });
     } catch (err) {
-      setError(err?.message || "Google login failed. Please try again.");
+      setError(err?.message || "Google prijava nije uspela. Pokušajte ponovo.");
       setBusy(false);
     }
   };
 
   return (
-    <AppShell title="Login" subtitle="Access candidate or admin workspace with Google." publicView>
+    <AppShell title="Prijava" subtitle="Pristup kandidatskom ili admin nalogu preko Google-a." publicView>
       <section className="tfh-minimal-auth">
         <div className="tfh-minimal-left">
-          <span className="tfh-minimal-kicker">Secure access</span>
-          <h2>Single sign-on, zero friction</h2>
-          <p>Sign in once with Google. System auto-detects role and routes you to candidate dashboard or admin panel.</p>
+          <span className="tfh-minimal-kicker">Bezbedan pristup</span>
+          <h2>Jedna prijava, brz ulazak</h2>
+          <p>Prijavite se Google nalogom. Sistem automatski prepoznaje ulogu i vodi vas na odgovarajući panel.</p>
           <ul className="tfh-minimal-list">
-            <li>Google OAuth only</li>
-            <li>No manual password resets</li>
-            <li>Optimized for phone and desktop</li>
+            <li>Samo Google OAuth</li>
+            <li>Bez resetovanja lozinke</li>
+            <li>Optimizovano za telefon i desktop</li>
           </ul>
         </div>
 
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
-            <h3>Continue with Google</h3>
-            <p>Use your existing Google account to continue onboarding.</p>
+            <h3>Nastavi preko Google-a</h3>
+            <p>Koristi postojeći Google nalog za nastavak procesa.</p>
 
             <Button className="tfh-action-btn" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
-              {busy ? "Redirecting..." : "Sign in with Google"}
+              {busy ? "Preusmeravanje..." : "Prijavi se Google nalogom"}
             </Button>
 
             {error && <Alert color="danger" title={error} />}
@@ -76,7 +76,7 @@ const LoginPage = () => {
               variant="flat"
               fullWidth
             >
-              Need a new account?
+              Nemate nalog?
             </Button>
           </CardBody>
         </Card>

@@ -434,7 +434,7 @@ html {
 
 .tfh-shell-actions {
     min-width: 0;
-    flex-wrap: nowrap !important;
+    flex-wrap: wrap !important;
 }
 
 .tfh-brand-mark {
@@ -792,6 +792,17 @@ html {
 
     .tfh-shell-actions {
         gap: 6px !important;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .tfh-topbar-inner {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .tfh-topbar-btn {
+        min-width: 120px;
     }
 
     .tfh-public-nav-btn {
