@@ -37,7 +37,8 @@ const LoginPage = () => {
     setBusy(true);
 
     try {
-      await signInWithGoogle({ nextPath: nextFromQuery });
+      // Route back through /login so role-based redirect runs after session hydration.
+      await signInWithGoogle({ nextPath: `/login?next=${encodeURIComponent(nextFromQuery)}` });
     } catch (err) {
       setError(err?.message || "Google prijava nije uspela. Pokusajte ponovo.");
       setBusy(false);

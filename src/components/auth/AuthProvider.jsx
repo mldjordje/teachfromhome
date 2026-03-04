@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(session?.user?.isAdmin === true);
   const [configError, setConfigError] = useState("");
   const [hydrating, setHydrating] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
   const user = session?.user || null;
   const sessionSaysAdmin = session?.user?.isAdmin === true;
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }) => {
       setProfile(null);
       setIsAdmin(false);
       setConfigError("");
+      setAuthReady(true);
       return;
     }
 
@@ -52,11 +54,13 @@ export const AuthProvider = ({ children }) => {
       setIsAdmin(sessionSaysAdmin);
     } finally {
       setHydrating(false);
+      setAuthReady(true);
     }
   };
 
   useEffect(() => {
     if (status === "authenticated") {
+      setAuthReady(false);
       setIsAdmin(sessionSaysAdmin);
       hydrate();
       return;
@@ -66,6 +70,7 @@ export const AuthProvider = ({ children }) => {
       setProfile(null);
       setIsAdmin(false);
       setHydrating(false);
+      setAuthReady(true);
     }
   }, [status, session?.user?.id, sessionSaysAdmin]);
 
@@ -79,13 +84,13 @@ export const AuthProvider = ({ children }) => {
       user,
       profile,
       isAdmin,
-      loading: status === "loading" || (status === "authenticated" && hydrating),
+      loading: status === "loading" || (status === "authenticated" && (!authReady || hydrating)),
       isConfigured: true,
       configError,
       refreshAuthState: hydrate,
       signOut,
     }),
-    [session, user, profile, isAdmin, status, hydrating, configError],
+    [session, user, profile, isAdmin, status, hydrating, authReady, configError],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

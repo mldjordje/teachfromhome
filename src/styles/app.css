@@ -1324,6 +1324,11 @@
   color: #b9c8e9 !important;
 }
 
+.tfh-app-shell--public .tfh-minimal-card h3,
+.tfh-app-shell--public .tfh-minimal-left h2 {
+  color: #eef4ff !important;
+}
+
 .tfh-card h3,
 .tfh-mobile-item strong,
 .tfh-page-head-body h1,
@@ -1459,6 +1464,10 @@
 
 .tfh-minimal-kicker {
   color: #96c4ff;
+}
+
+.tfh-minimal-list li {
+  color: #d7e6ff !important;
 }
 
 .tfh-minimal-list li::before {

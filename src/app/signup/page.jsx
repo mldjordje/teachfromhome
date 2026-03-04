@@ -70,7 +70,8 @@ const SignupPage = () => {
         }
       }
 
-      await signInWithGoogle({ nextPath: nextTarget });
+      // Route back through /signup so role-based redirect runs after session hydration.
+      await signInWithGoogle({ nextPath: `/signup?next=${encodeURIComponent(nextTarget)}` });
     } catch (err) {
       setError(err?.message || "Registracija nije uspela. Pokusajte ponovo.");
       setBusy(false);
