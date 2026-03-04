@@ -6,7 +6,8 @@ import Link from "next/link";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import StatusBadge from "@components/app/StatusBadge";
-import { apiGet, apiPost } from "@library/apiClient";
+import VideoPreviewModal from "@components/app/VideoPreviewModal";
+import { apiDelete, apiGet, apiPost } from "@library/apiClient";
 
 const AdminPhase2Page = () => {
   const [rows, setRows] = useState([]);
@@ -17,7 +18,10 @@ const AdminPhase2Page = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [busyTaskId, setBusyTaskId] = useState("");
+  const [busyDeleteId, setBusyDeleteId] = useState("");
   const [feedbackMap, setFeedbackMap] = useState({});
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
 
   const loadRows = async () => {
     setLoading(true);
@@ -69,6 +73,38 @@ const AdminPhase2Page = () => {
     }
 
     setBusyTaskId("");
+  };
+
+  const openPreview = (row) => {
+    setPreviewUrl(row.latest_video_blob_url || "");
+    setPreviewTitle(`${row.first_name || "Kandidat"} ${row.last_name || ""} - Faza 2 pokusaj ${row.latest_attempt_no || "-"}`.trim());
+  };
+
+  const closePreview = () => {
+    setPreviewUrl("");
+    setPreviewTitle("");
+  };
+
+  const deletePhase2Video = async (row) => {
+    if (!row?.latest_submission_id) return;
+
+    const confirmed = window.confirm("Obrisi poslednji Phase 2 video i ukloni ga iz aktivne liste?");
+    if (!confirmed) return;
+
+    setBusyDeleteId(row.latest_submission_id);
+    setError("");
+
+    try {
+      await apiDelete("/api/admin/phase2/submission", {
+        task_id: row.task_id,
+        submission_id: row.latest_submission_id,
+      });
+      await loadRows();
+    } catch (actionError) {
+      setError(actionError.message || "Brisanje Phase 2 videa nije uspelo.");
+    } finally {
+      setBusyDeleteId("");
+    }
   };
 
   return (
@@ -185,9 +221,7 @@ const AdminPhase2Page = () => {
                     )}
 
                     {row.latest_video_blob_url && (
-                      <Button as="a" href={row.latest_video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
-                        Otvori video
-                      </Button>
+                      <Button size="sm" variant="bordered" onPress={() => openPreview(row)}>Pregled videa</Button>
                     )}
 
                     {row.latest_submission_id && ["submitted", "retry", "assigned"].includes(row.task_status) && (
@@ -231,6 +265,22 @@ const AdminPhase2Page = () => {
                         </div>
                       </div>
                     )}
+
+                    {row.latest_submission_id &&
+                      row.latest_video_blob_url &&
+                      (["accepted", "rejected"].includes(row.latest_submission_status) ||
+                        ["accepted", "rejected"].includes(row.task_status)) && (
+                        <Button
+                          size="sm"
+                          color="danger"
+                          variant="flat"
+                          className="tfh-action-grid-btn tfh-action-grid-btn--ghost"
+                          isLoading={busyDeleteId === row.latest_submission_id}
+                          onPress={() => deletePhase2Video(row)}
+                        >
+                          Obrisi video
+                        </Button>
+                      )}
                   </article>
                 ))}
               </div>
@@ -239,6 +289,7 @@ const AdminPhase2Page = () => {
             )}
           </CardBody>
         </Card>
+        <VideoPreviewModal open={Boolean(previewUrl)} src={previewUrl} title={previewTitle} onClose={closePreview} />
       </AppShell>
     </RequireAuth>
   );

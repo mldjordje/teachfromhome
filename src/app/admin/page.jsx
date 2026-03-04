@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Alert, Button, Card, CardBody, CardHeader, Chip, Divider, Spinner } from "@heroui/react";
+import { Alert, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import { apiGet, apiPost } from "@library/apiClient";
@@ -96,16 +96,12 @@ const AdminDashboardPage = () => {
               </CardHeader>
               <Divider />
               <CardBody>
-                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="tfh-admin-analytics-grid">
                   {trackedEvents.map((eventName) => (
-                    <Card key={eventName} className="tfh-analytics-tile" shadow="none">
-                      <CardBody className="py-3">
-                        <span className="tfh-analytics-label">{eventName.replaceAll("_", " ")}</span>
-                        <Chip color="primary" variant="flat" className="mt-2 w-fit tfh-analytics-chip">
-                          {analyticsSummary[eventName] ?? 0}
-                        </Chip>
-                      </CardBody>
-                    </Card>
+                    <article key={eventName} className="tfh-admin-analytics-item">
+                      <span>{eventName.replaceAll("_", " ")}</span>
+                      <strong>{analyticsSummary[eventName] ?? 0}</strong>
+                    </article>
                   ))}
                 </div>
               </CardBody>
@@ -117,15 +113,20 @@ const AdminDashboardPage = () => {
               </CardHeader>
               <Divider />
               <CardBody className="tfh-admin-action-grid">
-                <Button as={Link} href="/admin/phase1" color="primary" className="tfh-action-grid-btn">Faza 1 queue</Button>
-                <Button as={Link} href="/admin/phase2" color="primary" className="tfh-action-grid-btn">Faza 2 queue</Button>
-                <Button as={Link} href="/admin/candidates" color="primary" className="tfh-action-grid-btn">Kandidati</Button>
-                <Button as={Link} href="/admin/training" variant="bordered" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">Trening klipovi</Button>
-                <Button as={Link} href="/admin/referrals" variant="bordered" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">Preporuke</Button>
-                <Button as={Link} href="/admin/showcase" variant="bordered" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">Showcase klipovi</Button>
-                <Button color="warning" variant="flat" className="tfh-action-grid-btn tfh-action-grid-btn--ghost" onPress={runStorageCleanup} isLoading={maintenanceBusy}>
+                <Link href="/admin/phase1" className="tfh-admin-quick-link">Faza 1 queue</Link>
+                <Link href="/admin/phase2" className="tfh-admin-quick-link">Faza 2 queue</Link>
+                <Link href="/admin/candidates" className="tfh-admin-quick-link">Kandidati</Link>
+                <Link href="/admin/training" className="tfh-admin-quick-link tfh-admin-quick-link--ghost">Trening klipovi</Link>
+                <Link href="/admin/referrals" className="tfh-admin-quick-link tfh-admin-quick-link--ghost">Preporuke</Link>
+                <Link href="/admin/showcase" className="tfh-admin-quick-link tfh-admin-quick-link--ghost">Showcase klipovi</Link>
+                <button
+                  type="button"
+                  className="tfh-admin-quick-link tfh-admin-quick-link--ghost"
+                  onClick={runStorageCleanup}
+                  disabled={maintenanceBusy}
+                >
                   {maintenanceBusy ? "Pokretanje cleanup-a..." : "Pokreni storage cleanup"}
-                </Button>
+                </button>
               </CardBody>
             </Card>
 

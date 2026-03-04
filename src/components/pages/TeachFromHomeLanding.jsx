@@ -179,6 +179,28 @@ const TeachFromHomeLanding = () => {
         </motion.div>
       </section>
 
+      <motion.section id="clips" className="tfh-anchor-section tfh-landing-section tfh-showcase-section" {...reveal}>
+        <div className="container">
+          <div className="tfh-showcase-head">
+            <h2>{t.showcaseTitle}</h2>
+            <p>{t.showcaseText}</p>
+            <div className="tfh-clip-kpis">
+              <span>Izgovor</span>
+              <span>Energija</span>
+              <span>Jasna struktura</span>
+            </div>
+          </div>
+
+          <ShowcaseVideoGrid limit={3} compact />
+
+          <div className="tfh-showcase-bottom">
+            <Link href="/clips" className="tfh-landing-btn tfh-landing-btn--solid">
+              {t.showcaseCta}
+            </Link>
+          </div>
+        </div>
+      </motion.section>
+
       <motion.section id="why-join" className="tfh-anchor-section tfh-landing-section" {...reveal}>
         <div className="container">
           <div className="tfh-section-head">
@@ -242,28 +264,6 @@ const TeachFromHomeLanding = () => {
                 <li key={step}>{step}</li>
               ))}
             </ol>
-          </div>
-        </div>
-      </motion.section>
-
-      <motion.section id="clips" className="tfh-anchor-section tfh-landing-section tfh-showcase-section" {...reveal}>
-        <div className="container">
-          <div className="tfh-showcase-head">
-            <h2>{t.showcaseTitle}</h2>
-            <p>{t.showcaseText}</p>
-            <div className="tfh-clip-kpis">
-              <span>Izgovor</span>
-              <span>Energija</span>
-              <span>Jasna struktura</span>
-            </div>
-          </div>
-
-          <ShowcaseVideoGrid limit={3} compact />
-
-          <div className="tfh-showcase-bottom">
-            <Link href="/clips" className="tfh-landing-btn tfh-landing-btn--solid">
-              {t.showcaseCta}
-            </Link>
           </div>
         </div>
       </motion.section>

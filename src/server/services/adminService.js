@@ -506,6 +506,97 @@ export const reviewPhase2Task = async ({ adminUserId, action, taskId, submission
   return { ok: true, action: "accept" };
 };
 
+export const deletePhase1SubmissionVideo = async ({ adminUserId, userId, submissionId }) => {
+  const parsedUserId = requireNonEmptyString(userId, "user_id");
+  const parsedSubmissionId = requireNonEmptyString(submissionId, "submission_id");
+
+  const [submission] = await db
+    .select()
+    .from(teacherPhase1Submissions)
+    .where(
+      and(
+        eq(teacherPhase1Submissions.id, parsedSubmissionId),
+        eq(teacherPhase1Submissions.userId, parsedUserId),
+        eq(teacherPhase1Submissions.isDeleted, false),
+      ),
+    )
+    .limit(1);
+
+  if (!submission) {
+    throw new ApiError(404, "Phase 1 submission not found");
+  }
+
+  if (!["rejected", "moved_to_phase2"].includes(submission.status)) {
+    throw new ApiError(409, "Video mozete obrisati tek nakon review statusa (rejected ili moved_to_phase2).");
+  }
+
+  const removed = await removeBlobSafe(submission.videoBlobUrl || submission.videoBlobKey);
+  const now = new Date();
+
+  await db
+    .update(teacherPhase1Submissions)
+    .set({
+      isDeleted: true,
+      deletedAt: now,
+      storageDeletedAt: removed ? now : null,
+      reviewedAt: submission.reviewedAt || now,
+      reviewedBy: submission.reviewedBy || adminUserId || null,
+      adminNotes: submission.adminNotes || "Video uklonjen od strane admina.",
+    })
+    .where(eq(teacherPhase1Submissions.id, submission.id));
+
+  return { ok: true, removed };
+};
+
+export const deletePhase2SubmissionVideo = async ({ adminUserId, taskId, submissionId }) => {
+  const parsedTaskId = requireNonEmptyString(taskId, "task_id");
+  const parsedSubmissionId = requireNonEmptyString(submissionId, "submission_id");
+
+  const [task] = await db.select().from(teacherPhase2Tasks).where(eq(teacherPhase2Tasks.id, parsedTaskId)).limit(1);
+  if (!task) {
+    throw new ApiError(404, "Phase 2 task not found");
+  }
+
+  const [submission] = await db
+    .select()
+    .from(teacherPhase2Submissions)
+    .where(
+      and(
+        eq(teacherPhase2Submissions.id, parsedSubmissionId),
+        eq(teacherPhase2Submissions.taskId, parsedTaskId),
+        eq(teacherPhase2Submissions.isDeleted, false),
+      ),
+    )
+    .limit(1);
+
+  if (!submission) {
+    throw new ApiError(404, "Phase 2 submission not found");
+  }
+
+  const isTaskClosed = ["accepted", "rejected"].includes(task.status);
+  const isSubmissionClosed = ["accepted", "rejected"].includes(submission.status);
+  if (!isTaskClosed && !isSubmissionClosed) {
+    throw new ApiError(409, "Video mozete obrisati nakon finalnog review statusa (accepted ili rejected).");
+  }
+
+  const removed = await removeBlobSafe(submission.videoBlobUrl || submission.videoBlobKey);
+  const now = new Date();
+
+  await db
+    .update(teacherPhase2Submissions)
+    .set({
+      isDeleted: true,
+      deletedAt: now,
+      storageDeletedAt: removed ? now : null,
+      reviewedAt: submission.reviewedAt || now,
+      reviewedBy: submission.reviewedBy || adminUserId || null,
+      feedback: submission.feedback || "Video uklonjen od strane admina.",
+    })
+    .where(eq(teacherPhase2Submissions.id, submission.id));
+
+  return { ok: true, removed };
+};
+
 const cleanupStalePhase1 = async (cutoff) => {
   const staleRows = await db
     .select()
@@ -638,7 +729,7 @@ export const listCandidates = async ({ status = "all", phase = "all", q = "", pa
       ? db
           .select()
           .from(teacherPhase1Submissions)
-          .where(inArray(teacherPhase1Submissions.userId, userIds))
+          .where(and(inArray(teacherPhase1Submissions.userId, userIds), eq(teacherPhase1Submissions.isDeleted, false)))
           .orderBy(desc(teacherPhase1Submissions.createdAt))
       : Promise.resolve([]),
     userIds.length
@@ -700,13 +791,13 @@ export const getCandidateDetail = async (userId) => {
     db
       .select()
       .from(teacherPhase1Submissions)
-      .where(eq(teacherPhase1Submissions.userId, userId))
+      .where(and(eq(teacherPhase1Submissions.userId, userId), eq(teacherPhase1Submissions.isDeleted, false)))
       .orderBy(asc(teacherPhase1Submissions.attemptNo)),
     db.select().from(teacherPhase2Tasks).where(eq(teacherPhase2Tasks.userId, userId)).limit(1),
     db
       .select()
       .from(teacherPhase2Submissions)
-      .where(eq(teacherPhase2Submissions.userId, userId))
+      .where(and(eq(teacherPhase2Submissions.userId, userId), eq(teacherPhase2Submissions.isDeleted, false)))
       .orderBy(asc(teacherPhase2Submissions.attemptNo)),
   ]);
 

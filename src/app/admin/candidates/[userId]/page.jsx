@@ -7,7 +7,8 @@ import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner, Textarea }
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import StatusBadge from "@components/app/StatusBadge";
-import { apiGet, apiPost } from "@library/apiClient";
+import VideoPreviewModal from "@components/app/VideoPreviewModal";
+import { apiDelete, apiGet, apiPost } from "@library/apiClient";
 
 const AdminCandidateDetailPage = () => {
   const params = useParams();
@@ -21,6 +22,8 @@ const AdminCandidateDetailPage = () => {
   const [rejectReason, setRejectReason] = useState("bad_pronunciation");
   const [rejectNotes, setRejectNotes] = useState("");
   const [phase2Feedback, setPhase2Feedback] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
 
   const loadData = async () => {
     setLoading(true);
@@ -64,6 +67,37 @@ const AdminCandidateDetailPage = () => {
     } finally {
       setBusyAction("");
     }
+  };
+
+  const openPreview = (url, label) => {
+    if (!url) return;
+    setPreviewUrl(url);
+    setPreviewTitle(label || "Pregled klipa");
+  };
+
+  const closePreview = () => {
+    setPreviewUrl("");
+    setPreviewTitle("");
+  };
+
+  const deletePhase1Video = async (row) => {
+    if (!window.confirm(`Obrisi Faza 1 video za pokusaj ${row.attempt_no}?`)) return;
+    await runAction("delete-phase1-video", async () => {
+      await apiDelete("/api/admin/phase1/submission", {
+        user_id: data.profile.user_id,
+        submission_id: row.submission_id,
+      });
+    });
+  };
+
+  const deletePhase2Video = async (row) => {
+    if (!window.confirm(`Obrisi Faza 2 video za pokusaj ${row.attempt_no}?`)) return;
+    await runAction("delete-phase2-video", async () => {
+      await apiDelete("/api/admin/phase2/submission", {
+        task_id: row.task_id,
+        submission_id: row.id,
+      });
+    });
   };
 
   return (
@@ -111,14 +145,23 @@ const AdminCandidateDetailPage = () => {
               </CardHeader>
               <Divider />
               <CardBody className="grid gap-4">
-                {pendingPhase1 ? (
-                  <div className="tfh-mobile-item tfh-mobile-item--admin">
-                    <div className="tfh-mobile-item-top">
-                      <strong>Faza 1 pokusaj na cekanju {pendingPhase1.attempt_no}</strong>
-                      <StatusBadge status={pendingPhase1.status} />
-                    </div>
-                    <Textarea
-                      label="Recenica za fazu 2"
+                    {pendingPhase1 ? (
+                      <div className="tfh-mobile-item tfh-mobile-item--admin">
+                        <div className="tfh-mobile-item-top">
+                          <strong>Faza 1 pokusaj na cekanju {pendingPhase1.attempt_no}</strong>
+                          <StatusBadge status={pendingPhase1.status} />
+                        </div>
+                        {pendingPhase1.video_blob_url && (
+                          <Button
+                            size="sm"
+                            variant="bordered"
+                            onPress={() => openPreview(pendingPhase1.video_blob_url, `Faza 1 pokusaj ${pendingPhase1.attempt_no}`)}
+                          >
+                            Pregled videa
+                          </Button>
+                        )}
+                        <Textarea
+                          label="Recenica za fazu 2"
                       labelPlacement="outside"
                       value={phase2Sentence}
                       onValueChange={setPhase2Sentence}
@@ -193,6 +236,15 @@ const AdminCandidateDetailPage = () => {
                       <strong>Faza 2 poslati pokusaj {latestSubmittedPhase2.attempt_no}</strong>
                       <StatusBadge status={latestSubmittedPhase2.status} />
                     </div>
+                    {latestSubmittedPhase2.video_blob_url && (
+                      <Button
+                        size="sm"
+                        variant="bordered"
+                        onPress={() => openPreview(latestSubmittedPhase2.video_blob_url, `Faza 2 pokusaj ${latestSubmittedPhase2.attempt_no}`)}
+                      >
+                        Pregled videa
+                      </Button>
+                    )}
                     <Textarea
                       label="Feedback za fazu 2"
                       labelPlacement="outside"
@@ -279,9 +331,27 @@ const AdminCandidateDetailPage = () => {
                         <p>Razlog: {row.reject_reason || "-"}</p>
                         <p>Admin napomena: {row.admin_notes || "-"}</p>
                         {row.video_blob_url && (
-                          <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
-                            Otvori video
-                          </Button>
+                          <div className="tfh-admin-pagination-actions">
+                            <Button
+                              size="sm"
+                              variant="bordered"
+                              onPress={() => openPreview(row.video_blob_url, `Faza 1 pokusaj ${row.attempt_no}`)}
+                            >
+                              Pregled videa
+                            </Button>
+                            {["rejected", "moved_to_phase2"].includes(row.status) && (
+                              <Button
+                                size="sm"
+                                color="danger"
+                                variant="flat"
+                                className="tfh-action-grid-btn tfh-action-grid-btn--ghost"
+                                isLoading={busyAction === "delete-phase1-video"}
+                                onPress={() => deletePhase1Video(row)}
+                              >
+                                Obrisi video
+                              </Button>
+                            )}
+                          </div>
                         )}
                       </article>
                     ))}
@@ -322,9 +392,27 @@ const AdminCandidateDetailPage = () => {
                         </div>
                         <p>Feedback: {row.feedback || "-"}</p>
                         {row.video_blob_url && (
-                          <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
-                            Otvori video
-                          </Button>
+                          <div className="tfh-admin-pagination-actions">
+                            <Button
+                              size="sm"
+                              variant="bordered"
+                              onPress={() => openPreview(row.video_blob_url, `Faza 2 pokusaj ${row.attempt_no}`)}
+                            >
+                              Pregled videa
+                            </Button>
+                            {["accepted", "rejected"].includes(row.status) && (
+                              <Button
+                                size="sm"
+                                color="danger"
+                                variant="flat"
+                                className="tfh-action-grid-btn tfh-action-grid-btn--ghost"
+                                isLoading={busyAction === "delete-phase2-video"}
+                                onPress={() => deletePhase2Video(row)}
+                              >
+                                Obrisi video
+                              </Button>
+                            )}
+                          </div>
                         )}
                       </article>
                     ))}
@@ -338,6 +426,7 @@ const AdminCandidateDetailPage = () => {
         ) : (
           <p>Nema podataka.</p>
         )}
+        <VideoPreviewModal open={Boolean(previewUrl)} src={previewUrl} title={previewTitle} onClose={closePreview} />
       </AppShell>
     </RequireAuth>
   );
