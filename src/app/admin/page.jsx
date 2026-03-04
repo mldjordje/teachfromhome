@@ -32,7 +32,7 @@ const AdminDashboardPage = () => {
         setAnalyticsSummary(payload.analyticsSummary || {});
         setError("");
       } catch (loadError) {
-        setError(loadError?.message || "Failed to load admin dashboard.");
+        setError(loadError?.message || "Neuspešno učitavanje admin kontrolne table.");
       } finally {
         setLoading(false);
       }
@@ -47,12 +47,11 @@ const AdminDashboardPage = () => {
 
     try {
       const result = await apiPost("/api/admin/storage/cleanup", {});
-
       setMaintenanceMessage(
-        `Cleanup done. Deleted stale: ${result?.deleted?.stale || 0}, closed: ${result?.deleted?.closed || 0}.`,
+        `Čišćenje završeno. Obrisano zastarelih: ${result?.deleted?.stale || 0}, zatvorenih: ${result?.deleted?.closed || 0}.`,
       );
     } catch (cleanupError) {
-      setMaintenanceMessage(cleanupError?.message || "Storage cleanup failed.");
+      setMaintenanceMessage(cleanupError?.message || "Storage cleanup nije uspeo.");
     } finally {
       setMaintenanceBusy(false);
     }
@@ -60,14 +59,14 @@ const AdminDashboardPage = () => {
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Admin Dashboard" subtitle="Pregled queue-ova, metrika i operativnih akcija.">
+      <AppShell title="Admin kontrolna tabla" subtitle="Pregled queue-ova, metrika i operativnih akcija.">
         {error && <Alert color="danger" title={error} className="mb-4" />}
 
         {loading ? (
           <Card className="tfh-admin-panel-card">
             <CardBody className="flex flex-row items-center gap-3 py-8">
               <Spinner size="sm" />
-              <p>Loading admin metrics...</p>
+              <p>Učitavanje admin metrika...</p>
             </CardBody>
           </Card>
         ) : (
@@ -75,19 +74,19 @@ const AdminDashboardPage = () => {
             <div className="grid gap-4 md:grid-cols-3">
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="text-sm text-slate-500">Phase 1 Pending</span>
+                  <span className="text-sm text-slate-500">Faza 1 na čekanju</span>
                   <strong className="text-4xl font-semibold text-slate-900">{phase1Pending}</strong>
                 </CardBody>
               </Card>
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="text-sm text-slate-500">Phase 2 Pending</span>
+                  <span className="text-sm text-slate-500">Faza 2 na čekanju</span>
                   <strong className="text-4xl font-semibold text-slate-900">{phase2Pending}</strong>
                 </CardBody>
               </Card>
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="text-sm text-slate-500">Accepted Teachers</span>
+                  <span className="text-sm text-slate-500">Prihvaćeni kandidati</span>
                   <strong className="text-4xl font-semibold text-slate-900">{acceptedCount}</strong>
                 </CardBody>
               </Card>
@@ -95,7 +94,7 @@ const AdminDashboardPage = () => {
 
             <Card className="tfh-admin-panel-card">
               <CardHeader>
-                <h3 className="text-lg font-semibold">Analytics (MVP)</h3>
+                <h3 className="text-lg font-semibold">Analitika</h3>
               </CardHeader>
               <Divider />
               <CardBody>
@@ -116,27 +115,27 @@ const AdminDashboardPage = () => {
 
             <Card className="tfh-admin-panel-card">
               <CardHeader>
-                <h3 className="text-lg font-semibold">Quick Actions</h3>
+                <h3 className="text-lg font-semibold">Brze akcije</h3>
               </CardHeader>
               <Divider />
               <CardBody className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 <Button as={Link} href="/admin/phase1" color="primary" className="tfh-action-grid-btn">
-                  Open Phase 1 Queue
+                  Faza 1 queue
                 </Button>
                 <Button as={Link} href="/admin/phase2" color="primary" className="tfh-action-grid-btn">
-                  Open Phase 2 Queue
+                  Faza 2 queue
                 </Button>
                 <Button as={Link} href="/admin/candidates" color="primary" className="tfh-action-grid-btn">
-                  Candidate Review
+                  Kandidati
                 </Button>
                 <Button as={Link} href="/admin/training" variant="bordered" className="tfh-action-grid-btn">
-                  Manage Training Videos
+                  Trening klipovi
                 </Button>
                 <Button as={Link} href="/admin/referrals" variant="bordered" className="tfh-action-grid-btn">
-                  Manage Referrals
+                  Preporuke
                 </Button>
                 <Button as={Link} href="/admin/showcase" variant="bordered" className="tfh-action-grid-btn">
-                  Showcase Clips
+                  Showcase klipovi
                 </Button>
                 <Button
                   color="warning"
@@ -145,13 +144,13 @@ const AdminDashboardPage = () => {
                   onPress={runStorageCleanup}
                   isLoading={maintenanceBusy}
                 >
-                  {maintenanceBusy ? "Running cleanup..." : "Run Storage Cleanup"}
+                  {maintenanceBusy ? "Pokretanje cleanup-a..." : "Pokreni storage cleanup"}
                 </Button>
               </CardBody>
             </Card>
 
             {maintenanceMessage && (
-              <Alert color={maintenanceMessage.toLowerCase().includes("failed") ? "danger" : "success"} title={maintenanceMessage} />
+              <Alert color={maintenanceMessage.toLowerCase().includes("nije") ? "danger" : "success"} title={maintenanceMessage} />
             )}
           </div>
         )}

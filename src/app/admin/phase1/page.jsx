@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner, Textarea } from "@heroui/react";
 import Link from "next/link";
 import RequireAuth from "@components/auth/RequireAuth";
@@ -34,7 +34,7 @@ const AdminPhase1Page = () => {
       setTotal(Number(payload.total || 0));
       setError("");
     } catch (loadError) {
-      setError(loadError.message || "Failed to load Phase 1 queue.");
+      setError(loadError.message || "Neuspešno učitavanje Phase 1 queue.");
       setRows([]);
       setTotal(0);
     }
@@ -48,10 +48,18 @@ const AdminPhase1Page = () => {
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+  const queueInfo = useMemo(() => {
+    if (!rows.length) {
+      if (statusFilter === "pending") return "Nema kandidata na čekanju. Promeni filter ili osveži listu.";
+      return "Nema zapisa za izabrani filter.";
+    }
+    return "";
+  }, [rows.length, statusFilter]);
+
   const moveToPhase2 = async (row) => {
     const sentence = phase2Sentences[row.submission_id]?.trim();
     if (!sentence) {
-      setError("Phase 2 sentence is required.");
+      setError("Rečenica za Fazu 2 je obavezna.");
       return;
     }
 
@@ -67,7 +75,7 @@ const AdminPhase1Page = () => {
 
       await loadRows();
     } catch (actionError) {
-      setError(actionError.message || "Move to phase2 failed.");
+      setError(actionError.message || "Prebacivanje u Fazu 2 nije uspelo.");
     }
 
     setBusyId("");
@@ -90,72 +98,120 @@ const AdminPhase1Page = () => {
 
       await loadRows();
     } catch (actionError) {
-      setError(actionError.message || "Reject failed.");
+      setError(actionError.message || "Odbijanje nije uspelo.");
     }
 
     setBusyId("");
   };
 
+  const ActionPanel = ({ row }) => (
+    <div className="flex flex-col gap-2">
+      <Textarea
+        size="sm"
+        label="Rečenica za Fazu 2"
+        labelPlacement="outside"
+        value={phase2Sentences[row.submission_id] || ""}
+        onValueChange={(value) =>
+          setPhase2Sentences((prev) => ({
+            ...prev,
+            [row.submission_id]: value,
+          }))
+        }
+      />
+      <Button size="sm" color="primary" onPress={() => moveToPhase2(row)} isLoading={busyId === row.submission_id}>
+        Prebaci u Fazu 2
+      </Button>
+
+      <select
+        className="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+        value={rejectReasons[row.submission_id] || "bad_pronunciation"}
+        onChange={(e) =>
+          setRejectReasons((prev) => ({
+            ...prev,
+            [row.submission_id]: e.target.value,
+          }))
+        }
+      >
+        <option value="bad_accent">bad_accent</option>
+        <option value="bad_pronunciation">bad_pronunciation</option>
+        <option value="low_energy">low_energy</option>
+      </select>
+
+      <Textarea
+        size="sm"
+        label="Napomena za odbijanje"
+        labelPlacement="outside"
+        value={rejectNotes[row.submission_id] || ""}
+        onValueChange={(value) =>
+          setRejectNotes((prev) => ({
+            ...prev,
+            [row.submission_id]: value,
+          }))
+        }
+      />
+
+      <Button size="sm" color="danger" variant="flat" onPress={() => rejectPhase1(row)} isLoading={busyId === row.submission_id}>
+        Odbij
+      </Button>
+    </div>
+  );
+
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Admin Phase 1 Queue" subtitle="Review submissions, reject, or move candidate to Phase 2.">
+      <AppShell title="Admin Faza 1 queue" subtitle="Pregledaj prijave, odbij ili prebaci kandidata u Fazu 2.">
         <Card className="tfh-admin-panel-card mb-4">
-          <CardBody className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <select
-              className="tfh-admin-filter-select"
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="all">All statuses</option>
-              <option value="pending">Pending</option>
-              <option value="rejected">Rejected</option>
-              <option value="moved_to_phase2">Moved to phase2</option>
-            </select>
-            <select
-              className="tfh-admin-filter-select"
-              value={String(pageSize)}
-              onChange={(e) => {
-                setPageSize(Number(e.target.value) || 20);
-                setPage(1);
-              }}
-            >
-              <option value="20">20 per page</option>
-              <option value="50">50 per page</option>
-              <option value="100">100 per page</option>
-            </select>
-            <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn">
-              Refresh
-            </Button>
-            <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn">
-              Candidate View
-            </Button>
+          <CardBody className="tfh-admin-toolbar">
+            <div className="tfh-admin-toolbar-left">
+              <select
+                className="tfh-admin-filter-select"
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="all">Svi statusi</option>
+                <option value="pending">Na čekanju</option>
+                <option value="rejected">Odbijeni</option>
+                <option value="moved_to_phase2">Prebačeni u Fazu 2</option>
+              </select>
+
+              <select
+                className="tfh-admin-filter-select"
+                value={String(pageSize)}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value) || 20);
+                  setPage(1);
+                }}
+              >
+                <option value="20">20 po strani</option>
+                <option value="50">50 po strani</option>
+                <option value="100">100 po strani</option>
+              </select>
+            </div>
+
+            <div className="tfh-admin-toolbar-right">
+              <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn">
+                Osveži
+              </Button>
+              <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn">
+                Pregled kandidata
+              </Button>
+            </div>
           </CardBody>
         </Card>
 
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm text-slate-600">
-              Page {page} of {totalPages} ({total} total)
+              Strana {page} od {totalPages} ({total} ukupno)
             </div>
             <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="bordered"
-                isDisabled={loading || page <= 1}
-                onPress={() => setPage((prev) => Math.max(1, prev - 1))}
-              >
-                Previous
+              <Button size="sm" variant="bordered" isDisabled={loading || page <= 1} onPress={() => setPage((prev) => Math.max(1, prev - 1))}>
+                Prethodna
               </Button>
-              <Button
-                size="sm"
-                variant="bordered"
-                isDisabled={loading || page >= totalPages}
-                onPress={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-              >
-                Next
+              <Button size="sm" variant="bordered" isDisabled={loading || page >= totalPages} onPress={() => setPage((prev) => Math.min(totalPages, prev + 1))}>
+                Sledeća
               </Button>
             </div>
           </CardBody>
@@ -165,103 +221,78 @@ const AdminPhase1Page = () => {
 
         <Card className="tfh-admin-panel-card">
           <CardHeader>
-            <h3 className="text-lg font-semibold">Phase 1 queue</h3>
+            <h3 className="text-lg font-semibold">Lista prijava za Fazu 1</h3>
           </CardHeader>
           <Divider />
           <CardBody>
             {loading ? (
               <div className="flex items-center gap-3 py-6">
                 <Spinner size="sm" />
-                <p>Loading Phase 1 queue...</p>
+                <p>Učitavanje Phase 1 queue...</p>
               </div>
             ) : rows.length ? (
-              <div className="tfh-mobile-list">
-                {rows.map((row) => (
-                  <article key={row.submission_id} className="tfh-mobile-item tfh-mobile-item--admin">
-                    <div className="tfh-mobile-item-top">
-                      <strong>
-                        {row.first_name} {row.last_name}
-                      </strong>
-                      <StatusBadge status={row.status} />
-                    </div>
-                    <p>{row.email}</p>
-                    <p>{row.phone || "-"}</p>
-                    <p>Attempt: {row.attempt_no}</p>
-                    {row.reject_reason && <p>Reason: {row.reject_reason}</p>}
-                    {row.admin_notes && <p>Note: {row.admin_notes}</p>}
-                    {row.video_blob_url && (
-                      <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
-                        Open video
-                      </Button>
-                    )}
+              <>
+                <div className="tfh-table-wrap hidden lg:block">
+                  <table className="tfh-table">
+                    <thead>
+                      <tr>
+                        <th>Kandidat</th>
+                        <th>Status</th>
+                        <th>Pokušaj</th>
+                        <th>Video</th>
+                        <th>Akcije</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((row) => (
+                        <tr key={row.submission_id}>
+                          <td>
+                            <strong>{row.first_name} {row.last_name}</strong>
+                            <div>{row.email}</div>
+                            <div>{row.phone || "-"}</div>
+                          </td>
+                          <td><StatusBadge status={row.status} /></td>
+                          <td>{row.attempt_no}</td>
+                          <td>
+                            {row.video_blob_url ? (
+                              <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
+                                Otvori video
+                              </Button>
+                            ) : "-"}
+                          </td>
+                          <td>
+                            {row.status === "pending" ? <ActionPanel row={row} /> : <span className="text-sm text-slate-500">Nema aktivnih akcija</span>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-                    {row.status === "pending" && (
-                      <div className="flex flex-col gap-2">
-                        <Textarea
-                          size="sm"
-                          label="Phase 2 sentence"
-                          labelPlacement="outside"
-                          value={phase2Sentences[row.submission_id] || ""}
-                          onValueChange={(value) =>
-                            setPhase2Sentences((prev) => ({
-                              ...prev,
-                              [row.submission_id]: value,
-                            }))
-                          }
-                        />
-                        <Button
-                          size="sm"
-                          color="primary"
-                          onPress={() => moveToPhase2(row)}
-                          isLoading={busyId === row.submission_id}
-                        >
-                          Move to phase2
-                        </Button>
-
-                        <select
-                          className="h-10 rounded-xl border border-slate-300 px-3 text-sm"
-                          value={rejectReasons[row.submission_id] || "bad_pronunciation"}
-                          onChange={(e) =>
-                            setRejectReasons((prev) => ({
-                              ...prev,
-                              [row.submission_id]: e.target.value,
-                            }))
-                          }
-                        >
-                          <option value="bad_accent">bad_accent</option>
-                          <option value="bad_pronunciation">bad_pronunciation</option>
-                          <option value="low_energy">low_energy</option>
-                        </select>
-
-                        <Textarea
-                          size="sm"
-                          label="Reject notes"
-                          labelPlacement="outside"
-                          value={rejectNotes[row.submission_id] || ""}
-                          onValueChange={(value) =>
-                            setRejectNotes((prev) => ({
-                              ...prev,
-                              [row.submission_id]: value,
-                            }))
-                          }
-                        />
-
-                        <Button
-                          size="sm"
-                          color="danger"
-                          variant="flat"
-                          onPress={() => rejectPhase1(row)}
-                          isLoading={busyId === row.submission_id}
-                        >
-                          Reject
-                        </Button>
+                <div className="tfh-mobile-list lg:hidden">
+                  {rows.map((row) => (
+                    <article key={row.submission_id} className="tfh-mobile-item tfh-mobile-item--admin">
+                      <div className="tfh-mobile-item-top">
+                        <strong>{row.first_name} {row.last_name}</strong>
+                        <StatusBadge status={row.status} />
                       </div>
-                    )}
-                  </article>
-                ))}
-              </div>
+                      <p>{row.email}</p>
+                      <p>{row.phone || "-"}</p>
+                      <p>Pokušaj: {row.attempt_no}</p>
+
+                      {row.video_blob_url && (
+                        <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
+                          Otvori video
+                        </Button>
+                      )}
+
+                      {row.status === "pending" && <ActionPanel row={row} />}
+                    </article>
+                  ))}
+                </div>
+              </>
             ) : (
-              <p>No records found.</p>
+              <p>{queueInfo}</p>
             )}
           </CardBody>
         </Card>

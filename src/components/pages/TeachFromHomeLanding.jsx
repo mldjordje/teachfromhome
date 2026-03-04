@@ -5,50 +5,50 @@ import ShowcaseVideoGrid from "@components/videos/ShowcaseVideoGrid";
 const content = {
   sr: {
     badge: "TeachFromHome.app",
-    title: "Predaj Engleski Online i radi od kuce",
+    title: "Predaj engleski online i radi od kuće",
     subtitle:
-      "Fleksibilan raspored, internacionalni ucenici i brz onboarding. Prijava je jednostavna i traje 2 faze.",
+      "Fleksibilan raspored, internacionalni učenici i brz onboarding. Prijava je jednostavna i traje 2 faze.",
     ctaApply: "Prijavi se",
     ctaProcess: "Pogledaj proces",
-    whyTitle: "Zasto kandidati biraju TeachFromHome",
+    whyTitle: "Zašto kandidati biraju TeachFromHome",
     whyItems: [
       {
         title: "Remote pozicija",
-        text: "Predajes iz svog prostora bez putovanja i kancelarije.",
-        image: "/images/teachfromhome/hero1-mobile.jpeg",
+        text: "Predaješ iz svog prostora, bez putovanja i kancelarije.",
+        image: "/images/teachfromhome/hero1-desktop.jpeg",
       },
       {
         title: "Fleksibilno vreme",
-        text: "Raspored prilagodjavas sebi i dostupnosti.",
-        image: "/images/teachfromhome/hero2-mobile.jpeg",
+        text: "Raspored prilagođavaš sebi i svojoj dostupnosti.",
+        image: "/images/teachfromhome/hero2-desktop.jpeg",
       },
       {
         title: "Stabilna saradnja",
-        text: "Jasna podrska tima i dugorocni rast zarade.",
+        text: "Jasna podrška tima i dugoročni rast zarade.",
         image: "/images/teachfromhome/image1.jpeg",
       },
     ],
     aboutTitle: "O poslu",
     aboutText:
-      "Trazi se tecan engleski, profesionalna komunikacija i pouzdana internet konekcija. Iskustvo u predavanju je plus, ali nije obavezno za sve pozicije.",
+      "Traži se tečan engleski, profesionalna komunikacija i pouzdana internet konekcija. Iskustvo u predavanju je plus, ali nije obavezno za sve pozicije.",
     earningsTitle: "Zarada",
     earningsCards: [
-      { label: "Pocetna mesecna zarada", value: "40.000+ RSD" },
-      { label: "Potencijal mesecne zarade", value: "100.000+ RSD" },
-      { label: "Pocetak nakon odobrenja", value: "~2 dana" },
+      { label: "Početna mesečna zarada", value: "40.000+ RSD" },
+      { label: "Potencijal mesečne zarade", value: "100.000+ RSD" },
+      { label: "Početak nakon odobrenja", value: "~2 dana" },
     ],
     processTitle: "Proces prijave u 2 faze",
     processSteps: [
-      "Napravis nalog i popunis profil.",
-      "Posaljes Phase 1 intro video.",
-      "Ako prodjes, dobijas Phase 2 zadatak.",
+      "Napraviš nalog i popuniš profil.",
+      "U Fazi 1 sam biraš tekst, uneseš ga i šalješ intro video.",
+      "Ako prođeš, dobijaš zadatak za Fazu 2.",
       "Nakon prihvatanja, tim te kontaktira za start.",
     ],
     showcaseTitle: "Klipovi primljenih kandidata",
-    showcaseText: "Pogledaj kratke YouTube klipove kandidata koji su uspesno prosli proces.",
+    showcaseText: "Pogledaj kratke YouTube klipove kandidata koji su uspešno prošli proces.",
     showcaseCta: "Pogledaj sve klipove",
     finalTitle: "Pozicije se brzo popunjavaju",
-    finalText: "Prijave se pregledaju svakodnevno. Ako prodjes selekciju, mozes brzo da krenes sa radom.",
+    finalText: "Prijave se pregledaju svakodnevno. Ako prođeš selekciju, možeš brzo da kreneš sa radom.",
   },
   en: {
     badge: "TeachFromHome.app",
@@ -105,8 +105,12 @@ const TeachFromHomeLanding = () => {
 
   return (
     <div className="tfh-landing">
+      <span className="tfh-visually-hidden" aria-hidden="true">
+        čćžšđ ČĆŽŠĐ
+      </span>
       <section id="home" className="tfh-landing-hero tfh-anchor-section">
         <picture className="tfh-hero-media">
+          <source media="(min-width: 992px)" srcSet="/images/teachfromhome/hero1-desktop.jpeg" />
           <img src="/images/teachfromhome/hero1-mobile.jpeg" alt="TeachFromHome Hero" />
         </picture>
 
@@ -152,7 +156,10 @@ const TeachFromHomeLanding = () => {
             <h2>{t.aboutTitle}</h2>
             <p>{t.aboutText}</p>
           </div>
-          <img src="/images/teachfromhome/hero2-mobile.jpeg" alt="About job" />
+          <picture>
+            <source media="(min-width: 992px)" srcSet="/images/teachfromhome/hero2-desktop.jpeg" />
+            <img src="/images/teachfromhome/hero2-mobile.jpeg" alt="About job" />
+          </picture>
         </div>
       </section>
 
@@ -172,7 +179,10 @@ const TeachFromHomeLanding = () => {
 
       <section id="process" className="tfh-anchor-section tfh-landing-section tfh-process-section">
         <div className="container tfh-process-grid">
-          <img src="/images/teachfromhome/image1.jpeg" alt="Application process" />
+          <picture>
+            <source media="(min-width: 992px)" srcSet="/images/teachfromhome/hero2-desktop.jpeg" />
+            <img src="/images/teachfromhome/hero2-mobile.jpeg" alt="Application process" />
+          </picture>
           <div>
             <h2>{t.processTitle}</h2>
             <ol>

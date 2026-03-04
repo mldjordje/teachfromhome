@@ -33,7 +33,7 @@ const AdminTrainingVideosPage = () => {
       setError("");
       setVideos(payload.rows || []);
     } catch (loadError) {
-      setError(loadError.message || "Failed to load videos");
+      setError(loadError.message || "Neuspešno učitavanje trening klipova.");
       setVideos([]);
     }
 
@@ -49,7 +49,7 @@ const AdminTrainingVideosPage = () => {
     setError("");
 
     if (!videoFile) {
-      setError("Select training video file.");
+      setError("Izaberi trening video fajl.");
       return;
     }
 
@@ -81,7 +81,7 @@ const AdminTrainingVideosPage = () => {
       setVideoFile(null);
       await loadVideos();
     } catch (uploadError) {
-      setError(uploadError.message || "Upload failed");
+      setError(uploadError.message || "Upload nije uspeo.");
     } finally {
       setBusy(false);
     }
@@ -99,21 +99,21 @@ const AdminTrainingVideosPage = () => {
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Training Videos" subtitle="Upload and manage Phase 2 training videos.">
+      <AppShell title="Trening klipovi" subtitle="Upload i upravljanje klipovima za Fazu 2.">
         {error && <Alert color="danger" title={error} className="mb-4" />}
 
         <div className="grid gap-4 lg:grid-cols-2">
           <Card className="tfh-admin-panel-card">
             <CardHeader>
-              <h3 className="text-lg font-semibold">Upload training video</h3>
+              <h3 className="text-lg font-semibold">Upload trening klipa</h3>
             </CardHeader>
             <Divider />
             <CardBody>
               <form className="flex flex-col gap-3" onSubmit={uploadVideo}>
-                <Input label="Title" value={title} onValueChange={setTitle} variant="bordered" isRequired />
+                <Input label="Naslov" value={title} onValueChange={setTitle} variant="bordered" isRequired />
 
                 <Select
-                  label="Category"
+                  label="Kategorija"
                   selectedKeys={[category]}
                   onSelectionChange={(keys) => {
                     const next = Array.from(keys)[0];
@@ -130,20 +130,26 @@ const AdminTrainingVideosPage = () => {
 
                 <Input
                   type="number"
-                  label="Order index"
+                  label="Redosled"
                   value={String(orderIndex)}
                   onValueChange={(value) => setOrderIndex(Number(value || 0))}
                   variant="bordered"
                 />
 
-                <Checkbox isSelected={isActive} onValueChange={setIsActive}>
-                  Active
+                <Checkbox isSelected={isActive} onValueChange={setIsActive} size="sm">
+                  Aktivan klip
                 </Checkbox>
 
-                <Input type="file" label="Video file" accept="video/*" variant="bordered" onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
+                <Input
+                  type="file"
+                  label="Video fajl"
+                  accept="video/*"
+                  variant="bordered"
+                  onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                />
 
-                <Button color="primary" type="submit" isLoading={busy}>
-                  {busy ? "Uploading..." : "Upload video"}
+                <Button color="primary" type="submit" isLoading={busy} className="tfh-action-grid-btn">
+                  {busy ? "Upload u toku..." : "Upload klipa"}
                 </Button>
               </form>
             </CardBody>
@@ -151,14 +157,14 @@ const AdminTrainingVideosPage = () => {
 
           <Card className="tfh-admin-panel-card">
             <CardHeader>
-              <h3 className="text-lg font-semibold">Existing training videos</h3>
+              <h3 className="text-lg font-semibold">Postojeći trening klipovi</h3>
             </CardHeader>
             <Divider />
             <CardBody>
               {loading ? (
                 <div className="flex items-center gap-3 py-6">
                   <Spinner size="sm" />
-                  <p>Loading training videos...</p>
+                  <p>Učitavanje trening klipova...</p>
                 </div>
               ) : videos.length ? (
                 <div className="tfh-mobile-list">
@@ -166,26 +172,28 @@ const AdminTrainingVideosPage = () => {
                     <article key={video.id} className="tfh-mobile-item">
                       <div className="tfh-mobile-item-top">
                         <strong>{video.title}</strong>
-                        <span>{video.is_active ? "active" : "inactive"}</span>
+                        <span className={video.is_active ? "tfh-state-pill tfh-state-pill--ok" : "tfh-state-pill"}>
+                          {video.is_active ? "aktivan" : "neaktivan"}
+                        </span>
                       </div>
-                      <p>Category: {video.category}</p>
-                      <p>Order: {video.order_index}</p>
+                      <p>Kategorija: {video.category}</p>
+                      <p>Redosled: {video.order_index}</p>
                       <div className="flex flex-wrap gap-2">
                         <Button size="sm" as="a" href={video.storage_blob_url} target="_blank" rel="noreferrer" variant="bordered">
-                          Preview
+                          Pregled
                         </Button>
                         <Button size="sm" variant="flat" color="warning" onPress={() => toggleActive(video)}>
-                          Toggle
+                          Promeni status
                         </Button>
                         <Button size="sm" variant="flat" color="danger" onPress={() => deleteVideo(video)}>
-                          Delete
+                          Obriši
                         </Button>
                       </div>
                     </article>
                   ))}
                 </div>
               ) : (
-                <p>No training videos yet.</p>
+                <p>Nema trening klipova. Dodaj prvi klip kroz formu levo.</p>
               )}
             </CardBody>
           </Card>

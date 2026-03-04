@@ -16,6 +16,14 @@
     var(--tfh-bg);
 }
 
+.tfh-app-shell,
+.tfh-app-shell button,
+.tfh-app-shell input,
+.tfh-app-shell select,
+.tfh-app-shell textarea {
+  font-family: inherit;
+}
+
 .tfh-app-header {
   position: sticky;
   top: 0;
@@ -739,6 +747,7 @@
   justify-content: flex-end;
   gap: 8px;
   min-width: 0;
+  flex-wrap: wrap;
 }
 
 .tfh-user-chip {
@@ -901,6 +910,54 @@
   font-weight: 700 !important;
 }
 
+.tfh-admin-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.tfh-admin-toolbar-left,
+.tfh-admin-toolbar-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tfh-state-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 10px;
+}
+
+.tfh-state-pill--ok {
+  border-color: #86efac;
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.tfh-auth-choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tfh-auth-choice {
+  min-height: 100%;
+}
+
+.tfh-minimal-auth--stacked {
+  gap: 18px;
+}
+
 @media (max-width: 900px) {
   .tfh-brand-copy strong {
     font-size: 16px;
@@ -914,6 +971,8 @@
 @media (max-width: 767px) {
   .tfh-topbar-inner {
     padding: 10px 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
   }
 
   .tfh-brand-mark {
@@ -939,6 +998,24 @@
 
   .tfh-portal-nav-link {
     width: 100%;
+  }
+
+  .tfh-shell-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .tfh-topbar-btn {
+    min-width: 120px;
+  }
+
+  .tfh-admin-toolbar-left,
+  .tfh-admin-toolbar-right {
+    width: 100%;
+  }
+
+  .tfh-auth-choice-grid {
+    grid-template-columns: 1fr;
   }
 }
 

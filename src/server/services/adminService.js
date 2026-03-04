@@ -137,6 +137,12 @@ export const listAdminPhase1Queue = async ({ status = "pending", page = 1, pageS
     page,
     pageSize,
     total: Number(countRows[0]?.count || 0),
+    empty_reason:
+      rows.length === 0
+        ? status === "pending"
+          ? "Nema kandidata na čekanju."
+          : "Nema zapisa za izabrani status."
+        : null,
   };
 };
 

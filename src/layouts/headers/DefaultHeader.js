@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import appData from "@data/app.json";
 import { headerSticky } from "@common/utilits";
 import { useLanguage } from "@components/i18n/LanguageProvider";
 
 const DefaultHeader = ({ darkHeader, cartButton }) => {
+  const router = useRouter();
   const { language, setLanguage } = useLanguage();
   const navItems = [];
 
@@ -24,6 +26,57 @@ const DefaultHeader = ({ darkHeader, cartButton }) => {
   });
   
   const [desktopMenu, desktopMenuToggle] = useState(false);
+
+  const closeDesktopMenu = () => {
+    desktopMenuToggle(false);
+    const menuPopup = document.querySelector('.onovo-menu-popup');
+    const menuContainer = document.querySelector('.onovo-menu-container');
+    const menuBody = document.querySelector('body');
+    const menuHeader = document.querySelector('.onovo-header');
+    const menuButton = document.querySelector('.onovo-menu-btn');
+
+    if (!menuPopup || !menuContainer || !menuBody || !menuHeader || !menuButton || !menuButton.parentNode) return;
+    menuBody.classList.remove('onovo--noscroll');
+    menuHeader.classList.remove('header--active');
+    menuPopup.classList.remove('menu--ready');
+    menuContainer.classList.add('onovo--noscroll');
+    menuButton.parentNode.classList.add('onovo--notouch');
+    setTimeout(function(){
+      menuPopup.classList.remove('menu--open');
+    }, 300);
+    setTimeout(function(){
+      menuButton.parentNode.classList.remove('onovo--notouch');
+      menuPopup.classList.remove('menu--visible');
+    }, 600);
+  };
+
+  const onMenuLinkClick = (e, href) => {
+    if (!href || typeof href !== "string") return;
+    if (!href.startsWith("/#")) {
+      if (desktopMenu) closeDesktopMenu();
+      return;
+    }
+
+    e.preventDefault();
+    const targetId = href.replace("/#", "");
+    if (!targetId) return;
+
+    const runScroll = () => {
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      const top = target.getBoundingClientRect().top + window.scrollY - 96;
+      window.scrollTo({ top, behavior: "smooth" });
+    };
+
+    if (router.pathname !== "/") {
+      router.push(href);
+      if (desktopMenu) closeDesktopMenu();
+      return;
+    }
+
+    runScroll();
+    if (desktopMenu) closeDesktopMenu();
+  };
 
   const clickedDesktopMenu = (e) => {
     e.preventDefault();
@@ -109,7 +162,17 @@ const DefaultHeader = ({ darkHeader, cartButton }) => {
                         <ul className="onovo-menu-nav">
                           {navItems.map((item, key) => (
                           <li key={`header-nav-item-${key}`} className={item.classes}>
-                            <Link className={item.children ? "onovo-lnk lnk--active onovo-dropdown-toggle" : "onovo-lnk lnk--active"} onClick={item.children != 0 ? (e) => clickedMobileMenuItemParent(e) : ""} href={item.link}>{item.localizedLabel}</Link>
+                            <Link
+                              className={item.children ? "onovo-lnk lnk--active onovo-dropdown-toggle" : "onovo-lnk lnk--active"}
+                              onClick={
+                                item.children != 0
+                                  ? (e) => clickedMobileMenuItemParent(e)
+                                  : (e) => onMenuLinkClick(e, item.link)
+                              }
+                              href={item.link}
+                            >
+                              {item.localizedLabel}
+                            </Link>
                             {item.children &&
                             <i className="icon fas fa-chevron-down" />
                             }

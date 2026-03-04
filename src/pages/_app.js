@@ -8,7 +8,6 @@ import { HeroUIProvider } from "@heroui/react";
 
 import '../styles/scss/style.scss';
 import "../styles/globals.css";
-import "../styles/app.css";
 
 import { register } from "swiper/element/bundle";
 // register Swiper custom elements
@@ -29,6 +28,9 @@ function MyApp({ Component, pageProps }) {
         <HeroUIProvider>
           <SessionProvider session={pageProps.session}>
             <AuthProvider>
+              <span className="tfh-visually-hidden" aria-hidden="true">
+                čćžšđ ČĆŽŠĐ
+              </span>
               <Component {...pageProps} />
             </AuthProvider>
           </SessionProvider>

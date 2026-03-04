@@ -47,16 +47,18 @@ const LoginPage = () => {
   return (
     <AppShell title="Prijava" subtitle="Pristup kandidatskom ili admin nalogu preko Google-a." publicView>
       <section className="tfh-minimal-auth">
-        <div className="tfh-minimal-left">
-          <span className="tfh-minimal-kicker">Bezbedan pristup</span>
-          <h2>Jedna prijava, brz ulazak</h2>
-          <p>Prijavite se Google nalogom. Sistem automatski prepoznaje ulogu i vodi vas na odgovarajući panel.</p>
-          <ul className="tfh-minimal-list">
-            <li>Samo Google OAuth</li>
-            <li>Bez resetovanja lozinke</li>
-            <li>Optimizovano za telefon i desktop</li>
-          </ul>
-        </div>
+        <Card className="tfh-minimal-left">
+          <CardBody className="gap-4">
+            <span className="tfh-minimal-kicker">Bezbedan pristup</span>
+            <h2>Jedna prijava, brz ulazak</h2>
+            <p>Prijavite se Google nalogom. Sistem automatski prepoznaje ulogu i vodi vas na odgovarajući panel.</p>
+            <ul className="tfh-minimal-list">
+              <li>Samo Google OAuth</li>
+              <li>Bez resetovanja lozinke</li>
+              <li>Optimizovano za telefon i desktop</li>
+            </ul>
+          </CardBody>
+        </Card>
 
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">

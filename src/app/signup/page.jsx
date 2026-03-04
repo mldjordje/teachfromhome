@@ -80,16 +80,18 @@ const SignupPage = () => {
   return (
     <AppShell title="Registracija" subtitle="Otvorite kandidatski nalog u jednom koraku." publicView>
       <section className="tfh-minimal-auth">
-        <div className="tfh-minimal-left">
-          <span className="tfh-minimal-kicker">Novi kandidat</span>
-          <h2>Brza registracija</h2>
-          <p>Registracija preko Google-a odmah kreira nalog i vodi vas direktno na Fazu 1.</p>
-          <ul className="tfh-minimal-list">
-            <li>Brzo kreiranje naloga</li>
-            <li>Opcioni referral kod</li>
-            <li>Direktan pristup dashboard-u</li>
-          </ul>
-        </div>
+        <Card className="tfh-minimal-left">
+          <CardBody className="gap-4">
+            <span className="tfh-minimal-kicker">Novi kandidat</span>
+            <h2>Brza registracija</h2>
+            <p>Registracija preko Google-a odmah kreira nalog i vodi vas direktno na Fazu 1.</p>
+            <ul className="tfh-minimal-list">
+              <li>Brzo kreiranje naloga</li>
+              <li>Opcioni referral kod</li>
+              <li>Direktan pristup dashboard-u</li>
+            </ul>
+          </CardBody>
+        </Card>
 
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">

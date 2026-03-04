@@ -8,19 +8,19 @@ import appData from "@data/app.json";
 import { useAuth } from "@components/auth/AuthProvider";
 
 const teacherLinks = [
-  { href: "/teacher/dashboard", label: "Dashboard" },
-  { href: "/teacher/phase1", label: "Phase 1" },
-  { href: "/teacher/phase2", label: "Phase 2" },
-  { href: "/teacher/notifications", label: "Notifications" },
-  { href: "/teacher/profile", label: "Profile" },
+  { href: "/teacher/dashboard", label: "Kontrolna tabla" },
+  { href: "/teacher/phase1", label: "Faza 1" },
+  { href: "/teacher/phase2", label: "Faza 2" },
+  { href: "/teacher/notifications", label: "Obaveštenja" },
+  { href: "/teacher/profile", label: "Profil" },
 ];
 
 const adminLinks = [
-  { href: "/admin", label: "Admin Home" },
-  { href: "/admin/phase1", label: "Admin Phase 1" },
-  { href: "/admin/phase2", label: "Admin Phase 2" },
-  { href: "/admin/training", label: "Training Videos" },
-  { href: "/admin/referrals", label: "Referrals" },
+  { href: "/admin", label: "Admin početna" },
+  { href: "/admin/phase1", label: "Admin faza 1" },
+  { href: "/admin/phase2", label: "Admin faza 2" },
+  { href: "/admin/training", label: "Trening klipovi" },
+  { href: "/admin/referrals", label: "Preporuke" },
 ];
 
 const AppShell = ({ title, subtitle, children, publicView = false }) => {
@@ -105,7 +105,7 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
               <>
                 {isPublicEntry ? (
                   <Link href={guestAction?.href || "/apply"} className="tfh-topbar-btn tfh-topbar-btn--solid">
-                    {guestAction?.label || "Apply now"}
+                    {guestAction?.label || "Prijavi se"}
                   </Link>
                 ) : (
                   <>
@@ -142,6 +142,9 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
       )}
 
       <main className={`tfh-page mx-auto w-full px-4 pb-10 ${isPublicEntry ? "max-w-[1120px] pt-8" : "max-w-[1220px] pt-6"}`}>
+        <span className="tfh-visually-hidden" aria-hidden="true">
+          čćžšđ ČĆŽŠĐ
+        </span>
         {isPublicEntry ? (
           <div className="tfh-minimal-head">
             <h1>{title}</h1>

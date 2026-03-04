@@ -33,21 +33,21 @@
         "menu": [
             {
                 "label": "Pocetna",
-                "label_sr": "Pocetna",
+                "label_sr": "Početna",
                 "label_en": "Home",
                 "link": "/#home",
                 "children": 0
             },
             {
                 "label": "Zasto TeachFromHome",
-                "label_sr": "Zasto TeachFromHome",
+                "label_sr": "Zašto TeachFromHome",
                 "label_en": "Why Join",
                 "link": "/#why-join",
                 "children": 0
             },
             {
                 "label": "O Poslu",
-                "label_sr": "O Poslu",
+                "label_sr": "O poslu",
                 "label_en": "About Job",
                 "link": "/#about-job",
                 "children": 0
@@ -64,6 +64,13 @@
                 "label_sr": "Proces",
                 "label_en": "Process",
                 "link": "/#process",
+                "children": 0
+            },
+            {
+                "label": "Klipovi",
+                "label_sr": "Klipovi",
+                "label_en": "Clips",
+                "link": "/clips",
                 "children": 0
             },
             {
