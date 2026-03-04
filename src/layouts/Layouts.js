@@ -42,7 +42,7 @@ const Layouts = ({
 
   return (
     <>
-      <div className={noFooter ? "onovo-page" : `onovo-page footer--fixed`}>
+      <div className="onovo-page tfh-site-shell">
         <Preloader />
 
         {!noHeader && (

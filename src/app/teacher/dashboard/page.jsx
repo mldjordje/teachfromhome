@@ -62,55 +62,55 @@ const TeacherDashboard = () => {
 
   return (
     <RequireAuth>
-      <AppShell title="Teacher Dashboard" subtitle="Overview of your application progress and next actions.">
+      <AppShell title="Teacher kontrolna tabla" subtitle="Pregled trenutnog statusa i sledeceg koraka u procesu.">
         {loading ? (
-          <div className="tfh-alert">Loading dashboard...</div>
+          <div className="tfh-alert">Ucitavanje kontrolne table...</div>
         ) : (
           <div className="tfh-grid">
             <div className="tfh-grid tfh-grid-3">
               <div className="tfh-card">
-                <h3>Current phase</h3>
+                <h3>Trenutna faza</h3>
                 <p>{profile?.current_phase || "phase1"}</p>
               </div>
               <div className="tfh-card">
-                <h3>Phase 1 attempts</h3>
+                <h3>Pokusaji faze 1</h3>
                 <p>{phase1Attempts.length} / 3</p>
               </div>
               <div className="tfh-card">
-                <h3>Unread notifications</h3>
+                <h3>Neprocitana obavestenja</h3>
                 <p>{unreadCount}</p>
               </div>
             </div>
 
             <div className="tfh-card">
-              <h3>Latest status</h3>
+              <h3>Poslednji status</h3>
               {latestPhase1 ? (
                 <p>
-                  Phase 1: <StatusBadge status={latestPhase1.status} />
+                  Faza 1: <StatusBadge status={latestPhase1.status} />
                 </p>
               ) : (
-                <p>No Phase 1 submission yet.</p>
+                <p>Jos nema prijave za fazu 1.</p>
               )}
 
               {phase2Task && (
                 <p>
-                  Phase 2 task: <StatusBadge status={phase2Task.status} />
+                  Faza 2 zadatak: <StatusBadge status={phase2Task.status} />
                 </p>
               )}
 
               <div className="tfh-actions">
                 <Link href={nextStep} className="tfh-btn">
-                  Continue
+                  Nastavi
                 </Link>
                 <Link href="/teacher/notifications" className="tfh-btn tfh-btn-outline">
-                  View notifications
+                  Pregled obavestenja
                 </Link>
               </div>
             </div>
 
             {latestPhase1?.status === "moved_to_phase2" && (
               <div className="tfh-alert tfh-success">
-                Congratulations, you passed Phase 1. Proceed to Phase 2 for training videos and your test sentence.
+                Faza 1 je uspesno zavrsena. Nastavi na fazu 2 i snimi dodeljenu recenicu.
               </div>
             )}
           </div>

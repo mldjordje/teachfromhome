@@ -1,153 +1,105 @@
 {
-    "settings": {
-        "siteName": "TeachFromHome.app",
-        "preloader": true,
-        "formspreeURL": "https://formspree.io/f/your_api_key",
-        "portfolio": {
-            "categories": [
-                {
-                    "label": "Marketing",
-                    "slug": "marketing"
-                },
-                {
-                    "label": "Interactive",
-                    "slug": "interactive"
-                },
-                {
-                    "label": "Design",
-                    "slug": "design"
-                },
-                {
-                    "label": "Branding",
-                    "slug": "branding"
-                }
-            ]
-        }
+  "settings": {
+    "siteName": "TeachFromHome.app",
+    "preloader": true,
+    "formspreeURL": "https://formspree.io/f/your_api_key",
+    "portfolio": {
+      "categories": [
+        { "label": "Marketing", "slug": "marketing" },
+        { "label": "Interactive", "slug": "interactive" },
+        { "label": "Design", "slug": "design" },
+        { "label": "Branding", "slug": "branding" }
+      ]
+    }
+  },
+  "header": {
+    "logo": {
+      "image": "/images/teachfromhome/logo2-dark.jpeg",
+      "image_white": "/images/teachfromhome/logo1-white.jpeg",
+      "alt": "TeachFromHome"
     },
-    "header": {
-        "logo": {
-            "image": "/images/teachfromhome/logo2-dark.jpeg",
-            "image_white": "/images/teachfromhome/logo1-white.jpeg",
-            "alt": "TeachFromHome"
-        },
-        "menu": [
-            {
-                "label": "Pocetna",
-                "label_sr": "Početna",
-                "label_en": "Home",
-                "link": "/#home",
-                "children": 0
-            },
-            {
-                "label": "Zasto TeachFromHome",
-                "label_sr": "Zašto TeachFromHome",
-                "label_en": "Why Join",
-                "link": "/#why-join",
-                "children": 0
-            },
-            {
-                "label": "O Poslu",
-                "label_sr": "O poslu",
-                "label_en": "About Job",
-                "link": "/#about-job",
-                "children": 0
-            },
-            {
-                "label": "Zarada",
-                "label_sr": "Zarada",
-                "label_en": "Earnings",
-                "link": "/#earnings",
-                "children": 0
-            },
-            {
-                "label": "Proces",
-                "label_sr": "Proces",
-                "label_en": "Process",
-                "link": "/#process",
-                "children": 0
-            },
-            {
-                "label": "Klipovi",
-                "label_sr": "Klipovi",
-                "label_en": "Clips",
-                "link": "/clips",
-                "children": 0
-            },
-            {
-                "label": "Prijava",
-                "label_sr": "Prijava",
-                "label_en": "Apply",
-                "link": "/apply",
-                "children": 0
-            }
-        ],
-        "button": {
-            "label": "Prijavi se",
-            "label_sr": "Prijavi se",
-            "label_en": "Apply Now",
-            "link": "/apply"
-        },
-        "button2": {
-            "label": "Prijavi se",
-            "label_sr": "Prijavi se",
-            "label_en": "Apply Now",
-            "link": "/apply"
-        }
+    "menu": [
+      {
+        "label": "Pocetna",
+        "label_sr": "Po\u010detna",
+        "label_en": "Home",
+        "link": "/#home",
+        "children": 0
+      },
+      {
+        "label": "Zasto TeachFromHome",
+        "label_sr": "Za\u0161to TeachFromHome",
+        "label_en": "Why Join",
+        "link": "/#why-join",
+        "children": 0
+      },
+      {
+        "label": "O Poslu",
+        "label_sr": "O poslu",
+        "label_en": "About Job",
+        "link": "/#about-job",
+        "children": 0
+      },
+      {
+        "label": "Zarada",
+        "label_sr": "Zarada",
+        "label_en": "Earnings",
+        "link": "/#earnings",
+        "children": 0
+      },
+      {
+        "label": "Proces",
+        "label_sr": "Proces",
+        "label_en": "Process",
+        "link": "/#process",
+        "children": 0
+      },
+      {
+        "label": "Klipovi",
+        "label_sr": "Klipovi",
+        "label_en": "Clips",
+        "link": "/clips",
+        "children": 0
+      },
+      {
+        "label": "Prijava",
+        "label_sr": "Prijava",
+        "label_en": "Apply",
+        "link": "/apply",
+        "children": 0
+      }
+    ],
+    "button": {
+      "label": "Prijavi se",
+      "label_sr": "Prijavi se",
+      "label_en": "Apply Now",
+      "link": "/apply"
     },
-    "footer": {
-        "logo": {
-            "image": "/images/teachfromhome/logo2-dark.jpeg",
-            "alt": "TeachFromHome"
-        },
-        "gallery": [
-            {
-                "image": "/images/teachfromhome/image1.jpeg",
-                "title": "TeachFromHome image",
-                "alt": "TeachFromHome"
-            },
-            {
-                "image": "/images/teachfromhome/hero1-mobile.jpeg",
-                "title": "TeachFromHome image",
-                "alt": "TeachFromHome"
-            },
-            {
-                "image": "/images/teachfromhome/hero2-mobile.jpeg",
-                "title": "TeachFromHome image",
-                "alt": "TeachFromHome"
-            },
-            {
-                "image": "/images/teachfromhome/image1.jpeg",
-                "title": "TeachFromHome image",
-                "alt": "TeachFromHome"
-            },
-            {
-                "image": "/images/teachfromhome/hero1-mobile.jpeg",
-                "title": "TeachFromHome image",
-                "alt": "TeachFromHome"
-            },
-            {
-                "image": "/images/teachfromhome/hero2-mobile.jpeg",
-                "title": "TeachFromHome image",
-                "alt": "TeachFromHome"
-            }
-        ],
-        "copy": "&copy; 2026 TeachFromHome.app. All rights reserved."
+    "button2": {
+      "label": "Prijavi se",
+      "label_sr": "Prijavi se",
+      "label_en": "Apply Now",
+      "link": "/apply"
+    }
+  },
+  "footer": {
+    "logo": {
+      "image": "/images/teachfromhome/logo2-dark.jpeg",
+      "alt": "TeachFromHome"
     },
-    "social": [
-        {
-            "link": "https://facebook.com",
-            "icon": "fab fa-facebook",
-            "title": "Facebook"
-        },
-        {
-            "link": "https://instagram.com",
-            "icon": "fab fa-instagram",
-            "title": "Instagram"
-        },
-        {
-            "link": "https://linkedin.com",
-            "icon": "fab fa-linkedin",
-            "title": "LinkedIn"
-        }
-    ]
+    "gallery": [
+      { "image": "/images/teachfromhome/image1.jpeg", "title": "TeachFromHome image", "alt": "TeachFromHome" },
+      { "image": "/images/teachfromhome/hero1-mobile.jpeg", "title": "TeachFromHome image", "alt": "TeachFromHome" },
+      { "image": "/images/teachfromhome/hero2-mobile.jpeg", "title": "TeachFromHome image", "alt": "TeachFromHome" },
+      { "image": "/images/teachfromhome/image1.jpeg", "title": "TeachFromHome image", "alt": "TeachFromHome" },
+      { "image": "/images/teachfromhome/hero1-mobile.jpeg", "title": "TeachFromHome image", "alt": "TeachFromHome" },
+      { "image": "/images/teachfromhome/hero2-mobile.jpeg", "title": "TeachFromHome image", "alt": "TeachFromHome" }
+    ],
+    "copy": "&copy; 2026 TeachFromHome.app. All rights reserved."
+  },
+  "social": [
+    { "link": "https://facebook.com", "icon": "fab fa-facebook", "title": "Facebook" },
+    { "link": "https://instagram.com", "icon": "fab fa-instagram", "title": "Instagram" },
+    { "link": "https://linkedin.com", "icon": "fab fa-linkedin", "title": "LinkedIn" }
+  ]
 }

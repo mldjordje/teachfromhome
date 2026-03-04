@@ -39,7 +39,7 @@ const LoginPage = () => {
     try {
       await signInWithGoogle({ nextPath: nextFromQuery });
     } catch (err) {
-      setError(err?.message || "Google prijava nije uspela. Pokušajte ponovo.");
+      setError(err?.message || "Google prijava nije uspela. Pokusajte ponovo.");
       setBusy(false);
     }
   };
@@ -51,7 +51,7 @@ const LoginPage = () => {
           <CardBody className="gap-4">
             <span className="tfh-minimal-kicker">Bezbedan pristup</span>
             <h2>Jedna prijava, brz ulazak</h2>
-            <p>Prijavite se Google nalogom. Sistem automatski prepoznaje ulogu i vodi vas na odgovarajući panel.</p>
+            <p>Sistem automatski prepoznaje ulogu i vodi te na odgovarajuci panel.</p>
             <ul className="tfh-minimal-list">
               <li>Samo Google OAuth</li>
               <li>Bez resetovanja lozinke</li>
@@ -63,7 +63,7 @@ const LoginPage = () => {
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
             <h3>Nastavi preko Google-a</h3>
-            <p>Koristi postojeći Google nalog za nastavak procesa.</p>
+            <p>Koristi postojeci Google nalog za nastavak procesa.</p>
 
             <Button className="tfh-action-btn" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
               {busy ? "Preusmeravanje..." : "Prijavi se Google nalogom"}
@@ -78,7 +78,7 @@ const LoginPage = () => {
               variant="flat"
               fullWidth
             >
-              Nemate nalog?
+              Nemas nalog?
             </Button>
           </CardBody>
         </Card>

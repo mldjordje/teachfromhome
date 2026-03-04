@@ -1,240 +1,172 @@
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import appData from "@data/app.json";
-import { headerSticky } from "@common/utilits";
 import { useLanguage } from "@components/i18n/LanguageProvider";
 
-const DefaultHeader = ({ darkHeader, cartButton }) => {
+const HEADER_SCROLL_OFFSET = 12;
+
+const DefaultHeader = () => {
   const router = useRouter();
   const { language, setLanguage } = useLanguage();
-  const navItems = [];
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  appData.header.menu.forEach((item, index) => {
-    let s_class1 = 'dropdown-link';
-
-    if ( item.children != 0 ) {
-      s_class1 += 'menu-item-has-children';
-    }
-    const localizedLabel =
-      language === "en"
-        ? (item.label_en || item.label || item.label_sr)
-        : (item.label_sr || item.label || item.label_en);
-
-    let newobj = Object.assign({}, item, { "classes" :  s_class1, "localizedLabel": localizedLabel });
-    navItems.push(newobj);
-  });
-  
-  const [desktopMenu, desktopMenuToggle] = useState(false);
-
-  const closeDesktopMenu = () => {
-    desktopMenuToggle(false);
-    const menuPopup = document.querySelector('.onovo-menu-popup');
-    const menuContainer = document.querySelector('.onovo-menu-container');
-    const menuBody = document.querySelector('body');
-    const menuHeader = document.querySelector('.onovo-header');
-    const menuButton = document.querySelector('.onovo-menu-btn');
-
-    if (!menuPopup || !menuContainer || !menuBody || !menuHeader || !menuButton || !menuButton.parentNode) return;
-    menuBody.classList.remove('onovo--noscroll');
-    menuHeader.classList.remove('header--active');
-    menuPopup.classList.remove('menu--ready');
-    menuContainer.classList.add('onovo--noscroll');
-    menuButton.parentNode.classList.add('onovo--notouch');
-    setTimeout(function(){
-      menuPopup.classList.remove('menu--open');
-    }, 300);
-    setTimeout(function(){
-      menuButton.parentNode.classList.remove('onovo--notouch');
-      menuPopup.classList.remove('menu--visible');
-    }, 600);
-  };
-
-  const onMenuLinkClick = (e, href) => {
-    if (!href || typeof href !== "string") return;
-    if (!href.startsWith("/#")) {
-      if (desktopMenu) closeDesktopMenu();
-      return;
-    }
-
-    e.preventDefault();
-    const targetId = href.replace("/#", "");
-    if (!targetId) return;
-
-    const runScroll = () => {
-      const target = document.getElementById(targetId);
-      if (!target) return;
-      const top = target.getBoundingClientRect().top + window.scrollY - 96;
-      window.scrollTo({ top, behavior: "smooth" });
-    };
-
-    if (router.pathname !== "/") {
-      router.push(href);
-      if (desktopMenu) closeDesktopMenu();
-      return;
-    }
-
-    runScroll();
-    if (desktopMenu) closeDesktopMenu();
-  };
-
-  const clickedDesktopMenu = (e) => {
-    e.preventDefault();
-    desktopMenuToggle(!desktopMenu);
-    
-    const menuPopup = document.querySelector('.onovo-menu-popup');
-    const menuContainer = document.querySelector('.onovo-menu-container');
-    const menuBody = document.querySelector('body');
-    const menuHeader = document.querySelector('.onovo-header');
-    const menuButton = document.querySelector('.onovo-menu-btn');
-
-    if ( desktopMenu ) {
-			menuBody.classList.remove('onovo--noscroll');
-			menuHeader.classList.remove('header--active');
-			menuPopup.classList.remove('menu--ready');
-			menuContainer.classList.add('onovo--noscroll');
-      menuButton.parentNode.classList.add('onovo--notouch');
-			let timer1 = setTimeout(function(){
-				menuPopup.classList.remove('menu--open');
-			}, 300);
-			let timer2 = setTimeout(function(){
-				menuButton.parentNode.classList.remove('onovo--notouch');
-				menuPopup.classList.remove('menu--visible');
-			}, 1600);
-		} else {
-			menuBody.classList.add('onovo--noscroll');
-			menuHeader.classList.add('header--active');
-			menuPopup.classList.add('menu--visible');
-			menuPopup.classList.add('menu--open');
-      menuButton.parentNode.classList.add('onovo--notouch');
-			let timer3 = setTimeout(function(){
-				menuButton.parentNode.classList.remove('onovo--notouch');
-				menuContainer.classList.remove('onovo--noscroll');
-				menuPopup.classList.add('menu--ready');
-			}, 600);
-		}
-
-  }
-  const clickedMobileMenuItemParent = (e) => {
-    e.preventDefault();
-    e.target.parentNode.classList.toggle('opened');
-  }
-
-  useEffect(() => {
-    headerSticky();
-  }, []);
+  const navItems = useMemo(() => {
+    return appData.header.menu.map((item) => ({
+      ...item,
+      localizedLabel:
+        language === "en"
+          ? item.label_en || item.label || item.label_sr
+          : item.label_sr || item.label || item.label_en,
+    }));
+  }, [language]);
 
   const buttonLabel =
     language === "en"
-      ? (appData.header.button.label_en || appData.header.button.label || appData.header.button.label_sr)
-      : (appData.header.button.label_sr || appData.header.button.label || appData.header.button.label_en);
+      ? appData.header.button.label_en || appData.header.button.label || appData.header.button.label_sr
+      : appData.header.button.label_sr || appData.header.button.label || appData.header.button.label_en;
+
+  const scrollToHash = (hash) => {
+    if (typeof window === "undefined" || !hash) return;
+    const targetId = hash.replace("#", "");
+    if (!targetId) return;
+
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    const header = document.querySelector(".tfh-public-header");
+    const offset = (header?.offsetHeight || 88) + HEADER_SCROLL_OFFSET;
+    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - offset);
+
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
+  const isActive = (href) => {
+    if (!href) return false;
+
+    if (href.startsWith("/#")) {
+      if (router.pathname !== "/") return false;
+      const hash = href.split("#")[1] || "";
+      return router.asPath.endsWith(`#${hash}`);
+    }
+
+    return router.pathname === href;
+  };
+
+  const closeMobileMenu = () => {
+    setMobileOpen(false);
+  };
+
+  const onNavClick = (event, href) => {
+    if (!href || typeof href !== "string") return;
+
+    if (!href.startsWith("/#")) {
+      closeMobileMenu();
+      return;
+    }
+
+    event.preventDefault();
+    const hashPart = href.split("#")[1] || "";
+    if (!hashPart) return;
+
+    if (router.pathname !== "/") {
+      closeMobileMenu();
+      router.push(`/#${hashPart}`);
+      return;
+    }
+
+    scrollToHash(`#${hashPart}`);
+    closeMobileMenu();
+  };
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.body.classList.toggle("tfh-menu-open", mobileOpen);
+    return () => {
+      document.body.classList.remove("tfh-menu-open");
+    };
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    const onRouteDone = (url) => {
+      const hashIndex = url.indexOf("#");
+      if (hashIndex === -1) return;
+      const hash = url.slice(hashIndex);
+      setTimeout(() => scrollToHash(hash), 10);
+    };
+
+    if (typeof window !== "undefined" && window.location.hash && router.pathname === "/") {
+      setTimeout(() => scrollToHash(window.location.hash), 10);
+    }
+
+    router.events.on("routeChangeComplete", onRouteDone);
+    return () => {
+      router.events.off("routeChangeComplete", onRouteDone);
+    };
+  }, [router.events, router.pathname]);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [router.asPath]);
 
   return (
-    <>
-      {/* Header */}
-      <header className={darkHeader ? "onovo-header" : "onovo-header header--white"}>
-        <div className="header--builder">
-          <div className="container">
-            <div className="row">
-              <div className="col-4 col-xs-4 col-sm-4 col-md-4 col-lg-3 align-self-center">
+    <header className="tfh-public-header">
+      <div className="container tfh-public-header-inner">
+        <Link href="/" className="tfh-public-brand">
+          <img src={appData.header.logo.image} alt={appData.header.logo.alt} className="tfh-public-brand-mark" />
+          <span className="tfh-public-brand-copy">
+            <strong>TeachFromHome</strong>
+            <small>{language === "en" ? "Online teacher pipeline" : "Online teacher proces"}</small>
+          </span>
+        </Link>
 
-                {/* Logo */}
-                <div className="onovo-logo-image" style={{"maxWidth": "70px"}}>
-                  <Link href="/">
-                    <img src={appData.header.logo.image} alt={appData.header.logo.alt} />
-                    <img className="logo--white" src={appData.header.logo.image_white} alt={appData.header.logo.alt} />
-                  </Link>
-                </div>
-
-              </div>
-              <div className="col-4 col-xs-4 col-sm-4 col-md-4 col-lg-6 align-self-center align-center">
-
-                {/* Menu Hamburger */}
-                <a href="#" className={desktopMenu ? "onovo-menu-btn btn--active" : "onovo-menu-btn"} onClick={ (e) => clickedDesktopMenu(e) }><span /></a>
-
-                <div className="onovo-menu-popup align-left">
-                  <div className="onovo-menu-overlay" />
-                  <div className="onovo-menu-overlay-after" />
-
-                  <div className="onovo-menu-container onovo--noscroll">
-                    <div className="container">
-                      <div className="onovo-menu">
-                        <ul className="onovo-menu-nav">
-                          {navItems.map((item, key) => (
-                          <li key={`header-nav-item-${key}`} className={item.classes}>
-                            <Link
-                              className={item.children ? "onovo-lnk lnk--active onovo-dropdown-toggle" : "onovo-lnk lnk--active"}
-                              onClick={
-                                item.children != 0
-                                  ? (e) => clickedMobileMenuItemParent(e)
-                                  : (e) => onMenuLinkClick(e, item.link)
-                              }
-                              href={item.link}
-                            >
-                              {item.localizedLabel}
-                            </Link>
-                            {item.children &&
-                            <i className="icon fas fa-chevron-down" />
-                            }
-                            {item.children != 0 &&
-                            <ul className="sub-menu">
-                              {item.children.map((subitem, key) => (
-                              <li key={`header-nav-sub-item-${key}`}>
-                                <Link className="onovo-lnk lnk--active" href={subitem.link}>
-                                  {language === "en"
-                                    ? (subitem.label_en || subitem.label || subitem.label_sr)
-                                    : (subitem.label_sr || subitem.label || subitem.label_en)}
-                                </Link>
-                              </li>
-                              ))}
-                            </ul>
-                            }
-                          </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-              <div className="col-4 col-xs-4 col-sm-4 col-md-4 col-lg-3 align-self-center align-right">
-
-                {/* Button */}
-                <div className="tfh-head-actions">
-                  <div className="tfh-lang-switch" role="group" aria-label="Language switch">
-                    <button
-                      type="button"
-                      className={language === "sr" ? "active" : ""}
-                      onClick={() => setLanguage("sr")}
-                    >
-                      SR
-                    </button>
-                    <button
-                      type="button"
-                      className={language === "en" ? "active" : ""}
-                      onClick={() => setLanguage("en")}
-                    >
-                      EN
-                    </button>
-                  </div>
-
-                  <Link className="onovo-head-btn onovo-hover-btn" href={appData.header.button.link}>
-                    <span>
-                      <span className="onovo-lnk lnk--active">{buttonLabel}</span>
-                    </span>
-                    <i className="arrow">
-                      <span />
-                    </i>
-                  </Link>
-                </div>
-
-              </div>
-            </div>
+        <div className="tfh-public-head-actions">
+          <div className="tfh-lang-switch" role="group" aria-label="Language switch">
+            <button type="button" className={language === "sr" ? "active" : ""} onClick={() => setLanguage("sr")}>
+              SR
+            </button>
+            <button type="button" className={language === "en" ? "active" : ""} onClick={() => setLanguage("en")}>
+              EN
+            </button>
           </div>
+
+          <Link className="tfh-public-cta" href={appData.header.button.link}>
+            {buttonLabel}
+          </Link>
+
+          <button
+            type="button"
+            className={`tfh-public-menu-btn ${mobileOpen ? "is-open" : ""}`}
+            aria-expanded={mobileOpen}
+            aria-controls="tfh-public-nav"
+            onClick={() => setMobileOpen((prev) => !prev)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
-      </header>
-    </>
+      </div>
+
+      <nav id="tfh-public-nav" className={`tfh-public-nav ${mobileOpen ? "is-open" : ""}`} aria-label="Primary navigation">
+        <div className="container">
+          <ul className="tfh-public-nav-list">
+            {navItems.map((item) => (
+              <li key={item.link}>
+                <Link
+                  href={item.link}
+                  onClick={(event) => onNavClick(event, item.link)}
+                  className={`tfh-public-nav-link ${isActive(item.link) ? "is-active" : ""}`}
+                >
+                  {item.localizedLabel}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </nav>
+    </header>
   );
 };
+
 export default DefaultHeader;

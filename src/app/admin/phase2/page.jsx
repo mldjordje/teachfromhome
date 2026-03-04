@@ -32,7 +32,7 @@ const AdminPhase2Page = () => {
       setRows(payload.rows || []);
       setTotal(Number(payload.total || 0));
     } catch (loadError) {
-      setError(loadError.message || "Failed to load phase 2 queue.");
+      setError(loadError.message || "Neuspesno ucitavanje faza 2 queue-a.");
       setRows([]);
       setTotal(0);
     }
@@ -48,7 +48,7 @@ const AdminPhase2Page = () => {
 
   const reviewAction = async (row, action) => {
     if (!row.latest_submission_id) {
-      setError("No submission available for this task.");
+      setError("Za ovaj zadatak nema poslatog klipa.");
       return;
     }
 
@@ -65,7 +65,7 @@ const AdminPhase2Page = () => {
 
       await loadRows();
     } catch (actionError) {
-      setError(actionError.message || "Review action failed.");
+      setError(actionError.message || "Review akcija nije uspela.");
     }
 
     setBusyTaskId("");
@@ -73,7 +73,7 @@ const AdminPhase2Page = () => {
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Admin Phase 2 Queue" subtitle="Review latest Phase 2 submissions and decide accept/retry/reject.">
+      <AppShell title="Admin faza 2 queue" subtitle="Pregledaj poslednje prijave i odluci: prihvati, retry ili odbij.">
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <select
@@ -84,12 +84,12 @@ const AdminPhase2Page = () => {
                 setPage(1);
               }}
             >
-              <option value="all">All statuses</option>
-              <option value="assigned">Assigned</option>
-              <option value="submitted">Submitted</option>
+              <option value="all">Svi statusi</option>
+              <option value="assigned">Dodeljeno</option>
+              <option value="submitted">Poslato</option>
               <option value="retry">Retry</option>
-              <option value="accepted">Accepted</option>
-              <option value="rejected">Rejected</option>
+              <option value="accepted">Prihvaceno</option>
+              <option value="rejected">Odbijeno</option>
             </select>
             <select
               className="tfh-admin-filter-select"
@@ -99,15 +99,15 @@ const AdminPhase2Page = () => {
                 setPage(1);
               }}
             >
-              <option value="20">20 per page</option>
-              <option value="50">50 per page</option>
-              <option value="100">100 per page</option>
+              <option value="20">20 po strani</option>
+              <option value="50">50 po strani</option>
+              <option value="100">100 po strani</option>
             </select>
             <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn">
-              Refresh
+              Osvezi
             </Button>
             <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn">
-              Candidate View
+              Pregled kandidata
             </Button>
           </CardBody>
         </Card>
@@ -115,7 +115,7 @@ const AdminPhase2Page = () => {
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm text-slate-600">
-              Page {page} of {totalPages} ({total} total)
+              Strana {page} od {totalPages} ({total} ukupno)
             </div>
             <div className="flex gap-2">
               <Button
@@ -124,7 +124,7 @@ const AdminPhase2Page = () => {
                 isDisabled={loading || page <= 1}
                 onPress={() => setPage((prev) => Math.max(1, prev - 1))}
               >
-                Previous
+                Prethodna
               </Button>
               <Button
                 size="sm"
@@ -132,7 +132,7 @@ const AdminPhase2Page = () => {
                 isDisabled={loading || page >= totalPages}
                 onPress={() => setPage((prev) => Math.min(totalPages, prev + 1))}
               >
-                Next
+                Sledeca
               </Button>
             </div>
           </CardBody>
@@ -142,14 +142,14 @@ const AdminPhase2Page = () => {
 
         <Card className="tfh-admin-panel-card">
           <CardHeader>
-            <h3 className="text-lg font-semibold">Phase 2 queue</h3>
+            <h3 className="text-lg font-semibold">Faza 2 queue</h3>
           </CardHeader>
           <Divider />
           <CardBody>
             {loading ? (
               <div className="flex items-center gap-3 py-6">
                 <Spinner size="sm" />
-                <p>Loading Phase 2 queue...</p>
+                <p>Ucitavanje faza 2 queue-a...</p>
               </div>
             ) : rows.length ? (
               <div className="tfh-mobile-list">
@@ -163,26 +163,26 @@ const AdminPhase2Page = () => {
                     </div>
                     <p>{row.email}</p>
                     <p>
-                      Attempts: {row.current_attempts} / {row.attempts_allowed}
+                      Pokusaji: {row.current_attempts} / {row.attempts_allowed}
                     </p>
-                    <p>Sentence: {row.phase2_sentence}</p>
+                    <p>Recenica: {row.phase2_sentence}</p>
                     {row.last_feedback && <p>Feedback: {row.last_feedback}</p>}
 
                     {row.latest_submission_id ? (
                       <>
-                        <p>Latest attempt: {row.latest_attempt_no}</p>
+                        <p>Poslednji pokusaj: {row.latest_attempt_no}</p>
                         <p>
-                          Latest status: <StatusBadge status={row.latest_submission_status} />
+                          Poslednji status: <StatusBadge status={row.latest_submission_status} />
                         </p>
                         <p>{row.latest_submission_feedback || "-"}</p>
                       </>
                     ) : (
-                      <p>No submission yet</p>
+                      <p>Jos nema prijave</p>
                     )}
 
                     {row.latest_video_blob_url && (
                       <Button as="a" href={row.latest_video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
-                        Open video
+                        Otvori video
                       </Button>
                     )}
 
@@ -192,7 +192,7 @@ const AdminPhase2Page = () => {
                           size="sm"
                           label="Feedback"
                           labelPlacement="outside"
-                          placeholder="Feedback for retry/reject"
+                          placeholder="Feedback za retry/reject"
                           value={feedbackMap[row.task_id] || ""}
                           onValueChange={(value) =>
                             setFeedbackMap((prev) => ({
@@ -203,7 +203,7 @@ const AdminPhase2Page = () => {
                         />
                         <div className="flex flex-wrap gap-2">
                           <Button size="sm" color="success" onPress={() => reviewAction(row, "accept")} isLoading={busyTaskId === row.task_id}>
-                            Accept
+                            Prihvati
                           </Button>
                           <Button
                             size="sm"
@@ -221,7 +221,7 @@ const AdminPhase2Page = () => {
                             onPress={() => reviewAction(row, "reject")}
                             isLoading={busyTaskId === row.task_id}
                           >
-                            Reject
+                            Odbij
                           </Button>
                         </div>
                       </div>
@@ -230,7 +230,7 @@ const AdminPhase2Page = () => {
                 ))}
               </div>
             ) : (
-              <p>No records found.</p>
+              <p>Nema zapisa.</p>
             )}
           </CardBody>
         </Card>

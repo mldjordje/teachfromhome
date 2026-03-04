@@ -1,95 +1,76 @@
+import Link from "next/link";
 import appData from "@data/app.json";
-import { useEffect } from "react";
-import ImageView from "@components/ImageView";
-import { footerSticky } from "@common/utilits";
+import { useLanguage } from "@components/i18n/LanguageProvider";
+
+const quickLinks = [
+  { href: "/#home", label_sr: "Po\u010detna", label_en: "Home" },
+  { href: "/#process", label_sr: "Proces", label_en: "Process" },
+  { href: "/clips", label_sr: "Klipovi", label_en: "Clips" },
+  { href: "/apply", label_sr: "Prijava", label_en: "Apply" },
+];
 
 const DefaultFooter = () => {
-  useEffect(() => {
-    footerSticky();
-  }, []);
+  const { language } = useLanguage();
+  const isEnglish = language === "en";
 
   return (
-    <>
-        {/* Footer */}
-        <footer className="onovo-footer footer--dark">
-            <div className="footer--default">
-                <div className="container">
+    <footer className="tfh-footer">
+      <div className="container tfh-footer-grid">
+        <section className="tfh-footer-card">
+          <Link href="/" className="tfh-footer-brand">
+            <img src={appData.footer.logo.image} alt={appData.footer.logo.alt} />
+            <span>
+              <strong>TeachFromHome</strong>
+              <small>{isEnglish ? "Remote teacher onboarding" : "Remote teacher onboarding"}</small>
+            </span>
+          </Link>
+          <p>
+            {isEnglish
+              ? "Fast online application flow, clear phases, and structured support from intro video to onboarding."
+              : "Brz online proces prijave, jasne faze i strukturisana podr\u0161ka od intro klipa do onboardinga."}
+          </p>
+          <a href="mailto:info@teachfromhome.app" className="tfh-footer-mail">
+            info@teachfromhome.app
+          </a>
+        </section>
 
-                    <div className="row">
-                        <div className="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+        <section className="tfh-footer-card">
+          <h4>{isEnglish ? "Quick links" : "Brzi linkovi"}</h4>
+          <ul className="tfh-footer-links">
+            {quickLinks.map((item) => (
+              <li key={item.href}>
+                <Link href={item.href}>{isEnglish ? item.label_en : item.label_sr}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-                            {/* Description */}
-                            <div className="onovo-text onovo-text-white">
-                                <h5>Information</h5>
-                                <p style={{"opacity": "0.6"}}>TeachFromHome.app connects motivated English teachers with international students through a structured remote onboarding process.</p>
-                            </div>
+        <section className="tfh-footer-card">
+          <h4>{isEnglish ? "Gallery" : "Galerija"}</h4>
+          <div className="tfh-footer-gallery">
+            {appData.footer.gallery.slice(0, 6).map((item, index) => (
+              <figure key={`${item.image}-${index}`}>
+                <img src={item.image} alt={item.alt || "TeachFromHome"} loading="lazy" />
+              </figure>
+            ))}
+          </div>
+        </section>
+      </div>
 
-                        </div>
-                        <div className="col-xs-12 col-sm-12 col-md-6 col-lg-4 offset-lg-1">
-
-                            {/* Description */}
-                            <div className="onovo-text onovo-text-white">
-                                <h5>Get in Touch</h5>
-                                <p style={{"opacity": "0.6"}}>
-                                    <a href="mailto:info@teachfromhome.app" className="onovo-lnk lnk--white" target="_blank" rel="noreferrer">info@teachfromhome.app</a><br />
-                                    <a href="/contact" className="onovo-lnk lnk--white">Apply Now</a>
-                                </p>
-                            </div>
-
-                        </div>
-                        <div className="col-xs-12 col-sm-12 col-md-12 col-lg-4">
-
-                            
-                            <div className="row">
-                                {appData.footer.gallery.map((item, key) => (
-                                <div key={`fgallery-item-${key}`} className="col-4 col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                                    <figure className="gallery-item">
-                                        <a href={item.image} title={item.title}>
-                                            <img src={item.image} alt={item.alt} />
-                                        </a>
-                                    </figure>
-                                </div>
-                                ))}
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div className="separator"></div>
-
-                    <div className="row">
-                        <div className="col-xs-12 col-sm-12 col-md-6 col-lg-6 align-self-center">
-
-                            {/* Copyright */}
-                            <div className="copyright onovo-text-white">
-                                <div dangerouslySetInnerHTML={{__html: appData.footer.copy}} />
-                            </div>
-
-                        </div>
-                        <div className="col-xs-12 col-sm-12 col-md-6 col-lg-6 align-right">
-
-                            {/* Social */}
-                            <div className="onovo-social-1 onovo-social-active">
-                                <ul>
-                                    {appData.social.map((item, key) => (
-                                    <li key={`fsocial-item-${key}`}>
-                                        <a className="onovo-social-link onovo-hover-2" href={item.link} title={item.title} target="_blank" rel="noreferrer">
-                                            <i className={item.icon}></i>
-                                        </a>
-                                    </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </footer>
-
-        <ImageView />
-    </>
+      <div className="container tfh-footer-bottom">
+        <p>{isEnglish ? "© 2026 TeachFromHome.app. All rights reserved." : "© 2026 TeachFromHome.app. Sva prava zadr\u017Eana."}</p>
+        <ul className="tfh-footer-social">
+          {appData.social.map((item) => (
+            <li key={item.link}>
+              <a href={item.link} target="_blank" rel="noreferrer" aria-label={item.title}>
+                <i className={item.icon} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </footer>
   );
 };
+
 export default DefaultFooter;

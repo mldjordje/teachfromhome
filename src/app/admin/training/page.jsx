@@ -27,16 +27,14 @@ const AdminTrainingVideosPage = () => {
 
   const loadVideos = async () => {
     setLoading(true);
-
     try {
       const payload = await apiGet("/api/admin/training");
       setError("");
       setVideos(payload.rows || []);
     } catch (loadError) {
-      setError(loadError.message || "Neuspešno učitavanje trening klipova.");
+      setError(loadError.message || "Neuspesno ucitavanje trening klipova.");
       setVideos([]);
     }
-
     setLoading(false);
   };
 
@@ -140,13 +138,7 @@ const AdminTrainingVideosPage = () => {
                   Aktivan klip
                 </Checkbox>
 
-                <Input
-                  type="file"
-                  label="Video fajl"
-                  accept="video/*"
-                  variant="bordered"
-                  onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                />
+                <Input type="file" label="Video fajl" accept="video/*" variant="bordered" onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
 
                 <Button color="primary" type="submit" isLoading={busy} className="tfh-action-grid-btn">
                   {busy ? "Upload u toku..." : "Upload klipa"}
@@ -157,14 +149,14 @@ const AdminTrainingVideosPage = () => {
 
           <Card className="tfh-admin-panel-card">
             <CardHeader>
-              <h3 className="text-lg font-semibold">Postojeći trening klipovi</h3>
+              <h3 className="text-lg font-semibold">Postojeci trening klipovi</h3>
             </CardHeader>
             <Divider />
             <CardBody>
               {loading ? (
                 <div className="flex items-center gap-3 py-6">
                   <Spinner size="sm" />
-                  <p>Učitavanje trening klipova...</p>
+                  <p>Ucitavanje trening klipova...</p>
                 </div>
               ) : videos.length ? (
                 <div className="tfh-mobile-list">
@@ -179,15 +171,9 @@ const AdminTrainingVideosPage = () => {
                       <p>Kategorija: {video.category}</p>
                       <p>Redosled: {video.order_index}</p>
                       <div className="flex flex-wrap gap-2">
-                        <Button size="sm" as="a" href={video.storage_blob_url} target="_blank" rel="noreferrer" variant="bordered">
-                          Pregled
-                        </Button>
-                        <Button size="sm" variant="flat" color="warning" onPress={() => toggleActive(video)}>
-                          Promeni status
-                        </Button>
-                        <Button size="sm" variant="flat" color="danger" onPress={() => deleteVideo(video)}>
-                          Obriši
-                        </Button>
+                        <Button size="sm" as="a" href={video.storage_blob_url} target="_blank" rel="noreferrer" variant="bordered">Pregled</Button>
+                        <Button size="sm" variant="flat" color="warning" onPress={() => toggleActive(video)}>Promeni status</Button>
+                        <Button size="sm" variant="flat" color="danger" onPress={() => deleteVideo(video)}>Obrisi</Button>
                       </div>
                     </article>
                   ))}

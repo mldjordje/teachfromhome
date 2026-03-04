@@ -35,7 +35,7 @@ const AdminCandidatesPage = () => {
       setTotal(Number(payload.total || 0));
       setError("");
     } catch (loadError) {
-      setError(loadError.message || "Failed to load candidates");
+      setError(loadError.message || "Neuspesno ucitavanje kandidata.");
       setRows([]);
       setTotal(0);
     }
@@ -68,21 +68,21 @@ const AdminCandidatesPage = () => {
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Candidates" subtitle="Clean candidate overview with quick filtering and detailed view.">
+      <AppShell title="Kandidati" subtitle="Pregled kandidata sa brzim filterima i detaljnim prikazom.">
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="grid gap-3 md:grid-cols-4">
             <select className="tfh-admin-filter-select" value={status} onChange={(e) => onStatusChange(e.target.value)}>
-              <option value="all">All statuses</option>
-              <option value="pending">Pending</option>
-              <option value="submitted">Submitted</option>
+              <option value="all">Svi statusi</option>
+              <option value="pending">Na cekanju</option>
+              <option value="submitted">Poslato</option>
               <option value="retry">Retry</option>
-              <option value="accepted">Accepted</option>
-              <option value="rejected">Rejected</option>
-              <option value="moved_to_phase2">Moved to phase2</option>
+              <option value="accepted">Prihvaceno</option>
+              <option value="rejected">Odbijeno</option>
+              <option value="moved_to_phase2">Prebaceno u fazu 2</option>
             </select>
 
             <select className="tfh-admin-filter-select" value={phase} onChange={(e) => onPhaseChange(e.target.value)}>
-              <option value="all">All phases</option>
+              <option value="all">Sve faze</option>
               <option value="phase1">phase1</option>
               <option value="phase2">phase2</option>
               <option value="accepted">accepted</option>
@@ -92,7 +92,7 @@ const AdminCandidatesPage = () => {
             <Input
               value={query}
               onValueChange={setQuery}
-              placeholder="Search by email/name/phone"
+              placeholder="Pretraga po email-u, imenu ili telefonu"
               variant="bordered"
               className="md:col-span-2"
               onKeyDown={(event) => {
@@ -102,10 +102,10 @@ const AdminCandidatesPage = () => {
 
             <div className="flex flex-wrap gap-2">
               <Button onPress={onSearch} className="tfh-action-grid-btn">
-                Search
+                Pretrazi
               </Button>
               <Button onPress={loadRows} variant="bordered" className="tfh-action-grid-btn">
-                Refresh
+                Osvezi
               </Button>
             </div>
 
@@ -117,19 +117,19 @@ const AdminCandidatesPage = () => {
                 setPage(1);
               }}
             >
-              <option value="20">20 per page</option>
-              <option value="50">50 per page</option>
-              <option value="100">100 per page</option>
+              <option value="20">20 po strani</option>
+              <option value="50">50 po strani</option>
+              <option value="100">100 po strani</option>
             </select>
 
-            <div className="flex items-center text-sm text-slate-600">{total} total</div>
+            <div className="flex items-center text-sm text-slate-600">{total} ukupno</div>
           </CardBody>
         </Card>
 
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm text-slate-600">
-              Page {page} of {totalPages}
+              Strana {page} od {totalPages}
             </div>
             <div className="flex gap-2">
               <Button
@@ -138,7 +138,7 @@ const AdminCandidatesPage = () => {
                 isDisabled={loading || page <= 1}
                 onPress={() => setPage((prev) => Math.max(1, prev - 1))}
               >
-                Previous
+                Prethodna
               </Button>
               <Button
                 size="sm"
@@ -146,7 +146,7 @@ const AdminCandidatesPage = () => {
                 isDisabled={loading || page >= totalPages}
                 onPress={() => setPage((prev) => Math.min(totalPages, prev + 1))}
               >
-                Next
+                Sledeca
               </Button>
             </div>
           </CardBody>
@@ -156,14 +156,14 @@ const AdminCandidatesPage = () => {
 
         <Card className="tfh-admin-panel-card">
           <CardHeader>
-            <h3 className="text-lg font-semibold">Candidate list</h3>
+            <h3 className="text-lg font-semibold">Lista kandidata</h3>
           </CardHeader>
           <Divider />
           <CardBody>
             {loading ? (
               <div className="flex items-center gap-3 py-6">
                 <Spinner size="sm" />
-                <p>Loading candidates...</p>
+                <p>Ucitavanje kandidata...</p>
               </div>
             ) : rows.length ? (
               <div className="tfh-mobile-list">
@@ -177,17 +177,17 @@ const AdminCandidatesPage = () => {
                     </div>
                     <p>{row.email}</p>
                     <p>{row.phone || "-"}</p>
-                    <p>Phase: {row.current_phase || "phase1"}</p>
+                    <p>Faza: {row.current_phase || "phase1"}</p>
                     <div className="flex gap-2">
                       <Button as={Link} href={`/admin/candidates/${row.user_id}`} size="sm" color="primary">
-                        Open Detail
+                        Otvori detalj
                       </Button>
                     </div>
                   </article>
                 ))}
               </div>
             ) : (
-              <p>No candidates found.</p>
+              <p>Nema kandidata za prikaz.</p>
             )}
           </CardBody>
         </Card>

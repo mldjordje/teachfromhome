@@ -30,7 +30,7 @@ const AdminLoginPage = () => {
       return;
     }
 
-    setError("This account is not in admin_users yet. Add admin role and sign in again.");
+    setError("Ovaj nalog nije dodat u admin_users. Dodajte rolu i prijavite se ponovo.");
   }, [adminNext, isAdmin, loading, router, user]);
 
   const onGoogleLogin = async () => {
@@ -40,38 +40,38 @@ const AdminLoginPage = () => {
     try {
       await signInWithGoogle({ nextPath: adminNext });
     } catch (err) {
-      setError(err?.message || "Google login failed. Please try again.");
+      setError(err?.message || "Google prijava nije uspela. Pokusajte ponovo.");
       setBusy(false);
     }
   };
 
   return (
-    <AppShell title="Admin Login" subtitle="Restricted entry for owner/admin accounts." publicView>
+    <AppShell title="Admin prijava" subtitle="Pristup je dozvoljen samo owner/admin nalozima." publicView>
       <section className="tfh-minimal-auth">
         <div className="tfh-minimal-left">
-          <span className="tfh-minimal-kicker">Admin workspace</span>
-          <h2>Operations and queue control</h2>
-          <p>Access candidate reviews, training management, referrals, and maintenance actions from one dashboard.</p>
+          <span className="tfh-minimal-kicker">Admin radni prostor</span>
+          <h2>Operacije i kontrola queue-a</h2>
+          <p>Na jednom mestu upravljate prijavama kandidata, trening klipovima, referral tokom i odrzavanjem sistema.</p>
           <ul className="tfh-minimal-list">
-            <li>Phase 1 and Phase 2 review</li>
-            <li>Training videos and referral tools</li>
-            <li>Role-based secure access</li>
+            <li>Review faze 1 i faze 2</li>
+            <li>Trening klipovi i referral alati</li>
+            <li>Bezbedan pristup po rolama</li>
           </ul>
         </div>
 
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
-            <h3>Admin Google sign-in</h3>
-            <p>Only accounts listed in admin_users can enter panel.</p>
+            <h3>Admin Google prijava</h3>
+            <p>Samo nalozi upisani u admin_users tabelu mogu uci u panel.</p>
 
             <Button size="lg" onPress={onGoogleLogin} isLoading={busy} className="tfh-action-btn" fullWidth>
-              {busy ? "Redirecting..." : "Login with Google"}
+              {busy ? "Preusmeravanje..." : "Prijava preko Google-a"}
             </Button>
 
             {error && <Alert color="danger" title={error} />}
 
             <Button as={Link} href="/login" variant="flat" className="tfh-action-btn tfh-action-btn--ghost" fullWidth>
-              Candidate login
+              Kandidatska prijava
             </Button>
           </CardBody>
         </Card>

@@ -22,17 +22,15 @@ const AdminDashboardPage = () => {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-
       try {
         const payload = await apiGet("/api/admin/dashboard");
-
         setPhase1Pending(payload.phase1Pending || 0);
         setPhase2Pending(payload.phase2Pending || 0);
         setAcceptedCount(payload.acceptedCount || 0);
         setAnalyticsSummary(payload.analyticsSummary || {});
         setError("");
       } catch (loadError) {
-        setError(loadError?.message || "Neuspešno učitavanje admin kontrolne table.");
+        setError(loadError?.message || "Neuspesno ucitavanje admin kontrolne table.");
       } finally {
         setLoading(false);
       }
@@ -48,7 +46,7 @@ const AdminDashboardPage = () => {
     try {
       const result = await apiPost("/api/admin/storage/cleanup", {});
       setMaintenanceMessage(
-        `Čišćenje završeno. Obrisano zastarelih: ${result?.deleted?.stale || 0}, zatvorenih: ${result?.deleted?.closed || 0}.`,
+        `Ciscenje zavrseno. Obrisano zastarelih: ${result?.deleted?.stale || 0}, zatvorenih: ${result?.deleted?.closed || 0}.`,
       );
     } catch (cleanupError) {
       setMaintenanceMessage(cleanupError?.message || "Storage cleanup nije uspeo.");
@@ -66,7 +64,7 @@ const AdminDashboardPage = () => {
           <Card className="tfh-admin-panel-card">
             <CardBody className="flex flex-row items-center gap-3 py-8">
               <Spinner size="sm" />
-              <p>Učitavanje admin metrika...</p>
+              <p>Ucitavanje admin metrika...</p>
             </CardBody>
           </Card>
         ) : (
@@ -74,19 +72,19 @@ const AdminDashboardPage = () => {
             <div className="grid gap-4 md:grid-cols-3">
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="text-sm text-slate-500">Faza 1 na čekanju</span>
+                  <span className="text-sm text-slate-500">Faza 1 na cekanju</span>
                   <strong className="text-4xl font-semibold text-slate-900">{phase1Pending}</strong>
                 </CardBody>
               </Card>
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="text-sm text-slate-500">Faza 2 na čekanju</span>
+                  <span className="text-sm text-slate-500">Faza 2 na cekanju</span>
                   <strong className="text-4xl font-semibold text-slate-900">{phase2Pending}</strong>
                 </CardBody>
               </Card>
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="text-sm text-slate-500">Prihvaćeni kandidati</span>
+                  <span className="text-sm text-slate-500">Prihvaceni kandidati</span>
                   <strong className="text-4xl font-semibold text-slate-900">{acceptedCount}</strong>
                 </CardBody>
               </Card>
@@ -119,31 +117,13 @@ const AdminDashboardPage = () => {
               </CardHeader>
               <Divider />
               <CardBody className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                <Button as={Link} href="/admin/phase1" color="primary" className="tfh-action-grid-btn">
-                  Faza 1 queue
-                </Button>
-                <Button as={Link} href="/admin/phase2" color="primary" className="tfh-action-grid-btn">
-                  Faza 2 queue
-                </Button>
-                <Button as={Link} href="/admin/candidates" color="primary" className="tfh-action-grid-btn">
-                  Kandidati
-                </Button>
-                <Button as={Link} href="/admin/training" variant="bordered" className="tfh-action-grid-btn">
-                  Trening klipovi
-                </Button>
-                <Button as={Link} href="/admin/referrals" variant="bordered" className="tfh-action-grid-btn">
-                  Preporuke
-                </Button>
-                <Button as={Link} href="/admin/showcase" variant="bordered" className="tfh-action-grid-btn">
-                  Showcase klipovi
-                </Button>
-                <Button
-                  color="warning"
-                  variant="flat"
-                  className="tfh-action-grid-btn"
-                  onPress={runStorageCleanup}
-                  isLoading={maintenanceBusy}
-                >
+                <Button as={Link} href="/admin/phase1" color="primary" className="tfh-action-grid-btn">Faza 1 queue</Button>
+                <Button as={Link} href="/admin/phase2" color="primary" className="tfh-action-grid-btn">Faza 2 queue</Button>
+                <Button as={Link} href="/admin/candidates" color="primary" className="tfh-action-grid-btn">Kandidati</Button>
+                <Button as={Link} href="/admin/training" variant="bordered" className="tfh-action-grid-btn">Trening klipovi</Button>
+                <Button as={Link} href="/admin/referrals" variant="bordered" className="tfh-action-grid-btn">Preporuke</Button>
+                <Button as={Link} href="/admin/showcase" variant="bordered" className="tfh-action-grid-btn">Showcase klipovi</Button>
+                <Button color="warning" variant="flat" className="tfh-action-grid-btn" onPress={runStorageCleanup} isLoading={maintenanceBusy}>
                   {maintenanceBusy ? "Pokretanje cleanup-a..." : "Pokreni storage cleanup"}
                 </Button>
               </CardBody>

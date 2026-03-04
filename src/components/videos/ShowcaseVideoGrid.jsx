@@ -33,7 +33,7 @@ const ShowcaseVideoGrid = ({ limit = 0, compact = false }) => {
         setError("");
       } catch (loadErr) {
         if (!alive) return;
-        setError(loadErr?.message || "Could not load showcase videos.");
+        setError(loadErr?.message || "Neuspesno ucitavanje showcase klipova.");
         setVideos([]);
       } finally {
         if (alive) setLoading(false);
@@ -50,7 +50,7 @@ const ShowcaseVideoGrid = ({ limit = 0, compact = false }) => {
     return (
       <div className="tfh-showcase-loading">
         <Spinner size="sm" />
-        <span>Loading videos...</span>
+        <span>Ucitavanje klipova...</span>
       </div>
     );
   }
@@ -60,7 +60,7 @@ const ShowcaseVideoGrid = ({ limit = 0, compact = false }) => {
   }
 
   if (!videos.length) {
-    return <p className="tfh-showcase-empty">No clips available yet.</p>;
+    return <p className="tfh-showcase-empty">Trenutno nema dostupnih klipova.</p>;
   }
 
   return (

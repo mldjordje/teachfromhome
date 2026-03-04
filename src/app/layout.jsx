@@ -21,7 +21,7 @@ const RootLayout = ({ children }) => {
     <html lang="sr">
       <body className={epilogue.className}>
         <span className="tfh-visually-hidden" aria-hidden="true">
-          čćžšđ ČĆŽŠĐ
+          {"\u010D\u0107\u017E\u0161\u0111 \u010C\u0106\u017D\u0160\u0110"}
         </span>
         <Providers>{children}</Providers>
       </body>

@@ -37,7 +37,7 @@ const TeacherProfilePage = () => {
       });
       setRewards(payload.rewards || []);
     } catch (loadError) {
-      setError(loadError?.message || "Failed to load profile data");
+      setError(loadError?.message || "Neuspesno ucitavanje profil podataka.");
     }
   };
 
@@ -56,10 +56,10 @@ const TeacherProfilePage = () => {
     try {
       const payload = await apiPatch("/api/teacher/profile", form);
       setProfile(payload.profile || null);
-      setSuccess("Profile updated.");
+      setSuccess("Profil je uspesno sacuvan.");
       await refreshAuthState();
     } catch (updateError) {
-      setError(updateError.message || "Failed to update profile");
+      setError(updateError.message || "Izmena profila nije uspela.");
     }
 
     setBusy(false);
@@ -71,7 +71,7 @@ const TeacherProfilePage = () => {
     setSuccess("");
 
     if (!referralCodeInput.trim()) {
-      setError("Enter referral code first.");
+      setError("Unesite referral kod.");
       return;
     }
 
@@ -80,45 +80,45 @@ const TeacherProfilePage = () => {
       await apiPost("/api/referrals/apply", {
         referral_code: referralCodeInput.trim(),
       });
-      setSuccess("Referral code applied.");
+      setSuccess("Referral kod je uspesno primenjen.");
       setReferralCodeInput("");
       await refreshAuthState();
       await loadProfileData();
     } catch (applyError) {
-      setError(applyError.message || "Failed to apply referral code");
+      setError(applyError.message || "Primena referral koda nije uspela.");
     }
     setBusy(false);
   };
 
   return (
     <RequireAuth>
-      <AppShell title="Profile" subtitle="Manage your teacher profile and referral settings.">
+      <AppShell title="Profil" subtitle="Izmeni osnovne podatke i referral opcije.">
         <div className="tfh-grid tfh-grid-2">
           <div className="tfh-card">
-            <h3>Basic profile</h3>
+            <h3>Osnovni profil</h3>
             <form className="tfh-form" onSubmit={saveProfile}>
               <div>
                 <label>Email</label>
                 <input value={user?.email || ""} readOnly />
               </div>
               <div>
-                <label>First name</label>
+                <label>Ime</label>
                 <input value={form.first_name} onChange={(e) => onField("first_name", e.target.value)} required />
               </div>
               <div>
-                <label>Last name</label>
+                <label>Prezime</label>
                 <input value={form.last_name} onChange={(e) => onField("last_name", e.target.value)} required />
               </div>
               <div>
-                <label>Phone</label>
+                <label>Telefon</label>
                 <input value={form.phone} onChange={(e) => onField("phone", e.target.value)} />
               </div>
               <div>
-                <label>Date of birth</label>
+                <label>Datum rodjenja</label>
                 <input type="date" value={form.date_of_birth || ""} onChange={(e) => onField("date_of_birth", e.target.value)} />
               </div>
               <div>
-                <label>Short about (max 50)</label>
+                <label>Kratko o meni (max 50)</label>
                 <input maxLength={50} value={form.short_about} onChange={(e) => onField("short_about", e.target.value)} />
               </div>
 
@@ -127,7 +127,7 @@ const TeacherProfilePage = () => {
 
               <div className="tfh-actions">
                 <button type="submit" className="tfh-btn" disabled={busy}>
-                  Save profile
+                  Sacuvaj profil
                 </button>
               </div>
             </form>
@@ -136,25 +136,25 @@ const TeacherProfilePage = () => {
           <div className="tfh-card">
             <h3>Referral</h3>
             <p>
-              Your referral code: <strong>{profile?.referral_code || "-"}</strong>
+              Tvoj referral kod: <strong>{profile?.referral_code || "-"}</strong>
             </p>
             <p>
-              Applied code: <strong>{profile?.referred_by_code || "-"}</strong>
+              Uneti kod: <strong>{profile?.referred_by_code || "-"}</strong>
             </p>
 
             <form className="tfh-form" onSubmit={applyReferralCode}>
               <div>
-                <label>Apply referral code</label>
+                <label>Primeni referral kod</label>
                 <input value={referralCodeInput} onChange={(e) => setReferralCodeInput(e.target.value)} />
               </div>
               <div className="tfh-actions">
                 <button type="submit" className="tfh-btn tfh-btn-outline" disabled={busy}>
-                  Apply code
+                  Primeni kod
                 </button>
               </div>
             </form>
 
-            <h3 style={{ marginTop: "20px" }}>Referral rewards</h3>
+            <h3 style={{ marginTop: "20px" }}>Referral nagrade</h3>
             {rewards.length ? (
               <div className="tfh-mobile-list">
                 {rewards.map((reward) => (
@@ -168,7 +168,7 @@ const TeacherProfilePage = () => {
                 ))}
               </div>
             ) : (
-              <p>No referral rewards yet.</p>
+              <p>Trenutno nema referral nagrada.</p>
             )}
           </div>
         </div>

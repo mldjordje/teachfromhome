@@ -23,7 +23,6 @@ const AdminPhase1Page = () => {
 
   const loadRows = async () => {
     setLoading(true);
-
     try {
       const payload = await apiGet(
         `/api/admin/phase1?status=${encodeURIComponent(statusFilter)}&page=${encodeURIComponent(String(page))}&pageSize=${encodeURIComponent(
@@ -34,11 +33,10 @@ const AdminPhase1Page = () => {
       setTotal(Number(payload.total || 0));
       setError("");
     } catch (loadError) {
-      setError(loadError.message || "Neuspešno učitavanje Phase 1 queue.");
+      setError(loadError.message || "Neuspesno ucitavanje Faza 1 queue.");
       setRows([]);
       setTotal(0);
     }
-
     setLoading(false);
   };
 
@@ -50,7 +48,7 @@ const AdminPhase1Page = () => {
 
   const queueInfo = useMemo(() => {
     if (!rows.length) {
-      if (statusFilter === "pending") return "Nema kandidata na čekanju. Promeni filter ili osveži listu.";
+      if (statusFilter === "pending") return "Nema kandidata na cekanju. Promeni filter ili osvezi listu.";
       return "Nema zapisa za izabrani filter.";
     }
     return "";
@@ -59,7 +57,7 @@ const AdminPhase1Page = () => {
   const moveToPhase2 = async (row) => {
     const sentence = phase2Sentences[row.submission_id]?.trim();
     if (!sentence) {
-      setError("Rečenica za Fazu 2 je obavezna.");
+      setError("Recenica za Fazu 2 je obavezna.");
       return;
     }
 
@@ -72,7 +70,6 @@ const AdminPhase1Page = () => {
         submission_id: row.submission_id,
         phase2_sentence: sentence,
       });
-
       await loadRows();
     } catch (actionError) {
       setError(actionError.message || "Prebacivanje u Fazu 2 nije uspelo.");
@@ -95,7 +92,6 @@ const AdminPhase1Page = () => {
         reason,
         notes,
       });
-
       await loadRows();
     } catch (actionError) {
       setError(actionError.message || "Odbijanje nije uspelo.");
@@ -108,7 +104,7 @@ const AdminPhase1Page = () => {
     <div className="flex flex-col gap-2">
       <Textarea
         size="sm"
-        label="Rečenica za Fazu 2"
+        label="Recenica za Fazu 2"
         labelPlacement="outside"
         value={phase2Sentences[row.submission_id] || ""}
         onValueChange={(value) =>
@@ -171,9 +167,9 @@ const AdminPhase1Page = () => {
                 }}
               >
                 <option value="all">Svi statusi</option>
-                <option value="pending">Na čekanju</option>
+                <option value="pending">Na cekanju</option>
                 <option value="rejected">Odbijeni</option>
-                <option value="moved_to_phase2">Prebačeni u Fazu 2</option>
+                <option value="moved_to_phase2">Prebaceni u Fazu 2</option>
               </select>
 
               <select
@@ -192,7 +188,7 @@ const AdminPhase1Page = () => {
 
             <div className="tfh-admin-toolbar-right">
               <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn">
-                Osveži
+                Osvezi
               </Button>
               <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn">
                 Pregled kandidata
@@ -203,15 +199,13 @@ const AdminPhase1Page = () => {
 
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="flex flex-wrap items-center justify-between gap-2">
-            <div className="text-sm text-slate-600">
-              Strana {page} od {totalPages} ({total} ukupno)
-            </div>
+            <div className="text-sm text-slate-600">Strana {page} od {totalPages} ({total} ukupno)</div>
             <div className="flex gap-2">
               <Button size="sm" variant="bordered" isDisabled={loading || page <= 1} onPress={() => setPage((prev) => Math.max(1, prev - 1))}>
                 Prethodna
               </Button>
               <Button size="sm" variant="bordered" isDisabled={loading || page >= totalPages} onPress={() => setPage((prev) => Math.min(totalPages, prev + 1))}>
-                Sledeća
+                Sledeca
               </Button>
             </div>
           </CardBody>
@@ -228,7 +222,7 @@ const AdminPhase1Page = () => {
             {loading ? (
               <div className="flex items-center gap-3 py-6">
                 <Spinner size="sm" />
-                <p>Učitavanje Phase 1 queue...</p>
+                <p>Ucitavanje Faza 1 queue...</p>
               </div>
             ) : rows.length ? (
               <>
@@ -238,7 +232,7 @@ const AdminPhase1Page = () => {
                       <tr>
                         <th>Kandidat</th>
                         <th>Status</th>
-                        <th>Pokušaj</th>
+                        <th>Pokusaj</th>
                         <th>Video</th>
                         <th>Akcije</th>
                       </tr>
@@ -255,9 +249,7 @@ const AdminPhase1Page = () => {
                           <td>{row.attempt_no}</td>
                           <td>
                             {row.video_blob_url ? (
-                              <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
-                                Otvori video
-                              </Button>
+                              <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">Otvori video</Button>
                             ) : "-"}
                           </td>
                           <td>
@@ -278,12 +270,10 @@ const AdminPhase1Page = () => {
                       </div>
                       <p>{row.email}</p>
                       <p>{row.phone || "-"}</p>
-                      <p>Pokušaj: {row.attempt_no}</p>
+                      <p>Pokusaj: {row.attempt_no}</p>
 
                       {row.video_blob_url && (
-                        <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
-                          Otvori video
-                        </Button>
+                        <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">Otvori video</Button>
                       )}
 
                       {row.status === "pending" && <ActionPanel row={row} />}

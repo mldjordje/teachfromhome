@@ -37,19 +37,19 @@ const TeacherNotificationsPage = () => {
 
   return (
     <RequireAuth>
-      <AppShell title="Notifications" subtitle="In-app notifications for onboarding workflow.">
+      <AppShell title="Obavestenja" subtitle="Sva obavestenja vezana za onboarding proces.">
         <div className="tfh-grid">
           <div className="tfh-card">
             <div className="tfh-actions">
               <button type="button" className="tfh-btn tfh-btn-outline" onClick={markAllAsRead}>
-                Mark all as read
+                Oznaci sve kao procitano
               </button>
             </div>
           </div>
 
           <div className="tfh-card">
             {loading ? (
-              <p>Loading notifications...</p>
+              <p>Ucitavanje obavestenja...</p>
             ) : notifications.length ? (
               <div className="tfh-mobile-list">
                 {notifications.map((row) => (
@@ -63,14 +63,14 @@ const TeacherNotificationsPage = () => {
                     <p>{new Date(row.created_at).toLocaleString()}</p>
                     {!row.is_read && (
                       <button type="button" className="tfh-btn tfh-btn-outline" onClick={() => markAsRead(row.id)}>
-                        Mark read
+                        Oznaci kao procitano
                       </button>
                     )}
                   </article>
                 ))}
               </div>
             ) : (
-              <p>No notifications yet.</p>
+              <p>Trenutno nema obavestenja.</p>
             )}
           </div>
         </div>

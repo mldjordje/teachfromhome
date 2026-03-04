@@ -30,7 +30,7 @@ const AdminCandidateDetailPage = () => {
       setPhase2Sentence(payload?.phase2_task?.phase2_sentence || "");
       setError("");
     } catch (loadError) {
-      setError(loadError.message || "Failed to load candidate detail");
+      setError(loadError.message || "Neuspesno ucitavanje detalja kandidata.");
       setData(null);
     }
     setLoading(false);
@@ -57,10 +57,10 @@ const AdminCandidateDetailPage = () => {
     setError("");
     try {
       await fn();
-      setActionMessage("Action completed.");
+      setActionMessage("Akcija je uspesno zavrsena.");
       await loadData();
     } catch (actionError) {
-      setError(actionError.message || "Action failed.");
+      setError(actionError.message || "Akcija nije uspela.");
     } finally {
       setBusyAction("");
     }
@@ -68,10 +68,10 @@ const AdminCandidateDetailPage = () => {
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Candidate Detail" subtitle="Single-candidate timeline view for Phase 1 and Phase 2 review.">
+      <AppShell title="Detalj kandidata" subtitle="Timeline prikaz kandidata za fazu 1 i fazu 2.">
         <div className="mb-3">
           <Button as={Link} href="/admin/candidates" variant="bordered">
-            Back to candidates
+            Nazad na kandidate
           </Button>
         </div>
 
@@ -82,14 +82,14 @@ const AdminCandidateDetailPage = () => {
           <Card className="tfh-admin-panel-card">
             <CardBody className="flex items-center gap-3 py-6">
               <Spinner size="sm" />
-              <p>Loading candidate...</p>
+              <p>Ucitavanje kandidata...</p>
             </CardBody>
           </Card>
         ) : data ? (
           <div className="grid gap-4">
             <Card className="tfh-admin-panel-card">
               <CardHeader>
-                <h3 className="text-lg font-semibold">Profile</h3>
+                <h3 className="text-lg font-semibold">Profil</h3>
               </CardHeader>
               <Divider />
               <CardBody>
@@ -100,29 +100,29 @@ const AdminCandidateDetailPage = () => {
                 </p>
                 <p>{data.profile.email}</p>
                 <p>{data.profile.phone || "-"}</p>
-                <p>Current phase: {data.profile.current_phase}</p>
-                <p>Short about: {data.profile.short_about || "-"}</p>
+                <p>Trenutna faza: {data.profile.current_phase}</p>
+                <p>Kratko o kandidatu: {data.profile.short_about || "-"}</p>
               </CardBody>
             </Card>
 
             <Card className="tfh-admin-panel-card">
               <CardHeader>
-                <h3 className="text-lg font-semibold">Review actions</h3>
+                <h3 className="text-lg font-semibold">Review akcije</h3>
               </CardHeader>
               <Divider />
               <CardBody className="grid gap-4">
                 {pendingPhase1 ? (
                   <div className="tfh-mobile-item tfh-mobile-item--admin">
                     <div className="tfh-mobile-item-top">
-                      <strong>Phase 1 pending attempt {pendingPhase1.attempt_no}</strong>
+                      <strong>Faza 1 pokusaj na cekanju {pendingPhase1.attempt_no}</strong>
                       <StatusBadge status={pendingPhase1.status} />
                     </div>
                     <Textarea
-                      label="Phase 2 sentence"
+                      label="Recenica za fazu 2"
                       labelPlacement="outside"
                       value={phase2Sentence}
                       onValueChange={setPhase2Sentence}
-                      placeholder="Sentence for Phase 2 task"
+                      placeholder="Recenica za faza 2 zadatak"
                     />
                     <div className="flex flex-wrap gap-2">
                       <Button
@@ -132,7 +132,7 @@ const AdminCandidateDetailPage = () => {
                         onPress={() =>
                           runAction("phase1-move", async () => {
                             if (!phase2Sentence.trim()) {
-                              throw new Error("Phase 2 sentence is required.");
+                              throw new Error("Recenica za fazu 2 je obavezna.");
                             }
                             await apiPost("/api/admin/phase1/move", {
                               user_id: data.profile.user_id,
@@ -142,7 +142,7 @@ const AdminCandidateDetailPage = () => {
                           })
                         }
                       >
-                        Move to phase2
+                        Prebaci u fazu 2
                       </Button>
                     </div>
 
@@ -157,11 +157,11 @@ const AdminCandidateDetailPage = () => {
                         <option value="low_energy">low_energy</option>
                       </select>
                       <Textarea
-                        label="Reject notes"
+                        label="Napomena za odbijanje"
                         labelPlacement="outside"
                         value={rejectNotes}
                         onValueChange={setRejectNotes}
-                        placeholder="Optional notes"
+                        placeholder="Opciona napomena"
                       />
                       <Button
                         size="sm"
@@ -179,26 +179,26 @@ const AdminCandidateDetailPage = () => {
                           })
                         }
                       >
-                        Reject Phase 1
+                        Odbij fazu 1
                       </Button>
                     </div>
                   </div>
                 ) : (
-                  <p>No pending Phase 1 action.</p>
+                  <p>Nema pending akcije za fazu 1.</p>
                 )}
 
                 {latestSubmittedPhase2 ? (
                   <div className="tfh-mobile-item tfh-mobile-item--admin">
                     <div className="tfh-mobile-item-top">
-                      <strong>Phase 2 submitted attempt {latestSubmittedPhase2.attempt_no}</strong>
+                      <strong>Faza 2 poslati pokusaj {latestSubmittedPhase2.attempt_no}</strong>
                       <StatusBadge status={latestSubmittedPhase2.status} />
                     </div>
                     <Textarea
-                      label="Phase 2 feedback"
+                      label="Feedback za fazu 2"
                       labelPlacement="outside"
                       value={phase2Feedback}
                       onValueChange={setPhase2Feedback}
-                      placeholder="Feedback used for retry/reject"
+                      placeholder="Feedback za retry/reject"
                     />
                     <div className="flex flex-wrap gap-2">
                       <Button
@@ -216,7 +216,7 @@ const AdminCandidateDetailPage = () => {
                           })
                         }
                       >
-                        Accept
+                        Prihvati
                       </Button>
                       <Button
                         size="sm"
@@ -252,19 +252,19 @@ const AdminCandidateDetailPage = () => {
                           })
                         }
                       >
-                        Reject
+                        Odbij
                       </Button>
                     </div>
                   </div>
                 ) : (
-                  <p>No submitted Phase 2 action.</p>
+                  <p>Nema submitted akcije za fazu 2.</p>
                 )}
               </CardBody>
             </Card>
 
             <Card className="tfh-admin-panel-card">
               <CardHeader>
-                <h3 className="text-lg font-semibold">Phase 1 attempts</h3>
+                <h3 className="text-lg font-semibold">Pokusaji faze 1</h3>
               </CardHeader>
               <Divider />
               <CardBody>
@@ -273,43 +273,43 @@ const AdminCandidateDetailPage = () => {
                     {data.phase1_attempts.map((row) => (
                       <article key={row.submission_id} className="tfh-mobile-item">
                         <div className="tfh-mobile-item-top">
-                          <strong>Attempt {row.attempt_no}</strong>
+                          <strong>Pokusaj {row.attempt_no}</strong>
                           <StatusBadge status={row.status} />
                         </div>
-                        <p>Reason: {row.reject_reason || "-"}</p>
-                        <p>Admin notes: {row.admin_notes || "-"}</p>
+                        <p>Razlog: {row.reject_reason || "-"}</p>
+                        <p>Admin napomena: {row.admin_notes || "-"}</p>
                         {row.video_blob_url && (
                           <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
-                            Open video
+                            Otvori video
                           </Button>
                         )}
                       </article>
                     ))}
                   </div>
                 ) : (
-                  <p>No Phase 1 attempts.</p>
+                  <p>Nema pokusaja za fazu 1.</p>
                 )}
               </CardBody>
             </Card>
 
             <Card className="tfh-admin-panel-card">
               <CardHeader>
-                <h3 className="text-lg font-semibold">Phase 2 task & submissions</h3>
+                <h3 className="text-lg font-semibold">Faza 2 zadatak i prijave</h3>
               </CardHeader>
               <Divider />
               <CardBody>
                 {data.phase2_task ? (
                   <>
                     <p>
-                      Task status: <StatusBadge status={data.phase2_task.task_status} />
+                      Status zadatka: <StatusBadge status={data.phase2_task.task_status} />
                     </p>
-                    <p>Sentence: {data.phase2_task.phase2_sentence}</p>
+                    <p>Recenica: {data.phase2_task.phase2_sentence}</p>
                     <p>
-                      Attempts: {data.phase2_task.current_attempts} / {data.phase2_task.attempts_allowed}
+                      Pokusaji: {data.phase2_task.current_attempts} / {data.phase2_task.attempts_allowed}
                     </p>
                   </>
                 ) : (
-                  <p>No Phase 2 task yet.</p>
+                  <p>Zadatak za fazu 2 jos nije otvoren.</p>
                 )}
 
                 {data.phase2_submissions?.length ? (
@@ -317,26 +317,26 @@ const AdminCandidateDetailPage = () => {
                     {data.phase2_submissions.map((row) => (
                       <article key={row.id} className="tfh-mobile-item">
                         <div className="tfh-mobile-item-top">
-                          <strong>Attempt {row.attempt_no}</strong>
+                          <strong>Pokusaj {row.attempt_no}</strong>
                           <StatusBadge status={row.status} />
                         </div>
                         <p>Feedback: {row.feedback || "-"}</p>
                         {row.video_blob_url && (
                           <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
-                            Open video
+                            Otvori video
                           </Button>
                         )}
                       </article>
                     ))}
                   </div>
                 ) : (
-                  <p>No Phase 2 submissions.</p>
+                  <p>Nema prijava za fazu 2.</p>
                 )}
               </CardBody>
             </Card>
           </div>
         ) : (
-          <p>No data.</p>
+          <p>Nema podataka.</p>
         )}
       </AppShell>
     </RequireAuth>

@@ -42,9 +42,9 @@ const SignupPage = () => {
         });
 
         window.localStorage.removeItem(REFERRAL_STORAGE_KEY);
-        setSuccess("Referral kod je povezan sa vašim nalogom.");
+        setSuccess("Referral kod je povezan sa nalogom.");
       } catch (refError) {
-        setError(refError?.message || "Referral kod nije moguće primeniti.");
+        setError(refError?.message || "Referral kod nije moguce primeniti.");
       } finally {
         router.replace(isAdmin ? "/admin" : nextTarget);
       }
@@ -72,7 +72,7 @@ const SignupPage = () => {
 
       await signInWithGoogle({ nextPath: nextTarget });
     } catch (err) {
-      setError(err?.message || "Registracija nije uspela. Pokušajte ponovo.");
+      setError(err?.message || "Registracija nije uspela. Pokusajte ponovo.");
       setBusy(false);
     }
   };
@@ -84,7 +84,7 @@ const SignupPage = () => {
           <CardBody className="gap-4">
             <span className="tfh-minimal-kicker">Novi kandidat</span>
             <h2>Brza registracija</h2>
-            <p>Registracija preko Google-a odmah kreira nalog i vodi vas direktno na Fazu 1.</p>
+            <p>Registracija preko Google-a odmah kreira nalog i vodi te direktno na Fazu 1.</p>
             <ul className="tfh-minimal-list">
               <li>Brzo kreiranje naloga</li>
               <li>Opcioni referral kod</li>
@@ -96,7 +96,7 @@ const SignupPage = () => {
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
             <h3>Registracija preko Google-a</h3>
-            <p>Unesite referral kod ako ga imate, zatim nastavite.</p>
+            <p>Unesi referral kod ako ga imas, zatim nastavi.</p>
 
             <Input
               label="Referral kod (opciono)"
@@ -120,7 +120,7 @@ const SignupPage = () => {
               className="tfh-action-btn tfh-action-btn--ghost"
               fullWidth
             >
-              Već imam nalog
+              Vec imam nalog
             </Button>
           </CardBody>
         </Card>

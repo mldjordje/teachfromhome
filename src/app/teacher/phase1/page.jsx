@@ -18,7 +18,7 @@ const TeacherPhase1Page = () => {
   const [phone, setPhone] = useState(profile?.phone || "");
   const [dateOfBirth, setDateOfBirth] = useState(profile?.date_of_birth || "");
   const [shortAbout, setShortAbout] = useState(profile?.short_about || "");
-  const [scriptText, setScriptText] = useState("Hello, my name is ...");
+  const [scriptText, setScriptText] = useState("Zdravo, moje ime je ...");
   const [videoFile, setVideoFile] = useState(null);
   const [attempts, setAttempts] = useState([]);
   const [error, setError] = useState("");
@@ -32,7 +32,7 @@ const TeacherPhase1Page = () => {
       const payload = await apiGet("/api/teacher/phase1");
       setAttempts(payload.attempts || []);
     } catch (loadError) {
-      setError(loadError?.message || "Failed to load your Phase 1 attempts.");
+      setError(loadError?.message || "Neuspesno ucitavanje pokusaja za fazu 1.");
       setAttempts([]);
     } finally {
       setLoading(false);
@@ -61,23 +61,23 @@ const TeacherPhase1Page = () => {
     setSuccess("");
 
     if (!user) {
-      setError("Missing user session.");
+      setError("Nedostaje aktivna korisnicka sesija.");
       return;
     }
     if (!videoFile) {
-      setError("Please upload your Phase 1 intro video.");
+      setError("Postavite video za fazu 1 pre slanja.");
       return;
     }
     if (videoFile.size > bytesFromMb(PHASE1_MAX_VIDEO_MB)) {
-      setError(`Video is too large. Max allowed size is ${PHASE1_MAX_VIDEO_MB}MB.`);
+      setError(`Video je prevelik. Maksimalna velicina je ${PHASE1_MAX_VIDEO_MB}MB.`);
       return;
     }
     if (videoFile.type && !ALLOWED_VIDEO_MIME_TYPES.includes(videoFile.type)) {
-      setError("Unsupported video format. Please upload MP4, WEBM, or MOV.");
+      setError("Nepodrzan format videa. Koristite MP4, WEBM ili MOV.");
       return;
     }
     if (shortAbout.length > 50) {
-      setError("Short about must be max 50 characters.");
+      setError("Kratki opis moze imati najvise 50 karaktera.");
       return;
     }
 
@@ -112,12 +112,12 @@ const TeacherPhase1Page = () => {
         metadata: { attempt_no: nextAttempt },
       });
 
-      setSuccess("Phase 1 submitted successfully.");
+      setSuccess("Faza 1 je uspesno poslata.");
       setVideoFile(null);
       await refreshAuthState();
       await loadAttempts();
     } catch (submitError) {
-      setError(submitError.message || "Failed to submit phase 1.");
+      setError(submitError.message || "Slanje faze 1 nije uspelo.");
     } finally {
       setBusy(false);
     }
@@ -125,62 +125,63 @@ const TeacherPhase1Page = () => {
 
   return (
     <RequireAuth>
-      <AppShell title="Phase 1 Application" subtitle="Submit your profile details and intro video (max 3 attempts).">
+      <AppShell title="Faza 1 prijava" subtitle="Unesi podatke i posalji intro video (najvise 3 pokusaja).">
         <div className="tfh-grid">
           <div className="tfh-grid tfh-grid-3">
             <div className="tfh-card">
-              <h3>Attempts used</h3>
+              <h3>Iskorisceni pokusaji</h3>
               <p>{attempts.length} / 3</p>
             </div>
             <div className="tfh-card">
-              <h3>Attempts left</h3>
+              <h3>Preostali pokusaji</h3>
               <p>{attemptsLeft}</p>
             </div>
             <div className="tfh-card">
-              <h3>Latest status</h3>
-              <p>{latest ? <StatusBadge status={latest.status} /> : "No submission yet"}</p>
+              <h3>Poslednji status</h3>
+              <p>{latest ? <StatusBadge status={latest.status} /> : "Jos nema prijave"}</p>
             </div>
           </div>
 
           {latest?.status === "moved_to_phase2" && (
-            <div className="tfh-alert tfh-success">Congratulations, you passed Phase 1. Go to Phase 2.</div>
+            <div className="tfh-alert tfh-success">Faza 1 je uspesno prosla. Predji na fazu 2.</div>
           )}
 
-          {latest?.status === "pending" && <div className="tfh-alert">Your latest attempt is pending review. Wait for admin decision.</div>}
+          {latest?.status === "pending" && <div className="tfh-alert">Poslednji pokusaj je na proveri. Sacekajte admin odluku.</div>}
 
           <div className="tfh-card">
-            <h3>Submit Phase 1</h3>
+            <h3>Posalji fazu 1</h3>
             <form className="tfh-form" onSubmit={onSubmit}>
               <div className="tfh-grid tfh-grid-2">
                 <div>
-                  <label>First name</label>
+                  <label>Ime</label>
                   <input value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
                 </div>
                 <div>
-                  <label>Last name</label>
+                  <label>Prezime</label>
                   <input value={lastName} onChange={(e) => setLastName(e.target.value)} required />
                 </div>
                 <div>
-                  <label>Date of birth</label>
+                  <label>Datum rodjenja</label>
                   <input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} required />
                 </div>
                 <div>
-                  <label>Phone</label>
+                  <label>Telefon</label>
                   <input value={phone} onChange={(e) => setPhone(e.target.value)} required />
                 </div>
               </div>
 
               <div>
-                <label>Email (must match auth email)</label>
+                <label>Email (mora biti isti kao Google nalog)</label>
                 <input value={user?.email || ""} readOnly />
               </div>
               <div>
-                <label>Short about (max 50 chars)</label>
+                <label>Kratko o meni (max 50)</label>
                 <input value={shortAbout} maxLength={50} onChange={(e) => setShortAbout(e.target.value)} required />
               </div>
               <div>
-                <label>Script text (4-5 sentences)</label>
+                <label>Tekst za izgovor (4-5 recenica)</label>
                 <textarea value={scriptText} onChange={(e) => setScriptText(e.target.value)} />
+                <small>Za fazu 1 sami birate tekst koji izgovarate i unosite ga ovde.</small>
               </div>
               <div>
                 <label>Intro video</label>
@@ -193,32 +194,32 @@ const TeacherPhase1Page = () => {
 
               <div className="tfh-actions">
                 <button type="submit" className="tfh-btn" disabled={!canSubmit}>
-                  {busy ? "Submitting..." : "Submit Phase 1"}
+                  {busy ? "Slanje..." : "Posalji fazu 1"}
                 </button>
               </div>
             </form>
           </div>
 
           <div className="tfh-card">
-            <h3>Attempt history</h3>
+            <h3>Istorija pokusaja</h3>
             {loading ? (
-              <p>Loading attempts...</p>
+              <p>Ucitavanje pokusaja...</p>
             ) : attempts.length ? (
               <div className="tfh-mobile-list">
                 {attempts.map((row) => (
                   <article key={row.id} className="tfh-mobile-item">
                     <div className="tfh-mobile-item-top">
-                      <strong>Attempt {row.attempt_no}</strong>
+                      <strong>Pokusaj {row.attempt_no}</strong>
                       <StatusBadge status={row.status} />
                     </div>
-                    <p>Reject reason: {row.reject_reason || "-"}</p>
-                    <p>Admin notes: {row.admin_notes || "-"}</p>
+                    <p>Razlog odbijanja: {row.reject_reason || "-"}</p>
+                    <p>Admin napomena: {row.admin_notes || "-"}</p>
                     <p>{new Date(row.created_at).toLocaleString()}</p>
                   </article>
                 ))}
               </div>
             ) : (
-              <p>No attempts yet.</p>
+              <p>Jos nema pokusaja.</p>
             )}
           </div>
         </div>

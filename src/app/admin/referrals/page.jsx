@@ -23,7 +23,7 @@ const AdminReferralsPage = () => {
       setError("");
       setRewards(payload.rows || []);
     } catch (loadError) {
-      setError(loadError.message || "Failed to load rewards");
+      setError(loadError.message || "Neuspesno ucitavanje nagrada.");
       setRewards([]);
     }
 
@@ -38,7 +38,7 @@ const AdminReferralsPage = () => {
     e.preventDefault();
 
     if (!referredUserId.trim()) {
-      setError("referred_user_id is required");
+      setError("Polje referred_user_id je obavezno.");
       return;
     }
 
@@ -55,7 +55,7 @@ const AdminReferralsPage = () => {
       setEligibleAt("");
       await loadRewards();
     } catch (actionError) {
-      setError(actionError.message || "Failed to mark eligible.");
+      setError(actionError.message || "Oznacavanje kao eligible nije uspelo.");
     }
 
     setBusy(false);
@@ -70,7 +70,7 @@ const AdminReferralsPage = () => {
 
       await loadRewards();
     } catch (actionError) {
-      setError(actionError.message || "Failed to approve reward.");
+      setError(actionError.message || "Odobravanje nagrade nije uspelo.");
     }
 
     setBusy(false);
@@ -78,13 +78,13 @@ const AdminReferralsPage = () => {
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Referral Rewards" subtitle="Manual referral eligibility and reward approval workflow.">
+      <AppShell title="Referral nagrade" subtitle="Rucno oznacavanje eligible statusa i odobravanje nagrada.">
         {error && <Alert color="danger" title={error} className="mb-4" />}
 
         <div className="grid gap-4 lg:grid-cols-2">
           <Card className="tfh-admin-panel-card">
             <CardHeader>
-              <h3 className="text-lg font-semibold">Mark referral eligible</h3>
+              <h3 className="text-lg font-semibold">Oznaci referral kao eligible</h3>
             </CardHeader>
             <Divider />
             <CardBody>
@@ -96,10 +96,10 @@ const AdminReferralsPage = () => {
                   onValueChange={setReferredUserId}
                   variant="bordered"
                 />
-                <Input type="datetime-local" label="Eligible at (optional)" value={eligibleAt} onValueChange={setEligibleAt} variant="bordered" />
+                <Input type="datetime-local" label="Eligible datum (opciono)" value={eligibleAt} onValueChange={setEligibleAt} variant="bordered" />
 
                 <Button color="primary" type="submit" isLoading={busy}>
-                  Mark eligible
+                  Oznaci kao eligible
                 </Button>
               </form>
             </CardBody>
@@ -107,14 +107,14 @@ const AdminReferralsPage = () => {
 
           <Card className="tfh-admin-panel-card">
             <CardHeader>
-              <h3 className="text-lg font-semibold">Reward list</h3>
+              <h3 className="text-lg font-semibold">Lista nagrada</h3>
             </CardHeader>
             <Divider />
             <CardBody>
               {loading ? (
                 <div className="flex items-center gap-3 py-6">
                   <Spinner size="sm" />
-                  <p>Loading rewards...</p>
+                  <p>Ucitavanje nagrada...</p>
                 </div>
               ) : rewards.length ? (
                 <div className="tfh-mobile-list">
@@ -127,18 +127,18 @@ const AdminReferralsPage = () => {
                       <p>Referrer: {reward.referrerId || reward.referrer_id}</p>
                       <p>Referred: {reward.referredId || reward.referred_id}</p>
                       <p>
-                        Eligible at: {(reward.eligibleAt || reward.eligible_at) ? new Date(reward.eligibleAt || reward.eligible_at).toLocaleString() : "-"}
+                        Eligible datum: {(reward.eligibleAt || reward.eligible_at) ? new Date(reward.eligibleAt || reward.eligible_at).toLocaleString() : "-"}
                       </p>
                       {reward.status === "pending" && (
                         <Button size="sm" color="success" variant="flat" onPress={() => approveReward(reward.id)} isLoading={busy}>
-                          Approve
+                          Odobri
                         </Button>
                       )}
                     </article>
                   ))}
                 </div>
               ) : (
-                <p>No rewards yet.</p>
+                <p>Jos nema nagrada.</p>
               )}
             </CardBody>
           </Card>

@@ -24,7 +24,7 @@ const AdminShowcasePage = () => {
       setError("");
       setVideos(payload.rows || []);
     } catch (loadError) {
-      setError(loadError.message || "Failed to load showcase videos");
+      setError(loadError.message || "Neuspesno ucitavanje showcase klipova.");
       setVideos([]);
     }
 
@@ -43,13 +43,13 @@ const AdminShowcasePage = () => {
     const trimmedUrl = youtubeUrl.trim();
 
     if (!trimmedTitle) {
-      setError("Title is required.");
+      setError("Naslov je obavezan.");
       return;
     }
 
     const videoId = extractYouTubeVideoId(trimmedUrl);
     if (!videoId) {
-      setError("Paste a valid YouTube video/shorts link.");
+      setError("Unesite validan YouTube link.");
       return;
     }
 
@@ -71,7 +71,7 @@ const AdminShowcasePage = () => {
       setIsActive(true);
       await loadVideos();
     } catch (insertError) {
-      setError(insertError.message || "Failed to create showcase item");
+      setError(insertError.message || "Kreiranje showcase stavke nije uspelo.");
     }
 
     setBusy(false);
@@ -93,23 +93,23 @@ const AdminShowcasePage = () => {
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Candidate Showcase Clips" subtitle="Manage accepted candidate clips shown on public pages.">
+      <AppShell title="Showcase klipovi kandidata" subtitle="Upravljanje klipovima koji su prikazani na javnim stranicama.">
         {error && <Alert color="danger" title={error} className="mb-4" />}
 
         <div className="grid gap-4 lg:grid-cols-2">
           <Card className="tfh-admin-panel-card">
             <CardHeader>
-              <h3 className="text-lg font-semibold">Add YouTube clip</h3>
+              <h3 className="text-lg font-semibold">Dodaj YouTube klip</h3>
             </CardHeader>
             <Divider />
             <CardBody>
               <form className="flex flex-col gap-3" onSubmit={createVideo}>
                 <Input
-                  label="Clip title"
+                  label="Naziv klipa"
                   value={title}
                   onValueChange={setTitle}
                   variant="bordered"
-                  placeholder="Accepted Candidate - Intro Sample"
+                  placeholder="Prihvacen kandidat - intro primer"
                   isRequired
                 />
 
@@ -124,18 +124,18 @@ const AdminShowcasePage = () => {
 
                 <Input
                   type="number"
-                  label="Order index"
+                  label="Redosled"
                   value={String(orderIndex)}
                   onValueChange={(value) => setOrderIndex(Number(value || 0))}
                   variant="bordered"
                 />
 
                 <Checkbox isSelected={isActive} onValueChange={setIsActive}>
-                  Active
+                  Aktivan
                 </Checkbox>
 
                 <Button color="primary" type="submit" isLoading={busy} className="tfh-action-btn">
-                  {busy ? "Saving..." : "Save clip"}
+                  {busy ? "Cuvanje..." : "Sacuvaj klip"}
                 </Button>
               </form>
             </CardBody>
@@ -143,14 +143,14 @@ const AdminShowcasePage = () => {
 
           <Card className="tfh-admin-panel-card">
             <CardHeader>
-              <h3 className="text-lg font-semibold">Existing showcase clips</h3>
+              <h3 className="text-lg font-semibold">Postojeci showcase klipovi</h3>
             </CardHeader>
             <Divider />
             <CardBody>
               {loading ? (
                 <div className="flex items-center gap-3 py-6">
                   <Spinner size="sm" />
-                  <p>Loading clips...</p>
+                  <p>Ucitavanje klipova...</p>
                 </div>
               ) : videos.length ? (
                 <div className="tfh-mobile-list">
@@ -158,25 +158,25 @@ const AdminShowcasePage = () => {
                     <article key={video.id} className="tfh-mobile-item">
                       <div className="tfh-mobile-item-top">
                         <strong>{video.title}</strong>
-                        <span>{video.is_active || video.isActive ? "active" : "inactive"}</span>
+                        <span>{video.is_active || video.isActive ? "aktivan" : "neaktivan"}</span>
                       </div>
-                      <p>Order: {video.order_index || video.orderIndex}</p>
+                      <p>Redosled: {video.order_index || video.orderIndex}</p>
                       <div className="flex flex-wrap gap-2">
                         <Button size="sm" variant="bordered" onPress={() => previewVideo(video)}>
-                          Preview
+                          Pregled
                         </Button>
                         <Button size="sm" variant="flat" color="warning" onPress={() => toggleActive(video)}>
-                          Toggle
+                          Promeni status
                         </Button>
                         <Button size="sm" variant="flat" color="danger" onPress={() => deleteVideo(video)}>
-                          Delete
+                          Obrisi
                         </Button>
                       </div>
                     </article>
                   ))}
                 </div>
               ) : (
-                <p>No showcase clips yet.</p>
+                <p>Trenutno nema showcase klipova.</p>
               )}
             </CardBody>
           </Card>
