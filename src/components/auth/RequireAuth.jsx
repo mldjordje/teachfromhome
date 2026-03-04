@@ -1,9 +1,12 @@
+"use client";
+
 import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 
 const RequireAuth = ({ children, adminOnly = false }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isAdmin, loading } = useAuth();
 
   useEffect(() => {
@@ -11,14 +14,14 @@ const RequireAuth = ({ children, adminOnly = false }) => {
 
     if (!user) {
       const loginPath = adminOnly ? "/admin/login" : "/login";
-      router.replace(`${loginPath}?next=${encodeURIComponent(router.asPath)}`);
+      router.replace(`${loginPath}?next=${encodeURIComponent(pathname || "/")}`);
       return;
     }
 
     if (adminOnly && !isAdmin) {
       router.replace("/teacher/dashboard");
     }
-  }, [adminOnly, isAdmin, loading, router, user]);
+  }, [adminOnly, isAdmin, loading, pathname, router, user]);
 
   if (loading) {
     return <div className="tfh-page">Loading...</div>;

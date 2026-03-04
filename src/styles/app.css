@@ -982,6 +982,47 @@
   color: #1e293b;
 }
 
+.tfh-mobile-list {
+  display: grid;
+  gap: 12px;
+}
+
+.tfh-mobile-item {
+  border: 1px solid #d8e2ef;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 12px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.tfh-mobile-item p {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.tfh-mobile-item p + p {
+  margin-top: 4px;
+}
+
+.tfh-mobile-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.tfh-mobile-item-top strong {
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.tfh-mobile-item--admin {
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+}
+
 @media (max-width: 560px) {
   .tfh-portal-nav {
     grid-template-columns: 1fr;

@@ -1,0 +1,83 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Alert, Button, Card, CardBody } from "@heroui/react";
+import AppShell from "@components/app/AppShell";
+import { useAuth } from "@components/auth/AuthProvider";
+import { sanitizeNextPath, signInWithGoogle } from "@library/auth";
+
+const AdminLoginPage = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user, isAdmin, loading } = useAuth();
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const nextFromQuery = useMemo(
+    () => sanitizeNextPath(searchParams?.get("next") || null, "/admin"),
+    [searchParams],
+  );
+
+  const adminNext = useMemo(() => (nextFromQuery.startsWith("/admin") ? nextFromQuery : "/admin"), [nextFromQuery]);
+
+  useEffect(() => {
+    if (loading || !user) return;
+
+    if (isAdmin) {
+      router.replace(adminNext);
+      return;
+    }
+
+    setError("This account is not in admin_users yet. Add admin role and sign in again.");
+  }, [adminNext, isAdmin, loading, router, user]);
+
+  const onGoogleLogin = async () => {
+    setError("");
+    setBusy(true);
+
+    try {
+      await signInWithGoogle({ nextPath: adminNext });
+    } catch (err) {
+      setError(err?.message || "Google login failed. Please try again.");
+      setBusy(false);
+    }
+  };
+
+  return (
+    <AppShell title="Admin Login" subtitle="Restricted entry for owner/admin accounts." publicView>
+      <section className="tfh-minimal-auth">
+        <div className="tfh-minimal-left">
+          <span className="tfh-minimal-kicker">Admin workspace</span>
+          <h2>Operations and queue control</h2>
+          <p>Access candidate reviews, training management, referrals, and maintenance actions from one dashboard.</p>
+          <ul className="tfh-minimal-list">
+            <li>Phase 1 and Phase 2 review</li>
+            <li>Training videos and referral tools</li>
+            <li>Role-based secure access</li>
+          </ul>
+        </div>
+
+        <Card className="tfh-minimal-card tfh-minimal-primary">
+          <CardBody className="gap-4">
+            <h3>Admin Google sign-in</h3>
+            <p>Only accounts listed in admin_users can enter panel.</p>
+
+            <Button size="lg" onPress={onGoogleLogin} isLoading={busy} className="tfh-action-btn" fullWidth>
+              {busy ? "Redirecting..." : "Login with Google"}
+            </Button>
+
+            {error && <Alert color="danger" title={error} />}
+
+            <Button as={Link} href="/login" variant="flat" className="tfh-action-btn tfh-action-btn--ghost" fullWidth>
+              Candidate login
+            </Button>
+          </CardBody>
+        </Card>
+      </section>
+    </AppShell>
+  );
+};
+
+export default AdminLoginPage;

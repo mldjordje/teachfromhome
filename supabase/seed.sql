@@ -1,2 +1,0 @@
--- Optional seed file for local Supabase CLI workflows.
--- Keep intentionally minimal for starter setup.

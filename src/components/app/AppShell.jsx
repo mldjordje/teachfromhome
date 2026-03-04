@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { usePathname, useRouter } from "next/navigation";
 import { Alert, Card, CardBody, Chip } from "@heroui/react";
 import appData from "@data/app.json";
 import { useAuth } from "@components/auth/AuthProvider";
@@ -23,17 +25,18 @@ const adminLinks = [
 
 const AppShell = ({ title, subtitle, children, publicView = false }) => {
   const router = useRouter();
+  const pathname = usePathname() || "/";
   const { user, isAdmin, signOut, isConfigured, configError, loading } = useAuth();
 
-  const isAdminRoute = router.pathname.startsWith("/admin");
+  const isAdminRoute = pathname.startsWith("/admin");
   const publicRoutes = ["/login", "/signup", "/apply", "/admin/login"];
-  const isPublicEntry = publicView || (!user && publicRoutes.includes(router.pathname));
+  const isPublicEntry = publicView || (!user && publicRoutes.includes(pathname));
   const showTeacherNav = Boolean(user && (!isAdmin || !isAdminRoute));
   const showAdminNav = Boolean(user && isAdmin);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [router.asPath]);
+  }, [pathname]);
 
   const onSignOut = async () => {
     await signOut();
@@ -41,8 +44,8 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
   };
 
   const isActive = (href) => {
-    if (href === "/admin") return router.pathname === "/admin";
-    return router.pathname === href;
+    if (href === "/admin") return pathname === "/admin";
+    return pathname === href;
   };
 
   const allLinks = useMemo(() => {
@@ -58,11 +61,11 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
 
   const guestAction = useMemo(() => {
     if (!isPublicEntry) return null;
-    if (router.pathname === "/apply") return { href: "/login", label: "Login" };
-    if (router.pathname === "/signup") return { href: "/login", label: "Login" };
-    if (router.pathname === "/admin/login") return { href: "/login", label: "Teacher login" };
+    if (pathname === "/apply") return { href: "/login", label: "Login" };
+    if (pathname === "/signup") return { href: "/login", label: "Login" };
+    if (pathname === "/admin/login") return { href: "/login", label: "Teacher login" };
     return { href: "/apply", label: "Apply now" };
-  }, [isPublicEntry, router.pathname]);
+  }, [isPublicEntry, pathname]);
 
   const brandLogo = isPublicEntry ? appData.header.logo.image : appData.header.logo.image_white;
   const shellTone = isAdminRoute ? "admin" : "teacher";
@@ -106,7 +109,7 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
                   </Link>
                 ) : (
                   <>
-                    <Link href={isAdminRoute ? "/admin/login" : "/login"} className="tfh-topbar-btn tfh-topbar-btn--ghost">
+                  <Link href={isAdminRoute ? "/admin/login" : "/login"} className="tfh-topbar-btn tfh-topbar-btn--ghost">
                       Login
                     </Link>
                     <Link href="/apply" className="tfh-topbar-btn tfh-topbar-btn--solid">
@@ -158,7 +161,7 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
             color="danger"
             title={
               configError ||
-              "Supabase env variables are missing. Configure NEXT_PUBLIC_SUPABASE_URL and one publishable key (NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY)."
+              "Authentication or backend configuration is missing. Check AUTH_* and POSTGRES/BLOB env variables."
             }
             className="mb-4"
           />

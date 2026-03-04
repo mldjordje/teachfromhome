@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { Spinner } from "@heroui/react";
-import { getSupabaseBrowserClient } from "@library/supabaseClient";
+import { apiGet } from "@library/apiClient";
 import { extractYouTubeVideoId, toYouTubeEmbedUrl } from "@library/youtube";
 
 const ShowcaseVideoGrid = ({ limit = 0, compact = false }) => {
@@ -13,20 +15,9 @@ const ShowcaseVideoGrid = ({ limit = 0, compact = false }) => {
 
     const load = async () => {
       try {
-        const supabase = getSupabaseBrowserClient();
-        let query = supabase
-          .from("showcase_videos")
-          .select("id, title, youtube_url, youtube_video_id, thumbnail_url, order_index, created_at")
-          .eq("is_active", true)
-          .order("order_index", { ascending: true })
-          .order("created_at", { ascending: false });
-
-        if (limit > 0) {
-          query = query.limit(limit);
-        }
-
-        const { data, error: loadError } = await query;
-        if (loadError) throw loadError;
+        const query = limit > 0 ? `?limit=${limit}` : "";
+        const payload = await apiGet(`/api/public/showcase${query}`);
+        const data = payload?.rows || [];
 
         const normalized = (data ?? [])
           .map((row) => {

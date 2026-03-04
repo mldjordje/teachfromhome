@@ -17,11 +17,10 @@ export const getAnalyticsSessionId = () => {
   return generated;
 };
 
-export const trackEvent = async ({ eventName, metadata = {}, accessToken = null }) => {
+export const trackEvent = async ({ eventName, metadata = {} }) => {
   try {
     await callEdgeFunction({
       functionName: "create_analytics_event",
-      accessToken,
       body: {
         event_name: eventName,
         session_id: getAnalyticsSessionId(),

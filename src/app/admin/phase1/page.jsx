@@ -1,0 +1,273 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner, Textarea } from "@heroui/react";
+import Link from "next/link";
+import RequireAuth from "@components/auth/RequireAuth";
+import AppShell from "@components/app/AppShell";
+import StatusBadge from "@components/app/StatusBadge";
+import { apiGet, apiPost } from "@library/apiClient";
+
+const AdminPhase1Page = () => {
+  const [rows, setRows] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("pending");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [busyId, setBusyId] = useState("");
+  const [phase2Sentences, setPhase2Sentences] = useState({});
+  const [rejectReasons, setRejectReasons] = useState({});
+  const [rejectNotes, setRejectNotes] = useState({});
+
+  const loadRows = async () => {
+    setLoading(true);
+
+    try {
+      const payload = await apiGet(
+        `/api/admin/phase1?status=${encodeURIComponent(statusFilter)}&page=${encodeURIComponent(String(page))}&pageSize=${encodeURIComponent(
+          String(pageSize),
+        )}`,
+      );
+      setRows(payload.rows || []);
+      setTotal(Number(payload.total || 0));
+      setError("");
+    } catch (loadError) {
+      setError(loadError.message || "Failed to load Phase 1 queue.");
+      setRows([]);
+      setTotal(0);
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadRows();
+  }, [statusFilter, page, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  const moveToPhase2 = async (row) => {
+    const sentence = phase2Sentences[row.submission_id]?.trim();
+    if (!sentence) {
+      setError("Phase 2 sentence is required.");
+      return;
+    }
+
+    setBusyId(row.submission_id);
+    setError("");
+
+    try {
+      await apiPost("/api/admin/phase1/move", {
+        user_id: row.user_id,
+        submission_id: row.submission_id,
+        phase2_sentence: sentence,
+      });
+
+      await loadRows();
+    } catch (actionError) {
+      setError(actionError.message || "Move to phase2 failed.");
+    }
+
+    setBusyId("");
+  };
+
+  const rejectPhase1 = async (row) => {
+    const reason = rejectReasons[row.submission_id] || "bad_pronunciation";
+    const notes = rejectNotes[row.submission_id] || "";
+
+    setBusyId(row.submission_id);
+    setError("");
+
+    try {
+      await apiPost("/api/admin/phase1/reject", {
+        user_id: row.user_id,
+        submission_id: row.submission_id,
+        reason,
+        notes,
+      });
+
+      await loadRows();
+    } catch (actionError) {
+      setError(actionError.message || "Reject failed.");
+    }
+
+    setBusyId("");
+  };
+
+  return (
+    <RequireAuth adminOnly>
+      <AppShell title="Admin Phase 1 Queue" subtitle="Review submissions, reject, or move candidate to Phase 2.">
+        <Card className="tfh-admin-panel-card mb-4">
+          <CardBody className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <select
+              className="tfh-admin-filter-select"
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="all">All statuses</option>
+              <option value="pending">Pending</option>
+              <option value="rejected">Rejected</option>
+              <option value="moved_to_phase2">Moved to phase2</option>
+            </select>
+            <select
+              className="tfh-admin-filter-select"
+              value={String(pageSize)}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value) || 20);
+                setPage(1);
+              }}
+            >
+              <option value="20">20 per page</option>
+              <option value="50">50 per page</option>
+              <option value="100">100 per page</option>
+            </select>
+            <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn">
+              Refresh
+            </Button>
+            <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn">
+              Candidate View
+            </Button>
+          </CardBody>
+        </Card>
+
+        <Card className="tfh-admin-panel-card mb-4">
+          <CardBody className="flex flex-wrap items-center justify-between gap-2">
+            <div className="text-sm text-slate-600">
+              Page {page} of {totalPages} ({total} total)
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="bordered"
+                isDisabled={loading || page <= 1}
+                onPress={() => setPage((prev) => Math.max(1, prev - 1))}
+              >
+                Previous
+              </Button>
+              <Button
+                size="sm"
+                variant="bordered"
+                isDisabled={loading || page >= totalPages}
+                onPress={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+              >
+                Next
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
+
+        {error && <Alert color="danger" title={error} className="mb-4" />}
+
+        <Card className="tfh-admin-panel-card">
+          <CardHeader>
+            <h3 className="text-lg font-semibold">Phase 1 queue</h3>
+          </CardHeader>
+          <Divider />
+          <CardBody>
+            {loading ? (
+              <div className="flex items-center gap-3 py-6">
+                <Spinner size="sm" />
+                <p>Loading Phase 1 queue...</p>
+              </div>
+            ) : rows.length ? (
+              <div className="tfh-mobile-list">
+                {rows.map((row) => (
+                  <article key={row.submission_id} className="tfh-mobile-item tfh-mobile-item--admin">
+                    <div className="tfh-mobile-item-top">
+                      <strong>
+                        {row.first_name} {row.last_name}
+                      </strong>
+                      <StatusBadge status={row.status} />
+                    </div>
+                    <p>{row.email}</p>
+                    <p>{row.phone || "-"}</p>
+                    <p>Attempt: {row.attempt_no}</p>
+                    {row.reject_reason && <p>Reason: {row.reject_reason}</p>}
+                    {row.admin_notes && <p>Note: {row.admin_notes}</p>}
+                    {row.video_blob_url && (
+                      <Button as="a" href={row.video_blob_url} target="_blank" rel="noreferrer" size="sm" variant="bordered">
+                        Open video
+                      </Button>
+                    )}
+
+                    {row.status === "pending" && (
+                      <div className="flex flex-col gap-2">
+                        <Textarea
+                          size="sm"
+                          label="Phase 2 sentence"
+                          labelPlacement="outside"
+                          value={phase2Sentences[row.submission_id] || ""}
+                          onValueChange={(value) =>
+                            setPhase2Sentences((prev) => ({
+                              ...prev,
+                              [row.submission_id]: value,
+                            }))
+                          }
+                        />
+                        <Button
+                          size="sm"
+                          color="primary"
+                          onPress={() => moveToPhase2(row)}
+                          isLoading={busyId === row.submission_id}
+                        >
+                          Move to phase2
+                        </Button>
+
+                        <select
+                          className="h-10 rounded-xl border border-slate-300 px-3 text-sm"
+                          value={rejectReasons[row.submission_id] || "bad_pronunciation"}
+                          onChange={(e) =>
+                            setRejectReasons((prev) => ({
+                              ...prev,
+                              [row.submission_id]: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="bad_accent">bad_accent</option>
+                          <option value="bad_pronunciation">bad_pronunciation</option>
+                          <option value="low_energy">low_energy</option>
+                        </select>
+
+                        <Textarea
+                          size="sm"
+                          label="Reject notes"
+                          labelPlacement="outside"
+                          value={rejectNotes[row.submission_id] || ""}
+                          onValueChange={(value) =>
+                            setRejectNotes((prev) => ({
+                              ...prev,
+                              [row.submission_id]: value,
+                            }))
+                          }
+                        />
+
+                        <Button
+                          size="sm"
+                          color="danger"
+                          variant="flat"
+                          onPress={() => rejectPhase1(row)}
+                          isLoading={busyId === row.submission_id}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p>No records found.</p>
+            )}
+          </CardBody>
+        </Card>
+      </AppShell>
+    </RequireAuth>
+  );
+};
+
+export default AdminPhase1Page;

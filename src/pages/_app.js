@@ -1,5 +1,6 @@
 import React from "react";
 import Head from "next/head";
+import { SessionProvider } from "next-auth/react";
 import appData from "@data/app.json";
 import { AuthProvider } from "@components/auth/AuthProvider";
 import { LanguageProvider } from "@components/i18n/LanguageProvider";
@@ -26,9 +27,11 @@ function MyApp({ Component, pageProps }) {
       </Head>
       <LanguageProvider>
         <HeroUIProvider>
-          <AuthProvider>
-            <Component {...pageProps} />
-          </AuthProvider>
+          <SessionProvider session={pageProps.session}>
+            <AuthProvider>
+              <Component {...pageProps} />
+            </AuthProvider>
+          </SessionProvider>
         </HeroUIProvider>
       </LanguageProvider>
     </>
