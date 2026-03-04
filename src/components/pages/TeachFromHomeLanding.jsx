@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useLanguage } from "@components/i18n/LanguageProvider";
 import ShowcaseVideoGrid from "@components/videos/ShowcaseVideoGrid";
@@ -9,6 +10,27 @@ const reveal = {
   viewport: { once: true, margin: "-60px" },
   transition: { duration: 0.45, ease: [0.2, 0.8, 0.2, 1] },
 };
+
+const ResponsiveMedia = ({ desktopSrc, mobileSrc, alt, className }) => (
+  <div className={className}>
+    <Image
+      src={desktopSrc}
+      alt={alt}
+      fill
+      className="tfh-responsive-media-image tfh-responsive-media-image--desktop"
+      sizes="(max-width: 991px) 100vw, 50vw"
+      quality={74}
+    />
+    <Image
+      src={mobileSrc}
+      alt={alt}
+      fill
+      className="tfh-responsive-media-image tfh-responsive-media-image--mobile"
+      sizes="(max-width: 991px) 100vw, 50vw"
+      quality={72}
+    />
+  </div>
+);
 
 const content = {
   sr: {
@@ -116,10 +138,29 @@ const TeachFromHomeLanding = () => {
       </span>
 
       <section id="home" className="tfh-landing-hero tfh-anchor-section">
-        <picture className="tfh-hero-media">
-          <source media="(min-width: 992px)" srcSet="/images/teachfromhome/hero1-desktop.jpeg" />
-          <img src="/images/teachfromhome/hero1-mobile.jpeg" alt="TeachFromHome Hero" />
-        </picture>
+        <div className="tfh-hero-media tfh-hero-media--desktop">
+          <Image
+            src="/images/teachfromhome/hero1-desktop.jpeg"
+            alt="TeachFromHome Hero"
+            fill
+            className="tfh-hero-media-image"
+            priority
+            sizes="(max-width: 991px) 100vw, 100vw"
+            quality={74}
+          />
+        </div>
+
+        <div className="tfh-hero-media tfh-hero-media--mobile">
+          <Image
+            src="/images/teachfromhome/hero1-mobile.jpeg"
+            alt="TeachFromHome Hero"
+            fill
+            className="tfh-hero-media-image"
+            priority
+            sizes="100vw"
+            quality={72}
+          />
+        </div>
 
         <div className="tfh-hero-overlay" />
 
@@ -146,7 +187,9 @@ const TeachFromHomeLanding = () => {
           <div className="tfh-why-grid">
             {t.whyItems.map((item) => (
               <article key={item.title} className="tfh-why-card">
-                <img src={item.image} alt={item.title} />
+                <div className="tfh-why-image">
+                  <Image src={item.image} alt={item.title} fill sizes="(max-width: 991px) 100vw, 33vw" quality={72} />
+                </div>
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
               </article>
@@ -161,10 +204,12 @@ const TeachFromHomeLanding = () => {
             <h2>{t.aboutTitle}</h2>
             <p>{t.aboutText}</p>
           </div>
-          <picture>
-            <source media="(min-width: 992px)" srcSet="/images/teachfromhome/hero2-desktop.jpeg" />
-            <img src="/images/teachfromhome/hero2-mobile.jpeg" alt="About job" />
-          </picture>
+          <ResponsiveMedia
+            desktopSrc="/images/teachfromhome/hero2-desktop.jpeg"
+            mobileSrc="/images/teachfromhome/hero2-mobile.jpeg"
+            alt="About job"
+            className="tfh-responsive-media"
+          />
         </div>
       </motion.section>
 
@@ -184,10 +229,12 @@ const TeachFromHomeLanding = () => {
 
       <motion.section id="process" className="tfh-anchor-section tfh-landing-section tfh-process-section" {...reveal}>
         <div className="container tfh-process-grid">
-          <picture>
-            <source media="(min-width: 992px)" srcSet="/images/teachfromhome/hero2-desktop.jpeg" />
-            <img src="/images/teachfromhome/hero2-mobile.jpeg" alt="Application process" />
-          </picture>
+          <ResponsiveMedia
+            desktopSrc="/images/teachfromhome/hero2-desktop.jpeg"
+            mobileSrc="/images/teachfromhome/hero2-mobile.jpeg"
+            alt="Application process"
+            className="tfh-responsive-media"
+          />
           <div>
             <h2>{t.processTitle}</h2>
             <ol>

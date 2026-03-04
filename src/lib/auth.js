@@ -15,7 +15,7 @@ export const signInWithGoogle = async ({ nextPath }) => {
   });
 
   if (!result) {
-    throw new Error("Google prijava nije uspela. Pokušaj ponovo.");
+    throw new Error("Google prijava nije uspela. Pokusaj ponovo.");
   }
 
   if (result.error) {
@@ -27,7 +27,7 @@ export const signInWithGoogle = async ({ nextPath }) => {
     return;
   }
 
-  throw new Error("Google prijava nije uspela. Pokušaj ponovo.");
+  throw new Error("Google prijava nije uspela. Pokusaj ponovo.");
 };
 
 export const getAccessTokenOrThrow = async () => {

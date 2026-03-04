@@ -8,11 +8,12 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const { data: session, status } = useSession();
   const [profile, setProfile] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(session?.user?.isAdmin === true);
   const [configError, setConfigError] = useState("");
   const [hydrating, setHydrating] = useState(false);
 
   const user = session?.user || null;
+  const sessionSaysAdmin = session?.user?.isAdmin === true;
 
   const hydrate = async () => {
     if (!user) {
@@ -20,6 +21,11 @@ export const AuthProvider = ({ children }) => {
       setIsAdmin(false);
       setConfigError("");
       return;
+    }
+
+    // Keep admin flag from signed token immediately to avoid wrong redirect while /api/auth/me loads.
+    if (sessionSaysAdmin) {
+      setIsAdmin(true);
     }
 
     setHydrating(true);
@@ -38,12 +44,12 @@ export const AuthProvider = ({ children }) => {
       }
 
       setProfile(payload.profile || null);
-      setIsAdmin(payload.is_admin === true);
+      setIsAdmin(payload.is_admin === true || sessionSaysAdmin);
       setConfigError("");
     } catch (error) {
       setConfigError(error?.message || "Failed to hydrate auth state");
       setProfile(null);
-      setIsAdmin(false);
+      setIsAdmin(sessionSaysAdmin);
     } finally {
       setHydrating(false);
     }
@@ -51,6 +57,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (status === "authenticated") {
+      setIsAdmin(sessionSaysAdmin);
       hydrate();
       return;
     }
@@ -60,7 +67,7 @@ export const AuthProvider = ({ children }) => {
       setIsAdmin(false);
       setHydrating(false);
     }
-  }, [status, session?.user?.id]);
+  }, [status, session?.user?.id, sessionSaysAdmin]);
 
   const signOut = async () => {
     await nextAuthSignOut({ callbackUrl: "/login" });

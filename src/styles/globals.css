@@ -111,9 +111,13 @@ html {
     height: 100%;
 }
 
-.tfh-hero-media img {
+.tfh-hero-media-image {
     object-fit: cover;
     object-position: center;
+}
+
+.tfh-hero-media--mobile {
+    display: none;
 }
 
 .tfh-hero-overlay {
@@ -185,6 +189,17 @@ html {
     object-position: center;
 }
 
+.tfh-why-image {
+    position: relative;
+    width: 100%;
+    height: 220px;
+}
+
+.tfh-why-image img {
+    object-fit: cover;
+    object-position: center;
+}
+
 .tfh-why-card h3,
 .tfh-why-card p {
     padding: 0 16px;
@@ -228,13 +243,22 @@ html {
     line-height: 1.7;
 }
 
-.tfh-about-grid img,
-.tfh-process-grid img {
+.tfh-responsive-media {
+    position: relative;
     width: 100%;
-    border-radius: 20px;
-    object-fit: cover;
     min-height: 320px;
+    border-radius: 20px;
+    overflow: hidden;
     box-shadow: 0 18px 30px rgba(15, 23, 42, 0.1);
+}
+
+.tfh-responsive-media-image {
+    object-fit: cover;
+    object-position: center;
+}
+
+.tfh-responsive-media-image--mobile {
+    display: none !important;
 }
 
 .tfh-earnings-section {
@@ -752,8 +776,7 @@ html {
         grid-template-columns: 1fr;
     }
 
-    .tfh-about-grid img,
-    .tfh-process-grid img {
+    .tfh-responsive-media {
         min-height: 250px;
     }
 
@@ -793,6 +816,10 @@ html {
     }
 
     .tfh-why-card img {
+        height: 180px;
+    }
+
+    .tfh-why-image {
         height: 180px;
     }
 
@@ -860,6 +887,22 @@ html {
     .tfh-showcase-page-head {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .tfh-hero-media--desktop {
+        display: none;
+    }
+
+    .tfh-hero-media--mobile {
+        display: block;
+    }
+
+    .tfh-responsive-media-image--desktop {
+        display: none !important;
+    }
+
+    .tfh-responsive-media-image--mobile {
+        display: block !important;
     }
 }
 
