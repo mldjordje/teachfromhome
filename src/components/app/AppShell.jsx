@@ -164,8 +164,8 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
         ) : (
           <Card shadow="none" className="tfh-page-head-card mb-5">
             <CardBody className="tfh-page-head-body gap-2">
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">{title}</h1>
-              {subtitle && <p className="text-sm text-slate-600 md:text-base">{subtitle}</p>}
+              <h1 className="tfh-page-title text-3xl font-semibold tracking-tight md:text-4xl">{title}</h1>
+              {subtitle && <p className="tfh-page-subtitle text-sm md:text-base">{subtitle}</p>}
             </CardBody>
           </Card>
         )}

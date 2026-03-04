@@ -72,20 +72,20 @@ const AdminDashboardPage = () => {
             <div className="grid gap-4 md:grid-cols-3">
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="text-sm text-slate-500">Faza 1 na cekanju</span>
-                  <strong className="text-4xl font-semibold text-slate-900">{phase1Pending}</strong>
+                  <span className="tfh-admin-kpi-label">Faza 1 na cekanju</span>
+                  <strong className="tfh-admin-kpi-value">{phase1Pending}</strong>
                 </CardBody>
               </Card>
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="text-sm text-slate-500">Faza 2 na cekanju</span>
-                  <strong className="text-4xl font-semibold text-slate-900">{phase2Pending}</strong>
+                  <span className="tfh-admin-kpi-label">Faza 2 na cekanju</span>
+                  <strong className="tfh-admin-kpi-value">{phase2Pending}</strong>
                 </CardBody>
               </Card>
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="text-sm text-slate-500">Prihvaceni kandidati</span>
-                  <strong className="text-4xl font-semibold text-slate-900">{acceptedCount}</strong>
+                  <span className="tfh-admin-kpi-label">Prihvaceni kandidati</span>
+                  <strong className="tfh-admin-kpi-value">{acceptedCount}</strong>
                 </CardBody>
               </Card>
             </div>
@@ -100,7 +100,7 @@ const AdminDashboardPage = () => {
                   {trackedEvents.map((eventName) => (
                     <Card key={eventName} className="tfh-analytics-tile" shadow="none">
                       <CardBody className="py-3">
-                        <span className="text-xs uppercase tracking-wide text-slate-500">{eventName.replaceAll("_", " ")}</span>
+                        <span className="tfh-analytics-label">{eventName.replaceAll("_", " ")}</span>
                         <Chip color="primary" variant="flat" className="mt-2 w-fit tfh-analytics-chip">
                           {analyticsSummary[eventName] ?? 0}
                         </Chip>
@@ -116,14 +116,14 @@ const AdminDashboardPage = () => {
                 <h3 className="text-lg font-semibold">Brze akcije</h3>
               </CardHeader>
               <Divider />
-              <CardBody className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              <CardBody className="tfh-admin-action-grid">
                 <Button as={Link} href="/admin/phase1" color="primary" className="tfh-action-grid-btn">Faza 1 queue</Button>
                 <Button as={Link} href="/admin/phase2" color="primary" className="tfh-action-grid-btn">Faza 2 queue</Button>
                 <Button as={Link} href="/admin/candidates" color="primary" className="tfh-action-grid-btn">Kandidati</Button>
-                <Button as={Link} href="/admin/training" variant="bordered" className="tfh-action-grid-btn">Trening klipovi</Button>
-                <Button as={Link} href="/admin/referrals" variant="bordered" className="tfh-action-grid-btn">Preporuke</Button>
-                <Button as={Link} href="/admin/showcase" variant="bordered" className="tfh-action-grid-btn">Showcase klipovi</Button>
-                <Button color="warning" variant="flat" className="tfh-action-grid-btn" onPress={runStorageCleanup} isLoading={maintenanceBusy}>
+                <Button as={Link} href="/admin/training" variant="bordered" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">Trening klipovi</Button>
+                <Button as={Link} href="/admin/referrals" variant="bordered" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">Preporuke</Button>
+                <Button as={Link} href="/admin/showcase" variant="bordered" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">Showcase klipovi</Button>
+                <Button color="warning" variant="flat" className="tfh-action-grid-btn tfh-action-grid-btn--ghost" onPress={runStorageCleanup} isLoading={maintenanceBusy}>
                   {maintenanceBusy ? "Pokretanje cleanup-a..." : "Pokreni storage cleanup"}
                 </Button>
               </CardBody>

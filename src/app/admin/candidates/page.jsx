@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Alert, Button, Card, CardBody, CardHeader, Divider, Input, Spinner } from "@heroui/react";
+import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import StatusBadge from "@components/app/StatusBadge";
@@ -89,22 +89,21 @@ const AdminCandidatesPage = () => {
               <option value="rejected">rejected</option>
             </select>
 
-            <Input
+            <input
               value={query}
-              onValueChange={setQuery}
+              onChange={(event) => setQuery(event.target.value)}
               placeholder="Pretraga po email-u, imenu ili telefonu"
-              variant="bordered"
-              className="md:col-span-2"
+              className="tfh-admin-control md:col-span-2"
               onKeyDown={(event) => {
                 if (event.key === "Enter") onSearch();
               }}
             />
 
-            <div className="flex flex-wrap gap-2">
+            <div className="tfh-admin-pagination-actions">
               <Button onPress={onSearch} className="tfh-action-grid-btn">
                 Pretrazi
               </Button>
-              <Button onPress={loadRows} variant="bordered" className="tfh-action-grid-btn">
+              <Button onPress={loadRows} variant="bordered" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
                 Osvezi
               </Button>
             </div>
@@ -122,16 +121,16 @@ const AdminCandidatesPage = () => {
               <option value="100">100 po strani</option>
             </select>
 
-            <div className="flex items-center text-sm text-slate-600">{total} ukupno</div>
+            <div className="flex items-center text-sm tfh-admin-muted">{total} ukupno</div>
           </CardBody>
         </Card>
 
         <Card className="tfh-admin-panel-card mb-4">
-          <CardBody className="flex flex-wrap items-center justify-between gap-2">
-            <div className="text-sm text-slate-600">
+          <CardBody className="tfh-admin-pagination">
+            <div className="text-sm tfh-admin-muted">
               Strana {page} od {totalPages}
             </div>
-            <div className="flex gap-2">
+            <div className="tfh-admin-pagination-actions">
               <Button
                 size="sm"
                 variant="bordered"

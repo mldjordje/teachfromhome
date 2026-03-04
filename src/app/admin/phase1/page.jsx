@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner, Textarea } from "@heroui/react";
+import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import Link from "next/link";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
@@ -102,24 +102,25 @@ const AdminPhase1Page = () => {
 
   const ActionPanel = ({ row }) => (
     <div className="flex flex-col gap-2">
-      <Textarea
-        size="sm"
-        label="Recenica za Fazu 2"
-        labelPlacement="outside"
-        value={phase2Sentences[row.submission_id] || ""}
-        onValueChange={(value) =>
-          setPhase2Sentences((prev) => ({
-            ...prev,
-            [row.submission_id]: value,
-          }))
-        }
-      />
+      <label className="tfh-admin-modern-field">
+        <span className="tfh-admin-modern-label">Recenica za Fazu 2</span>
+        <textarea
+          className="tfh-admin-control"
+          value={phase2Sentences[row.submission_id] || ""}
+          onChange={(event) =>
+            setPhase2Sentences((prev) => ({
+              ...prev,
+              [row.submission_id]: event.target.value,
+            }))
+          }
+        />
+      </label>
       <Button size="sm" color="primary" onPress={() => moveToPhase2(row)} isLoading={busyId === row.submission_id}>
         Prebaci u Fazu 2
       </Button>
 
       <select
-        className="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+        className="tfh-admin-inline-select"
         value={rejectReasons[row.submission_id] || "bad_pronunciation"}
         onChange={(e) =>
           setRejectReasons((prev) => ({
@@ -133,18 +134,19 @@ const AdminPhase1Page = () => {
         <option value="low_energy">low_energy</option>
       </select>
 
-      <Textarea
-        size="sm"
-        label="Napomena za odbijanje"
-        labelPlacement="outside"
-        value={rejectNotes[row.submission_id] || ""}
-        onValueChange={(value) =>
-          setRejectNotes((prev) => ({
-            ...prev,
-            [row.submission_id]: value,
-          }))
-        }
-      />
+      <label className="tfh-admin-modern-field">
+        <span className="tfh-admin-modern-label">Napomena za odbijanje</span>
+        <textarea
+          className="tfh-admin-control"
+          value={rejectNotes[row.submission_id] || ""}
+          onChange={(event) =>
+            setRejectNotes((prev) => ({
+              ...prev,
+              [row.submission_id]: event.target.value,
+            }))
+          }
+        />
+      </label>
 
       <Button size="sm" color="danger" variant="flat" onPress={() => rejectPhase1(row)} isLoading={busyId === row.submission_id}>
         Odbij
@@ -187,10 +189,10 @@ const AdminPhase1Page = () => {
             </div>
 
             <div className="tfh-admin-toolbar-right">
-              <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn">
+              <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
                 Osvezi
               </Button>
-              <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn">
+              <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
                 Pregled kandidata
               </Button>
             </div>
@@ -198,9 +200,9 @@ const AdminPhase1Page = () => {
         </Card>
 
         <Card className="tfh-admin-panel-card mb-4">
-          <CardBody className="flex flex-wrap items-center justify-between gap-2">
-            <div className="text-sm text-slate-600">Strana {page} od {totalPages} ({total} ukupno)</div>
-            <div className="flex gap-2">
+          <CardBody className="tfh-admin-pagination">
+            <div className="tfh-admin-muted text-sm">Strana {page} od {totalPages} ({total} ukupno)</div>
+            <div className="tfh-admin-pagination-actions">
               <Button size="sm" variant="bordered" isDisabled={loading || page <= 1} onPress={() => setPage((prev) => Math.max(1, prev - 1))}>
                 Prethodna
               </Button>
@@ -253,7 +255,7 @@ const AdminPhase1Page = () => {
                             ) : "-"}
                           </td>
                           <td>
-                            {row.status === "pending" ? <ActionPanel row={row} /> : <span className="text-sm text-slate-500">Nema aktivnih akcija</span>}
+                            {row.status === "pending" ? <ActionPanel row={row} /> : <span className="tfh-admin-muted text-sm">Nema aktivnih akcija</span>}
                           </td>
                         </tr>
                       ))}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Alert, Button, Card, CardBody, CardHeader, Divider, Input, Spinner } from "@heroui/react";
+import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import StatusBadge from "@components/app/StatusBadge";
@@ -88,17 +88,27 @@ const AdminReferralsPage = () => {
             </CardHeader>
             <Divider />
             <CardBody>
-              <form className="flex flex-col gap-3" onSubmit={markEligible}>
-                <Input
-                  label="Referred user ID"
-                  placeholder="google:123456789"
-                  value={referredUserId}
-                  onValueChange={setReferredUserId}
-                  variant="bordered"
-                />
-                <Input type="datetime-local" label="Eligible datum (opciono)" value={eligibleAt} onValueChange={setEligibleAt} variant="bordered" />
+              <form className="tfh-admin-modern-form" onSubmit={markEligible}>
+                <label className="tfh-admin-modern-field">
+                  <span className="tfh-admin-modern-label">Referred user ID</span>
+                  <input
+                    className="tfh-admin-modern-input"
+                    placeholder="google:123456789"
+                    value={referredUserId}
+                    onChange={(event) => setReferredUserId(event.target.value)}
+                  />
+                </label>
+                <label className="tfh-admin-modern-field">
+                  <span className="tfh-admin-modern-label">Eligible datum (opciono)</span>
+                  <input
+                    type="datetime-local"
+                    className="tfh-admin-modern-input"
+                    value={eligibleAt}
+                    onChange={(event) => setEligibleAt(event.target.value)}
+                  />
+                </label>
 
-                <Button color="primary" type="submit" isLoading={busy}>
+                <Button color="primary" type="submit" isLoading={busy} className="tfh-action-grid-btn">
                   Oznaci kao eligible
                 </Button>
               </form>

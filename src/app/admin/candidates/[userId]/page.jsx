@@ -70,7 +70,7 @@ const AdminCandidateDetailPage = () => {
     <RequireAuth adminOnly>
       <AppShell title="Detalj kandidata" subtitle="Timeline prikaz kandidata za fazu 1 i fazu 2.">
         <div className="mb-3">
-          <Button as={Link} href="/admin/candidates" variant="bordered">
+          <Button as={Link} href="/admin/candidates" variant="bordered" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
             Nazad na kandidate
           </Button>
         </div>
@@ -148,7 +148,7 @@ const AdminCandidateDetailPage = () => {
 
                     <div className="grid gap-2">
                       <select
-                        className="h-10 rounded-xl border border-slate-300 px-3 text-sm"
+                        className="tfh-admin-inline-select"
                         value={rejectReason}
                         onChange={(e) => setRejectReason(e.target.value)}
                       >

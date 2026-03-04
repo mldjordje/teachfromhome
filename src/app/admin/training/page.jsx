@@ -192,10 +192,10 @@ const AdminTrainingVideosPage = () => {
                       </div>
                       <p>Kategorija: {video.category}</p>
                       <p>Redosled: {video.order_index}</p>
-                      <div className="flex flex-wrap gap-2">
-                        <Button size="sm" as="a" href={video.storage_blob_url} target="_blank" rel="noreferrer" variant="bordered">Pregled</Button>
-                        <Button size="sm" variant="flat" color="warning" onPress={() => toggleActive(video)}>Promeni status</Button>
-                        <Button size="sm" variant="flat" color="danger" onPress={() => deleteVideo(video)}>Obrisi</Button>
+                      <div className="tfh-admin-pagination-actions">
+                        <Button size="sm" as="a" href={video.storage_blob_url} target="_blank" rel="noreferrer" variant="bordered" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">Pregled</Button>
+                        <Button size="sm" variant="flat" color="warning" onPress={() => toggleActive(video)} className="tfh-action-grid-btn tfh-action-grid-btn--ghost">Promeni status</Button>
+                        <Button size="sm" variant="flat" color="danger" onPress={() => deleteVideo(video)} className="tfh-action-grid-btn tfh-action-grid-btn--ghost">Obrisi</Button>
                       </div>
                     </article>
                   ))}

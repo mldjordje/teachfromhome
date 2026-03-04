@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner, Textarea } from "@heroui/react";
+import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import Link from "next/link";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
@@ -75,49 +75,53 @@ const AdminPhase2Page = () => {
     <RequireAuth adminOnly>
       <AppShell title="Admin faza 2 queue" subtitle="Pregledaj poslednje prijave i odluci: prihvati, retry ili odbij.">
         <Card className="tfh-admin-panel-card mb-4">
-          <CardBody className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <select
-              className="tfh-admin-filter-select"
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="all">Svi statusi</option>
-              <option value="assigned">Dodeljeno</option>
-              <option value="submitted">Poslato</option>
-              <option value="retry">Retry</option>
-              <option value="accepted">Prihvaceno</option>
-              <option value="rejected">Odbijeno</option>
-            </select>
-            <select
-              className="tfh-admin-filter-select"
-              value={String(pageSize)}
-              onChange={(e) => {
-                setPageSize(Number(e.target.value) || 20);
-                setPage(1);
-              }}
-            >
-              <option value="20">20 po strani</option>
-              <option value="50">50 po strani</option>
-              <option value="100">100 po strani</option>
-            </select>
-            <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn">
-              Osvezi
-            </Button>
-            <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn">
-              Pregled kandidata
-            </Button>
+          <CardBody className="tfh-admin-toolbar">
+            <div className="tfh-admin-toolbar-left">
+              <select
+                className="tfh-admin-filter-select"
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="all">Svi statusi</option>
+                <option value="assigned">Dodeljeno</option>
+                <option value="submitted">Poslato</option>
+                <option value="retry">Retry</option>
+                <option value="accepted">Prihvaceno</option>
+                <option value="rejected">Odbijeno</option>
+              </select>
+              <select
+                className="tfh-admin-filter-select"
+                value={String(pageSize)}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value) || 20);
+                  setPage(1);
+                }}
+              >
+                <option value="20">20 po strani</option>
+                <option value="50">50 po strani</option>
+                <option value="100">100 po strani</option>
+              </select>
+            </div>
+            <div className="tfh-admin-toolbar-right">
+              <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
+                Osvezi
+              </Button>
+              <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
+                Pregled kandidata
+              </Button>
+            </div>
           </CardBody>
         </Card>
 
         <Card className="tfh-admin-panel-card mb-4">
-          <CardBody className="flex flex-wrap items-center justify-between gap-2">
-            <div className="text-sm text-slate-600">
+          <CardBody className="tfh-admin-pagination">
+            <div className="tfh-admin-muted text-sm">
               Strana {page} od {totalPages} ({total} ukupno)
             </div>
-            <div className="flex gap-2">
+            <div className="tfh-admin-pagination-actions">
               <Button
                 size="sm"
                 variant="bordered"
@@ -188,19 +192,20 @@ const AdminPhase2Page = () => {
 
                     {row.latest_submission_id && ["submitted", "retry", "assigned"].includes(row.task_status) && (
                       <div className="flex flex-col gap-2">
-                        <Textarea
-                          size="sm"
-                          label="Feedback"
-                          labelPlacement="outside"
-                          placeholder="Feedback za retry/reject"
-                          value={feedbackMap[row.task_id] || ""}
-                          onValueChange={(value) =>
-                            setFeedbackMap((prev) => ({
-                              ...prev,
-                              [row.task_id]: value,
-                            }))
-                          }
-                        />
+                        <label className="tfh-admin-modern-field">
+                          <span className="tfh-admin-modern-label">Feedback</span>
+                          <textarea
+                            className="tfh-admin-control"
+                            placeholder="Feedback za retry/reject"
+                            value={feedbackMap[row.task_id] || ""}
+                            onChange={(event) =>
+                              setFeedbackMap((prev) => ({
+                                ...prev,
+                                [row.task_id]: event.target.value,
+                              }))
+                            }
+                          />
+                        </label>
                         <div className="flex flex-wrap gap-2">
                           <Button size="sm" color="success" onPress={() => reviewAction(row, "accept")} isLoading={busyTaskId === row.task_id}>
                             Prihvati

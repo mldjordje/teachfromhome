@@ -148,7 +148,7 @@ const AdminShowcasePage = () => {
                   </button>
                 </div>
 
-                <Button color="primary" type="submit" isLoading={busy} className="tfh-action-btn">
+                <Button color="primary" type="submit" isLoading={busy} className="tfh-action-grid-btn">
                   {busy ? "Cuvanje..." : "Sacuvaj klip"}
                 </Button>
               </form>
@@ -177,14 +177,14 @@ const AdminShowcasePage = () => {
                         </span>
                       </div>
                       <p>Redosled: {video.order_index || video.orderIndex}</p>
-                      <div className="flex flex-wrap gap-2">
-                        <Button size="sm" variant="bordered" onPress={() => previewVideo(video)}>
+                      <div className="tfh-admin-pagination-actions">
+                        <Button size="sm" variant="bordered" onPress={() => previewVideo(video)} className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
                           Pregled
                         </Button>
-                        <Button size="sm" variant="flat" color="warning" onPress={() => toggleActive(video)}>
+                        <Button size="sm" variant="flat" color="warning" onPress={() => toggleActive(video)} className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
                           Promeni status
                         </Button>
-                        <Button size="sm" variant="flat" color="danger" onPress={() => deleteVideo(video)}>
+                        <Button size="sm" variant="flat" color="danger" onPress={() => deleteVideo(video)} className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
                           Obrisi
                         </Button>
                       </div>
