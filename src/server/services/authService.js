@@ -5,6 +5,7 @@ import { adminUsers, profiles } from "@/src/server/db/schema";
 import { ApiError, requireEmail } from "@/src/server/http/errors";
 
 const DEFAULT_ADMIN_EMAILS = ["milos93tutor@gmail.com", "web.wise018@gmail.com"];
+const OWNER_EMAIL = "milos93tutor@gmail.com";
 
 const normalizeAdminEmailSet = () => {
   const configured = (process.env.ADMIN_SEED_EMAILS || "")
@@ -13,6 +14,31 @@ const normalizeAdminEmailSet = () => {
     .filter(Boolean);
 
   return new Set([...(configured.length ? configured : DEFAULT_ADMIN_EMAILS)]);
+};
+
+const roleForEmail = (email) => (email === OWNER_EMAIL ? "owner" : "admin");
+
+export const ensureAdminRoleForUser = async ({ userId, email }) => {
+  if (!userId || !email) return false;
+
+  const normalizedEmail = requireEmail(email);
+  const adminEmailSet = normalizeAdminEmailSet();
+  if (!adminEmailSet.has(normalizedEmail)) return false;
+
+  await db
+    .insert(adminUsers)
+    .values({
+      userId,
+      role: roleForEmail(normalizedEmail),
+    })
+    .onConflictDoUpdate({
+      target: adminUsers.userId,
+      set: {
+        role: roleForEmail(normalizedEmail),
+      },
+    });
+
+  return true;
 };
 
 const buildReferralCode = () => randomBytes(6).toString("hex").slice(0, 10).toUpperCase();
@@ -77,27 +103,21 @@ export const upsertProfileOnLogin = async ({ userId, email, name }) => {
       .where(eq(profiles.userId, userId));
   }
 
-  const adminEmailSet = normalizeAdminEmailSet();
-  if (adminEmailSet.has(normalizedEmail)) {
-    await db
-      .insert(adminUsers)
-      .values({
-        userId,
-        role: normalizedEmail === "milos93tutor@gmail.com" ? "owner" : "admin",
-      })
-      .onConflictDoUpdate({
-        target: adminUsers.userId,
-        set: {
-          role: normalizedEmail === "milos93tutor@gmail.com" ? "owner" : "admin",
-        },
-      });
-  }
+  await ensureAdminRoleForUser({ userId, email: normalizedEmail });
 };
 
 export const isAdminUser = async (userId) => {
   if (!userId) return false;
   const rows = await db.select({ userId: adminUsers.userId }).from(adminUsers).where(eq(adminUsers.userId, userId)).limit(1);
-  return rows.length > 0;
+  if (rows.length > 0) return true;
+
+  // Backfill admin_users row when profile email belongs to predefined admin set.
+  const profileRows = await db.select({ email: profiles.email }).from(profiles).where(eq(profiles.userId, userId)).limit(1);
+  const email = profileRows[0]?.email || null;
+  if (!email) return false;
+
+  const granted = await ensureAdminRoleForUser({ userId, email });
+  return granted;
 };
 
 export const getProfile = async (userId) => {

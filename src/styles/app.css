@@ -1316,6 +1316,14 @@
   color: var(--tfh-up-text-soft) !important;
 }
 
+.tfh-app-shell--public .tfh-minimal-head h1 {
+  color: #eaf1ff !important;
+}
+
+.tfh-app-shell--public .tfh-minimal-head p {
+  color: #b9c8e9 !important;
+}
+
 .tfh-card h3,
 .tfh-mobile-item strong,
 .tfh-page-head-body h1,
@@ -1489,6 +1497,41 @@
   background:
     radial-gradient(circle at 15% 0%, rgba(33, 168, 255, 0.16), transparent 40%),
     linear-gradient(145deg, rgba(8, 16, 34, 0.8), rgba(14, 25, 48, 0.72));
+}
+
+.tfh-clips-head h3,
+.tfh-clips-note h3 {
+  color: #eef4ff !important;
+}
+
+.tfh-clips-head p,
+.tfh-clips-note p {
+  color: #c9d6f1 !important;
+}
+
+.tfh-clips-cta {
+  min-height: 48px !important;
+  padding: 0 18px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(120, 202, 255, 0.52) !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em;
+  background: linear-gradient(120deg, #2157ff, #1e8dff, #29d3ff) !important;
+  background-size: 220% 220% !important;
+  box-shadow: 0 12px 26px rgba(33, 98, 255, 0.35) !important;
+  animation: tfh-gradient-shift 7s linear infinite, tfh-glow-breathe 3.2s ease-in-out infinite;
+}
+
+.tfh-clips-cta:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.tfh-clips-cta:focus-visible {
+  outline: 2px solid rgba(128, 200, 255, 0.95);
+  outline-offset: 2px;
 }
 
 @media (hover: hover) {
