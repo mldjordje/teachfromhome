@@ -32,10 +32,11 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
   const { user, isAdmin, signOut, isConfigured, configError, loading } = useAuth();
 
   const isAdminRoute = pathname.startsWith("/admin");
+  const isTeacherRoute = pathname.startsWith("/teacher");
   const publicRoutes = ["/login", "/signup", "/apply", "/admin/login", "/clips"];
   const isPublicEntry = publicView || (!user && publicRoutes.includes(pathname));
-  const showTeacherNav = Boolean(user && (!isAdmin || !isAdminRoute));
-  const showAdminNav = Boolean(user && isAdmin);
+  const showTeacherNav = Boolean(user && isTeacherRoute);
+  const showAdminNav = Boolean(user && isAdmin && isAdminRoute);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -149,7 +150,7 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
         initial={{ opacity: 0, y: 18, filter: "blur(4px)" }}
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         transition={{ duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
-        className={`tfh-page mx-auto w-full px-4 pb-10 ${isPublicEntry ? "max-w-[1120px] pt-8" : "max-w-[1220px] pt-6"}`}
+        className={`tfh-page ${isPublicEntry ? "tfh-page--public" : "tfh-page--portal"}`}
       >
         <span className="tfh-visually-hidden" aria-hidden="true">
           {"\u010D\u0107\u017E\u0161\u0111 \u010C\u0106\u017D\u0160\u0110"}

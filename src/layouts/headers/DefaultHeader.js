@@ -121,7 +121,7 @@ const DefaultHeader = () => {
         </Link>
 
         <div className="tfh-public-head-actions">
-          <div className="tfh-lang-switch" role="group" aria-label="Language switch">
+          <div className="tfh-lang-switch tfh-lang-switch--desktop" role="group" aria-label="Language switch">
             <button type="button" className={language === "sr" ? "active" : ""} onClick={() => setLanguage("sr")}>
               SR
             </button>
@@ -131,7 +131,8 @@ const DefaultHeader = () => {
           </div>
 
           <Link className="tfh-public-cta" href={appData.header.button.link}>
-            {buttonLabel}
+            <span className="tfh-public-cta-full">{buttonLabel}</span>
+            <span className="tfh-public-cta-short">{language === "en" ? "Apply" : "Prijava"}</span>
           </Link>
 
           <button
@@ -150,6 +151,17 @@ const DefaultHeader = () => {
 
       <nav id="tfh-public-nav" className={`tfh-public-nav ${mobileOpen ? "is-open" : ""}`} aria-label="Primary navigation">
         <div className="container">
+          <div className="tfh-public-nav-tools">
+            <div className="tfh-lang-switch tfh-lang-switch--mobile" role="group" aria-label="Language switch menu">
+              <button type="button" className={language === "sr" ? "active" : ""} onClick={() => setLanguage("sr")}>
+                SR
+              </button>
+              <button type="button" className={language === "en" ? "active" : ""} onClick={() => setLanguage("en")}>
+                EN
+              </button>
+            </div>
+          </div>
+
           <ul className="tfh-public-nav-list">
             {navItems.map((item) => (
               <li key={item.link}>

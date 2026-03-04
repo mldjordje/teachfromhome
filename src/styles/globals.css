@@ -943,6 +943,7 @@ body.tfh-menu-open {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
 }
 
 .tfh-public-cta {
@@ -960,6 +961,23 @@ body.tfh-menu-open {
     font-weight: 700;
     box-shadow: 0 10px 18px rgba(37, 99, 235, 0.22);
     animation: tfh-public-cta-glow 3.4s ease-in-out infinite;
+}
+
+.tfh-public-cta-short {
+    display: none;
+}
+
+.tfh-lang-switch--desktop {
+    display: inline-flex;
+}
+
+.tfh-public-nav-tools {
+    display: none;
+    padding-top: 10px;
+}
+
+.tfh-lang-switch--mobile {
+    display: none;
 }
 
 .tfh-public-cta:active {
@@ -1284,14 +1302,38 @@ body.tfh-menu-open {
         min-height: 68px;
     }
 
-    .tfh-public-brand-copy small {
+    .tfh-public-brand-copy {
         display: none;
+    }
+
+    .tfh-lang-switch--desktop {
+        display: none;
+    }
+
+    .tfh-public-nav-tools {
+        display: block;
+    }
+
+    .tfh-lang-switch--mobile {
+        display: inline-flex;
     }
 
     .tfh-public-cta {
         min-height: 36px;
         padding: 0 12px;
         font-size: 12px;
+    }
+
+    .tfh-public-cta-full {
+        display: none;
+    }
+
+    .tfh-public-cta-short {
+        display: inline;
+    }
+
+    .tfh-public-nav-list {
+        padding-top: 8px;
     }
 
     .tfh-landing-btn {

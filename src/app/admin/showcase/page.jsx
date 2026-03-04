@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Alert, Button, Card, CardBody, CardHeader, Checkbox, Divider, Input, Spinner } from "@heroui/react";
+import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import { extractYouTubeVideoId, toYouTubeThumbnailUrl } from "@library/youtube";
@@ -103,36 +103,50 @@ const AdminShowcasePage = () => {
             </CardHeader>
             <Divider />
             <CardBody>
-              <form className="flex flex-col gap-3" onSubmit={createVideo}>
-                <Input
-                  label="Naziv klipa"
-                  value={title}
-                  onValueChange={setTitle}
-                  variant="bordered"
-                  placeholder="Prihvacen kandidat - intro primer"
-                  isRequired
-                />
+              <form className="tfh-admin-modern-form" onSubmit={createVideo}>
+                <label className="tfh-admin-modern-field">
+                  <span className="tfh-admin-modern-label">Naziv klipa</span>
+                  <input
+                    className="tfh-admin-modern-input"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Prihvacen kandidat - intro primer"
+                    required
+                  />
+                </label>
 
-                <Input
-                  label="YouTube URL"
-                  value={youtubeUrl}
-                  onValueChange={setYoutubeUrl}
-                  variant="bordered"
-                  placeholder="https://www.youtube.com/shorts/... or https://www.youtube.com/watch?v=..."
-                  isRequired
-                />
+                <label className="tfh-admin-modern-field">
+                  <span className="tfh-admin-modern-label">YouTube URL</span>
+                  <input
+                    className="tfh-admin-modern-input"
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    required
+                  />
+                </label>
 
-                <Input
-                  type="number"
-                  label="Redosled"
-                  value={String(orderIndex)}
-                  onValueChange={(value) => setOrderIndex(Number(value || 0))}
-                  variant="bordered"
-                />
+                <label className="tfh-admin-modern-field">
+                  <span className="tfh-admin-modern-label">Redosled</span>
+                  <input
+                    type="number"
+                    className="tfh-admin-modern-input"
+                    value={String(orderIndex)}
+                    onChange={(e) => setOrderIndex(Number(e.target.value || 0))}
+                  />
+                </label>
 
-                <Checkbox isSelected={isActive} onValueChange={setIsActive}>
-                  Aktivan
-                </Checkbox>
+                <div className="tfh-admin-toggle-row">
+                  <button
+                    type="button"
+                    className={`tfh-admin-toggle ${isActive ? "is-active" : ""}`}
+                    onClick={() => setIsActive((prev) => !prev)}
+                    aria-pressed={isActive}
+                  >
+                    <span className="tfh-admin-toggle-dot" />
+                    <span>{isActive ? "Aktivan klip" : "Neaktivan klip"}</span>
+                  </button>
+                </div>
 
                 <Button color="primary" type="submit" isLoading={busy} className="tfh-action-btn">
                   {busy ? "Cuvanje..." : "Sacuvaj klip"}
@@ -158,7 +172,9 @@ const AdminShowcasePage = () => {
                     <article key={video.id} className="tfh-mobile-item">
                       <div className="tfh-mobile-item-top">
                         <strong>{video.title}</strong>
-                        <span>{video.is_active || video.isActive ? "aktivan" : "neaktivan"}</span>
+                        <span className={video.is_active || video.isActive ? "tfh-state-pill tfh-state-pill--ok" : "tfh-state-pill"}>
+                          {video.is_active || video.isActive ? "aktivan" : "neaktivan"}
+                        </span>
                       </div>
                       <p>Redosled: {video.order_index || video.orderIndex}</p>
                       <div className="flex flex-wrap gap-2">

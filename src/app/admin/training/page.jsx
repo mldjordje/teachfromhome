@@ -2,7 +2,7 @@
 
 import { upload } from "@vercel/blob/client";
 import { useEffect, useState } from "react";
-import { Alert, Button, Card, CardBody, CardHeader, Checkbox, Divider, Input, Select, SelectItem, Spinner } from "@heroui/react";
+import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import { getFileExt } from "@library/storage";
@@ -107,38 +107,60 @@ const AdminTrainingVideosPage = () => {
             </CardHeader>
             <Divider />
             <CardBody>
-              <form className="flex flex-col gap-3" onSubmit={uploadVideo}>
-                <Input label="Naslov" value={title} onValueChange={setTitle} variant="bordered" isRequired />
+              <form className="tfh-admin-modern-form" onSubmit={uploadVideo}>
+                <label className="tfh-admin-modern-field">
+                  <span className="tfh-admin-modern-label">Naslov</span>
+                  <input
+                    className="tfh-admin-modern-input"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Npr. Intro demonstracija"
+                    required
+                  />
+                </label>
 
-                <Select
-                  label="Kategorija"
-                  selectedKeys={[category]}
-                  onSelectionChange={(keys) => {
-                    const next = Array.from(keys)[0];
-                    if (typeof next === "string") {
-                      setCategory(next);
-                    }
-                  }}
-                  variant="bordered"
-                >
-                  {categoryOptions.map((item) => (
-                    <SelectItem key={item.key}>{item.label}</SelectItem>
-                  ))}
-                </Select>
+                <label className="tfh-admin-modern-field">
+                  <span className="tfh-admin-modern-label">Kategorija</span>
+                  <select className="tfh-admin-modern-select" value={category} onChange={(e) => setCategory(e.target.value)}>
+                    {categoryOptions.map((item) => (
+                      <option key={item.key} value={item.key}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-                <Input
-                  type="number"
-                  label="Redosled"
-                  value={String(orderIndex)}
-                  onValueChange={(value) => setOrderIndex(Number(value || 0))}
-                  variant="bordered"
-                />
+                <label className="tfh-admin-modern-field">
+                  <span className="tfh-admin-modern-label">Redosled</span>
+                  <input
+                    type="number"
+                    className="tfh-admin-modern-input"
+                    value={String(orderIndex)}
+                    onChange={(e) => setOrderIndex(Number(e.target.value || 0))}
+                  />
+                </label>
 
-                <Checkbox isSelected={isActive} onValueChange={setIsActive} size="sm">
-                  Aktivan klip
-                </Checkbox>
+                <div className="tfh-admin-toggle-row">
+                  <button
+                    type="button"
+                    className={`tfh-admin-toggle ${isActive ? "is-active" : ""}`}
+                    onClick={() => setIsActive((prev) => !prev)}
+                    aria-pressed={isActive}
+                  >
+                    <span className="tfh-admin-toggle-dot" />
+                    <span>{isActive ? "Aktivan klip" : "Neaktivan klip"}</span>
+                  </button>
+                </div>
 
-                <Input type="file" label="Video fajl" accept="video/*" variant="bordered" onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
+                <label className="tfh-admin-modern-field">
+                  <span className="tfh-admin-modern-label">Video fajl</span>
+                  <input
+                    type="file"
+                    className="tfh-admin-modern-file"
+                    accept="video/*"
+                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                  />
+                </label>
 
                 <Button color="primary" type="submit" isLoading={busy} className="tfh-action-grid-btn">
                   {busy ? "Upload u toku..." : "Upload klipa"}
