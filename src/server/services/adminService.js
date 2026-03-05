@@ -309,9 +309,9 @@ export const moveCandidateToPhase2 = async ({ adminUserId, userId, submissionId,
 
   await createNotification({
     userId,
-    type: "phase2",
-    title: "Presli ste u fazu 2",
-    body: "Postovani, hvala sto ste aplicirali. Presli ste u phase 2. Udjite u aplikaciju za sledeci korak.",
+    type: "phase1",
+    title: "Prosli ste Phase 1",
+    body: "Cestitamo! Uspesno ste prosli Phase 1 i prebaceni ste u Phase 2. Udjite u aplikaciju za sledeci korak.",
     payload: { submission_id: submission.id },
   });
 
@@ -319,8 +319,8 @@ export const moveCandidateToPhase2 = async ({ adminUserId, userId, submissionId,
   if (profile?.email) {
     await sendEmail({
       to: profile.email,
-      subject: "Presli ste u fazu 2",
-      text: "Postovani, hvala sto ste aplicirali. Presli ste u phase 2. Udjite u aplikaciju za sledeci korak.",
+      subject: "Prosli ste Phase 1",
+      text: "Cestitamo! Uspesno ste prosli Phase 1 i prebaceni ste u Phase 2. Udjite u aplikaciju za sledeci korak.",
     });
   }
 
