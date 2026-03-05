@@ -1,7 +1,7 @@
 "use client";
 
 import { upload } from "@vercel/blob/client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import StatusBadge from "@components/app/StatusBadge";
@@ -11,6 +11,32 @@ import { trackEvent, getAnalyticsSessionId } from "@library/analytics";
 import { ALLOWED_PHASE1_AUDIO_MIME_TYPES, PHASE1_MAX_AUDIO_MB, bytesFromMb } from "@config/uploadLimits";
 import { apiGet, apiPost } from "@library/apiClient";
 
+const RECORDER_MIME_TYPE_CANDIDATES = ["audio/webm", "audio/ogg", "audio/mp4"];
+
+const FILE_EXTENSION_BY_MIME = {
+  "audio/webm": "webm",
+  "audio/ogg": "ogg",
+  "audio/mp4": "m4a",
+  "audio/mpeg": "mp3",
+  "audio/mp3": "mp3",
+  "audio/wav": "wav",
+  "audio/x-m4a": "m4a",
+};
+
+const normalizeMimeType = (mimeType = "") => String(mimeType).toLowerCase().split(";")[0].trim();
+
+const isAllowedAudioMimeType = (mimeType = "") => {
+  const normalized = normalizeMimeType(mimeType);
+  if (!normalized) return true;
+  return ALLOWED_PHASE1_AUDIO_MIME_TYPES.includes(normalized);
+};
+
+const supportsAudioRecording = () =>
+  typeof window !== "undefined" &&
+  typeof window.MediaRecorder !== "undefined" &&
+  typeof navigator !== "undefined" &&
+  Boolean(navigator.mediaDevices?.getUserMedia);
+
 const TeacherPhase1Page = () => {
   const { user, profile, refreshAuthState } = useAuth();
   const [firstName, setFirstName] = useState(profile?.first_name || "");
@@ -19,12 +45,22 @@ const TeacherPhase1Page = () => {
   const [dateOfBirth, setDateOfBirth] = useState(profile?.date_of_birth || "");
   const [shortAbout, setShortAbout] = useState(profile?.short_about || "");
   const [scriptText, setScriptText] = useState("Zdravo, moje ime je ...");
+  const [audioSource, setAudioSource] = useState("upload");
   const [audioFile, setAudioFile] = useState(null);
+  const [recorderSupported, setRecorderSupported] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedAudioBlob, setRecordedAudioBlob] = useState(null);
+  const [recordedAudioUrl, setRecordedAudioUrl] = useState("");
   const [attempts, setAttempts] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const recorderRef = useRef(null);
+  const streamRef = useRef(null);
+  const chunksRef = useRef([]);
+  const recordedAudioUrlRef = useRef("");
 
   const loadAttempts = async () => {
     setLoading(true);
@@ -51,9 +87,158 @@ const TeacherPhase1Page = () => {
     loadAttempts();
   }, [user?.id]);
 
+  useEffect(() => {
+    setRecorderSupported(supportsAudioRecording());
+  }, []);
+
+  useEffect(
+    () => () => {
+      const activeRecorder = recorderRef.current;
+      if (activeRecorder && activeRecorder.state !== "inactive") {
+        activeRecorder.stop();
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+      if (recordedAudioUrlRef.current) {
+        URL.revokeObjectURL(recordedAudioUrlRef.current);
+      }
+    },
+    [],
+  );
+
   const latest = useMemo(() => attempts[attempts.length - 1] || null, [attempts]);
   const attemptsLeft = Math.max(0, 3 - attempts.length);
-  const canSubmit = !busy && attemptsLeft > 0 && latest?.status !== "pending" && latest?.status !== "moved_to_phase2";
+  const hasAudioToSubmit = audioSource === "record" ? Boolean(recordedAudioBlob) : Boolean(audioFile);
+  const canSubmit = !busy && !isRecording && hasAudioToSubmit && attemptsLeft > 0 && latest?.status !== "pending" && latest?.status !== "moved_to_phase2";
+
+  const stopActiveStream = () => {
+    if (!streamRef.current) return;
+    streamRef.current.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+  };
+
+  const setRecordedAudioPreview = (blob) => {
+    if (recordedAudioUrlRef.current) {
+      URL.revokeObjectURL(recordedAudioUrlRef.current);
+      recordedAudioUrlRef.current = "";
+    }
+    if (!blob) {
+      setRecordedAudioUrl("");
+      return;
+    }
+    const nextUrl = URL.createObjectURL(blob);
+    recordedAudioUrlRef.current = nextUrl;
+    setRecordedAudioUrl(nextUrl);
+  };
+
+  const clearRecordedAudio = () => {
+    setRecordedAudioBlob(null);
+    setRecordedAudioPreview(null);
+  };
+
+  const getRecorderMimeType = () => {
+    if (typeof window === "undefined" || typeof window.MediaRecorder === "undefined") {
+      return "";
+    }
+    const hasIsTypeSupported = typeof window.MediaRecorder.isTypeSupported === "function";
+    if (!hasIsTypeSupported) return "";
+    for (const candidate of RECORDER_MIME_TYPE_CANDIDATES) {
+      if (window.MediaRecorder.isTypeSupported(candidate)) {
+        return candidate;
+      }
+    }
+    return "";
+  };
+
+  const startRecording = async () => {
+    if (!recorderSupported) {
+      setError("Vas browser ne podrzava direktno snimanje zvuka. Koristite upload.");
+      return;
+    }
+    if (isRecording) return;
+
+    setError("");
+    setSuccess("");
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      chunksRef.current = [];
+      clearRecordedAudio();
+      setAudioFile(null);
+
+      const preferredMimeType = getRecorderMimeType();
+      const recorder = preferredMimeType ? new window.MediaRecorder(stream, { mimeType: preferredMimeType }) : new window.MediaRecorder(stream);
+      recorderRef.current = recorder;
+
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
+
+      recorder.onerror = () => {
+        setIsRecording(false);
+        stopActiveStream();
+        recorderRef.current = null;
+        chunksRef.current = [];
+        setError("Snimanje nije uspelo. Pokusajte ponovo.");
+      };
+
+      recorder.onstop = () => {
+        setIsRecording(false);
+        stopActiveStream();
+        recorderRef.current = null;
+
+        const chunks = chunksRef.current;
+        chunksRef.current = [];
+        if (!chunks.length) {
+          setError("Nema snimljenog zvuka. Pokusajte ponovo.");
+          return;
+        }
+
+        const detectedMimeType = normalizeMimeType(recorder.mimeType || chunks[0]?.type || "audio/webm");
+        const blob = new Blob(chunks, { type: detectedMimeType || "audio/webm" });
+        setRecordedAudioBlob(blob);
+        setRecordedAudioPreview(blob);
+      };
+
+      recorder.start();
+      setIsRecording(true);
+    } catch (_recordError) {
+      setIsRecording(false);
+      stopActiveStream();
+      recorderRef.current = null;
+      setError("Mikrofon nije dostupan. Omogucite dozvolu za mikrofon i pokusajte ponovo.");
+    }
+  };
+
+  const stopRecording = () => {
+    const activeRecorder = recorderRef.current;
+    if (!activeRecorder || activeRecorder.state === "inactive") return;
+    activeRecorder.stop();
+  };
+
+  const onAudioSourceChange = (nextSource) => {
+    setAudioSource(nextSource);
+    setError("");
+    setSuccess("");
+    if (nextSource === "upload") {
+      if (isRecording) {
+        stopRecording();
+      }
+      return;
+    }
+    setAudioFile(null);
+  };
+
+  const buildRecordedAudioFile = () => {
+    if (!recordedAudioBlob) return null;
+    const normalizedMimeType = normalizeMimeType(recordedAudioBlob.type || "audio/webm");
+    const extension = FILE_EXTENSION_BY_MIME[normalizedMimeType] || "webm";
+    return new File([recordedAudioBlob], `phase1-recording-${Date.now()}.${extension}`, { type: normalizedMimeType || "audio/webm" });
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -64,16 +249,18 @@ const TeacherPhase1Page = () => {
       setError("Nedostaje aktivna korisnicka sesija.");
       return;
     }
-    if (!audioFile) {
-      setError("Postavite glasovnu poruku za fazu 1 pre slanja.");
+
+    const selectedAudioFile = audioSource === "record" ? buildRecordedAudioFile() : audioFile;
+    if (!selectedAudioFile) {
+      setError(audioSource === "record" ? "Prvo snimite glasovnu poruku pa zatim posaljite." : "Postavite glasovnu poruku za fazu 1 pre slanja.");
       return;
     }
-    if (audioFile.size > bytesFromMb(PHASE1_MAX_AUDIO_MB)) {
-      setError(`Fajl je prevelik. Maksimalna veličina je ${PHASE1_MAX_AUDIO_MB}MB.`);
+    if (selectedAudioFile.size > bytesFromMb(PHASE1_MAX_AUDIO_MB)) {
+      setError(`Fajl je prevelik. Maksimalna velicina je ${PHASE1_MAX_AUDIO_MB}MB.`);
       return;
     }
-    if (audioFile.type && !ALLOWED_PHASE1_AUDIO_MIME_TYPES.includes(audioFile.type)) {
-      setError("Nepodržan audio format. Koristite MP3, M4A, WAV, WEBM ili OGG.");
+    if (selectedAudioFile.type && !isAllowedAudioMimeType(selectedAudioFile.type)) {
+      setError("Nepodrzan audio format. Koristite MP3, M4A, WAV, WEBM ili OGG.");
       return;
     }
     if (shortAbout.length > 50) {
@@ -84,11 +271,11 @@ const TeacherPhase1Page = () => {
     setBusy(true);
 
     const nextAttempt = attempts.length + 1;
-    const ext = getFileExt(audioFile.name);
+    const ext = getFileExt(selectedAudioFile.name);
     const pathname = `phase1/${user.id}/phase1-attempt-${nextAttempt}-${Date.now()}.${ext}`;
 
     try {
-      const blob = await upload(pathname, audioFile, {
+      const blob = await upload(pathname, selectedAudioFile, {
         access: "public",
         handleUploadUrl: "/api/blob/upload-token",
         clientPayload: JSON.stringify({ kind: "phase1" }),
@@ -114,6 +301,7 @@ const TeacherPhase1Page = () => {
 
       setSuccess("Faza 1 je uspesno poslata.");
       setAudioFile(null);
+      clearRecordedAudio();
       await refreshAuthState();
       await loadAttempts();
     } catch (submitError) {
@@ -125,7 +313,7 @@ const TeacherPhase1Page = () => {
 
   return (
     <RequireAuth>
-      <AppShell title="Faza 1 prijava" subtitle="Unesi podatke i pošalji glasovnu poruku (najviše 3 pokušaja).">
+      <AppShell title="Faza 1 prijava" subtitle="Unesi podatke i posalji glasovnu poruku (najvise 3 pokusaja).">
         <div className="tfh-grid">
           <div className="tfh-grid tfh-grid-3">
             <div className="tfh-card">
@@ -179,14 +367,71 @@ const TeacherPhase1Page = () => {
                 <input value={shortAbout} maxLength={50} onChange={(e) => setShortAbout(e.target.value)} required />
               </div>
               <div>
-                <label>Tekst za izgovor (4-5 rečenica)</label>
+                <label>Tekst za izgovor (4-5 recenica)</label>
                 <textarea value={scriptText} onChange={(e) => setScriptText(e.target.value)} />
                 <small>Za fazu 1 sami birate tekst koji izgovarate i unosite ga ovde.</small>
               </div>
               <div>
                 <label>Glasovna poruka (audio)</label>
-                <input type="file" accept="audio/*" onChange={(e) => setAudioFile(e.target.files?.[0] || null)} />
-                <small>Max {PHASE1_MAX_AUDIO_MB}MB (MP3/M4A/WAV/WEBM/OGG)</small>
+                <div className="tfh-audio-source-toggle">
+                  <button
+                    type="button"
+                    className={`tfh-source-option ${audioSource === "upload" ? "is-active" : ""}`}
+                    onClick={() => onAudioSourceChange("upload")}
+                    disabled={busy}
+                  >
+                    Upload fajla
+                  </button>
+                  <button
+                    type="button"
+                    className={`tfh-source-option ${audioSource === "record" ? "is-active" : ""}`}
+                    onClick={() => onAudioSourceChange("record")}
+                    disabled={busy || !recorderSupported}
+                  >
+                    Snimi direktno
+                  </button>
+                </div>
+
+                {audioSource === "upload" ? (
+                  <div className="tfh-record-box">
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      onChange={(e) => {
+                        setAudioFile(e.target.files?.[0] || null);
+                        setError("");
+                        setSuccess("");
+                      }}
+                    />
+                    <small>Max {PHASE1_MAX_AUDIO_MB}MB (MP3/M4A/WAV/WEBM/OGG)</small>
+                  </div>
+                ) : (
+                  <div className="tfh-record-box">
+                    <div className="tfh-actions">
+                      {!isRecording ? (
+                        <button type="button" className="tfh-btn" onClick={startRecording} disabled={busy || !recorderSupported}>
+                          Snimi glasovnu
+                        </button>
+                      ) : (
+                        <button type="button" className="tfh-btn" onClick={stopRecording} disabled={busy}>
+                          Zaustavi snimanje
+                        </button>
+                      )}
+                      <button type="button" className="tfh-btn tfh-btn-outline" onClick={clearRecordedAudio} disabled={busy || isRecording || !recordedAudioBlob}>
+                        Obrisi snimak
+                      </button>
+                    </div>
+                    {recorderSupported ? (
+                      <>
+                        {isRecording && <small className="tfh-recording-hint">Snimanje je u toku...</small>}
+                        {!isRecording && !recordedAudioBlob && <small>Klikni "Snimi glasovnu", izgovori tekst i klikni "Zaustavi snimanje".</small>}
+                      </>
+                    ) : (
+                      <small>Tvoj browser ne podrzava snimanje zvuka. Koristi opciju upload fajla.</small>
+                    )}
+                    {recordedAudioUrl && <audio className="tfh-record-preview" controls preload="metadata" src={recordedAudioUrl} />}
+                  </div>
+                )}
               </div>
 
               {error && <div className="tfh-alert tfh-error">{error}</div>}
@@ -194,7 +439,7 @@ const TeacherPhase1Page = () => {
 
               <div className="tfh-actions">
                 <button type="submit" className="tfh-btn" disabled={!canSubmit}>
-                  {busy ? "Slanje..." : "Pošalji fazu 1"}
+                  {busy ? "Slanje..." : "Posalji fazu 1"}
                 </button>
               </div>
             </form>
