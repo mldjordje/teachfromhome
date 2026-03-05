@@ -624,6 +624,18 @@ export const reviewPhase2Task = async ({ adminUserId, action, taskId, submission
     throw new ApiError(409, "Only submitted entries can be reviewed");
   }
 
+  const [profile] = await db
+    .select({
+      email: profiles.email,
+      firstName: profiles.firstName,
+      lastName: profiles.lastName,
+    })
+    .from(profiles)
+    .where(eq(profiles.userId, task.userId))
+    .limit(1);
+
+  const candidateName = [profile?.firstName, profile?.lastName].filter(Boolean).join(" ").trim() || task.userId;
+
   const now = new Date();
 
   if (parsedAction === "retry") {
@@ -657,6 +669,17 @@ export const reviewPhase2Task = async ({ adminUserId, action, taskId, submission
       body: feedback ? `Please retry your Phase 2 submission. Feedback: ${feedback}` : "Please retry your Phase 2 submission.",
       payload: { task_id: task.id, submission_id: submission.id, action: "retry" },
     });
+
+    if (profile?.email) {
+      await sendEmail({
+        to: profile.email,
+        subject: "Phase 2 - potreban novi pokusaj",
+        text:
+          feedback && feedback.trim()
+            ? `Zdravo ${candidateName},\n\nPotrebno je da ponovite Phase 2 prijavu.\n\nFeedback admina: ${feedback}\n\nPrijavite se i posaljite novi pokusaj u aplikaciji.`
+            : `Zdravo ${candidateName},\n\nPotrebno je da ponovite Phase 2 prijavu.\n\nPrijavite se i posaljite novi pokusaj u aplikaciji.`,
+      });
+    }
 
     return { ok: true, action: "retry" };
   }
@@ -692,6 +715,17 @@ export const reviewPhase2Task = async ({ adminUserId, action, taskId, submission
       payload: { task_id: task.id, submission_id: submission.id, action: "reject" },
     });
 
+    if (profile?.email) {
+      await sendEmail({
+        to: profile.email,
+        subject: "Phase 2 rezultat - odbijeno",
+        text:
+          feedback && feedback.trim()
+            ? `Zdravo ${candidateName},\n\nVasa Phase 2 prijava je odbijena.\n\nFeedback admina: ${feedback}`
+            : `Zdravo ${candidateName},\n\nVasa Phase 2 prijava je odbijena.`,
+      });
+    }
+
     return { ok: true, action: "reject" };
   }
 
@@ -723,6 +757,14 @@ export const reviewPhase2Task = async ({ adminUserId, action, taskId, submission
     body: "Prihvacen si, uskoro ces biti kontaktiran.",
     payload: { task_id: task.id, submission_id: submission.id, action: "accept" },
   });
+
+  if (profile?.email) {
+    await sendEmail({
+      to: profile.email,
+      subject: "Cestitamo - prosli ste selekciju",
+      text: `Zdravo ${candidateName},\n\nCestitamo! Vasa Phase 2 prijava je prihvacena.\nUskoro cete biti kontaktirani od strane tima.`,
+    });
+  }
 
   await createAnalyticsEvent({
     sessionId: `admin-${adminUserId}`,

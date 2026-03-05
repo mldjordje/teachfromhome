@@ -120,6 +120,27 @@ export const isAdminUser = async (userId) => {
   return granted;
 };
 
+export const listAdminProfiles = async () => {
+  const rows = await db
+    .select({
+      userId: adminUsers.userId,
+      role: adminUsers.role,
+      email: profiles.email,
+      firstName: profiles.firstName,
+      lastName: profiles.lastName,
+    })
+    .from(adminUsers)
+    .innerJoin(profiles, eq(profiles.userId, adminUsers.userId));
+
+  return rows.map((row) => ({
+    user_id: row.userId,
+    role: row.role,
+    email: row.email,
+    first_name: row.firstName,
+    last_name: row.lastName,
+  }));
+};
+
 export const getProfile = async (userId) => {
   const rows = await db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
   return rows[0] || null;

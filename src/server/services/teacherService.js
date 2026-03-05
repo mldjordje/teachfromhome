@@ -14,9 +14,55 @@ import { createNotification, listNotificationsForUser } from "@/src/server/servi
 import { createAnalyticsEvent } from "@/src/server/services/analyticsService";
 import { removeBlobSafe } from "@/src/server/services/storageService";
 import { listRewardsForUser } from "@/src/server/services/referralService";
-import { generateUniqueReferralCode, getProfile } from "@/src/server/services/authService";
+import { generateUniqueReferralCode, getProfile, listAdminProfiles } from "@/src/server/services/authService";
+import { sendEmail } from "@/src/server/services/emailService";
 
 const MAX_PHASE1_ATTEMPTS = 3;
+
+const normalizeEmailList = (raw = "") =>
+  String(raw)
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter((item) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(item));
+
+const buildCandidateDisplayName = ({ firstName, lastName, fallbackEmail }) => {
+  const parsed = [firstName, lastName].map((item) => String(item || "").trim()).filter(Boolean).join(" ");
+  if (parsed) return parsed;
+  return fallbackEmail || "Kandidat";
+};
+
+const notifyAdminsAboutPhase1Submission = async ({ userId, candidateName, candidateEmail, submissionId, attemptNo }) => {
+  const admins = await listAdminProfiles();
+  const fallbackAdminEmails = normalizeEmailList(process.env.ADMIN_ALERT_EMAILS || process.env.ADMIN_SEED_EMAILS || "");
+  const adminEmails = [...new Set([...admins.map((admin) => (admin.email || "").toLowerCase()).filter(Boolean), ...fallbackAdminEmails])];
+
+  await Promise.all(
+    admins.map((admin) =>
+      createNotification({
+        userId: admin.user_id,
+        type: "phase1",
+        title: "Nova Phase 1 prijava",
+        body: `${candidateName} je poslao novu prijavu za Phase 1 (pokusaj ${attemptNo}).`,
+        payload: {
+          candidate_user_id: userId,
+          candidate_email: candidateEmail,
+          submission_id: submissionId,
+          attempt_no: attemptNo,
+        },
+      }),
+    ),
+  );
+
+  await Promise.all(
+    adminEmails.map((to) =>
+      sendEmail({
+        to,
+        subject: `Nova Phase 1 prijava - ${candidateName}`,
+        text: `Novi teacher kandidat je poslao Phase 1 prijavu.\n\nKandidat: ${candidateName}\nEmail: ${candidateEmail}\nPokusaj: ${attemptNo}\nSubmission ID: ${submissionId}\n\nProveri admin panel (/admin/phase1).`,
+      }),
+    ),
+  );
+};
 
 const mapPhase1Row = (row) => ({
   id: row.id,
@@ -258,6 +304,26 @@ export const submitTeacherPhase1 = async ({
       attempt_no: nextAttempt,
     },
   });
+
+  if (nextAttempt === 1) {
+    try {
+      const candidateName = buildCandidateDisplayName({
+        firstName: requireNonEmptyString(firstName, "first_name"),
+        lastName: requireNonEmptyString(lastName, "last_name"),
+        fallbackEmail: normalizedEmail,
+      });
+
+      await notifyAdminsAboutPhase1Submission({
+        userId,
+        candidateName,
+        candidateEmail: normalizedEmail,
+        submissionId: submission.id,
+        attemptNo: nextAttempt,
+      });
+    } catch (notifyError) {
+      console.warn("notifyAdminsAboutPhase1Submission failed", notifyError?.message || notifyError);
+    }
+  }
 
   if (sessionId) {
     await createAnalyticsEvent({
