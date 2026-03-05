@@ -21,10 +21,17 @@ const ShowcaseVideoGrid = ({ limit = 0, compact = false }) => {
 
         const normalized = (data ?? [])
           .map((row) => {
-            const videoId = row.youtube_video_id || extractYouTubeVideoId(row.youtube_url);
+            const youtubeVideoId = row.youtube_video_id || row.youtubeVideoId || null;
+            const youtubeUrl = row.youtube_url || row.youtubeUrl || null;
+            const videoId = youtubeVideoId || extractYouTubeVideoId(youtubeUrl);
             const embedUrl = toYouTubeEmbedUrl(videoId);
             if (!videoId || !embedUrl) return null;
-            return { ...row, videoId, embedUrl };
+            return {
+              ...row,
+              title: row.title || "Showcase klip",
+              videoId,
+              embedUrl,
+            };
           })
           .filter(Boolean);
 

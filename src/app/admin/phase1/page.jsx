@@ -37,7 +37,7 @@ const AdminPhase1Page = () => {
       setTotal(Number(payload.total || 0));
       setError("");
     } catch (loadError) {
-      setError(loadError.message || "Neuspesno ucitavanje Faza 1 queue.");
+      setError(loadError.message || "Neuspešno učitavanje Faza 1 queue.");
       setRows([]);
       setTotal(0);
     }
@@ -52,7 +52,7 @@ const AdminPhase1Page = () => {
 
   const queueInfo = useMemo(() => {
     if (!rows.length) {
-      if (statusFilter === "pending") return "Nema kandidata na cekanju. Promeni filter ili osvezi listu.";
+      if (statusFilter === "pending") return "Nema kandidata na čekanju. Promeni filter ili osveži listu.";
       return "Nema zapisa za izabrani filter.";
     }
     return "";
@@ -61,7 +61,7 @@ const AdminPhase1Page = () => {
   const moveToPhase2 = async (row) => {
     const sentence = phase2Sentences[row.submission_id]?.trim();
     if (!sentence) {
-      setError("Recenica za Fazu 2 je obavezna.");
+      setError("Rečenica za Fazu 2 je obavezna.");
       return;
     }
 
@@ -106,7 +106,7 @@ const AdminPhase1Page = () => {
 
   const openPreview = (row) => {
     setPreviewUrl(row.video_blob_url || "");
-    setPreviewTitle(`${row.first_name || "Kandidat"} ${row.last_name || ""} - Faza 1 pokusaj ${row.attempt_no}`.trim());
+    setPreviewTitle(`${row.first_name || "Kandidat"} ${row.last_name || ""} - Faza 1 pokušaj ${row.attempt_no}`.trim());
   };
 
   const closePreview = () => {
@@ -117,7 +117,7 @@ const AdminPhase1Page = () => {
   const deletePhase1Video = async (row) => {
     if (!row?.submission_id) return;
 
-    const confirmed = window.confirm("Obrisi ovaj Phase 1 video i ukloni ga iz aktivne liste?");
+    const confirmed = window.confirm("Obriši ovu Faza 1 glasovnu poruku i ukloni je iz aktivne liste?");
     if (!confirmed) return;
 
     setBusyDeleteId(row.submission_id);
@@ -130,16 +130,16 @@ const AdminPhase1Page = () => {
       });
       await loadRows();
     } catch (actionError) {
-      setError(actionError.message || "Brisanje Phase 1 videa nije uspelo.");
+      setError(actionError.message || "Brisanje Faza 1 glasovne poruke nije uspelo.");
     } finally {
       setBusyDeleteId("");
     }
   };
 
-  const ActionPanel = ({ row }) => (
+  const renderActionPanel = (row) => (
     <div className="flex flex-col gap-2">
       <label className="tfh-admin-modern-field">
-        <span className="tfh-admin-modern-label">Recenica za Fazu 2</span>
+        <span className="tfh-admin-modern-label">Rečenica za Fazu 2</span>
         <textarea
           className="tfh-admin-control"
           value={phase2Sentences[row.submission_id] || ""}
@@ -205,9 +205,9 @@ const AdminPhase1Page = () => {
                 }}
               >
                 <option value="all">Svi statusi</option>
-                <option value="pending">Na cekanju</option>
+                <option value="pending">Na čekanju</option>
                 <option value="rejected">Odbijeni</option>
-                <option value="moved_to_phase2">Prebaceni u Fazu 2</option>
+                <option value="moved_to_phase2">Prebačeni u Fazu 2</option>
               </select>
 
               <select
@@ -226,7 +226,7 @@ const AdminPhase1Page = () => {
 
             <div className="tfh-admin-toolbar-right">
               <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
-                Osvezi
+                Osveži
               </Button>
               <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
                 Pregled kandidata
@@ -243,7 +243,7 @@ const AdminPhase1Page = () => {
                 Prethodna
               </Button>
               <Button size="sm" variant="bordered" isDisabled={loading || page >= totalPages} onPress={() => setPage((prev) => Math.min(totalPages, prev + 1))}>
-                Sledeca
+                Sledeća
               </Button>
             </div>
           </CardBody>
@@ -270,8 +270,8 @@ const AdminPhase1Page = () => {
                       <tr>
                         <th>Kandidat</th>
                         <th>Status</th>
-                        <th>Pokusaj</th>
-                        <th>Video</th>
+                        <th>Pokušaj</th>
+                        <th>Snimak</th>
                         <th>Akcije</th>
                       </tr>
                     </thead>
@@ -288,14 +288,14 @@ const AdminPhase1Page = () => {
                           <td>
                             {row.video_blob_url ? (
                               <Button size="sm" variant="bordered" onPress={() => openPreview(row)}>
-                                Pregled videa
+                                Preslušaj
                               </Button>
                             ) : "-"}
                           </td>
                           <td>
                             <div className="flex flex-col gap-2">
                               {row.status === "pending" ? (
-                                <ActionPanel row={row} />
+                                renderActionPanel(row)
                               ) : (
                                 <>
                                   <span className="tfh-admin-muted text-sm">Review je zavrsen.</span>
@@ -308,7 +308,7 @@ const AdminPhase1Page = () => {
                                       isLoading={busyDeleteId === row.submission_id}
                                       onPress={() => deletePhase1Video(row)}
                                     >
-                                      Obrisi video
+                                      Obriši snimak
                                     </Button>
                                   )}
                                 </>
@@ -330,14 +330,14 @@ const AdminPhase1Page = () => {
                       </div>
                       <p>{row.email}</p>
                       <p>{row.phone || "-"}</p>
-                      <p>Pokusaj: {row.attempt_no}</p>
+                      <p>Pokušaj: {row.attempt_no}</p>
 
                       {row.video_blob_url && (
-                        <Button size="sm" variant="bordered" onPress={() => openPreview(row)}>Pregled videa</Button>
+                        <Button size="sm" variant="bordered" onPress={() => openPreview(row)}>Preslušaj</Button>
                       )}
 
                       {row.status === "pending" ? (
-                        <ActionPanel row={row} />
+                        renderActionPanel(row)
                       ) : (
                         row.video_blob_url && (
                           <Button
@@ -348,7 +348,7 @@ const AdminPhase1Page = () => {
                             isLoading={busyDeleteId === row.submission_id}
                             onPress={() => deletePhase1Video(row)}
                           >
-                            Obrisi video
+                            Obriši snimak
                           </Button>
                         )
                       )}

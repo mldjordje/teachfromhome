@@ -9,6 +9,7 @@ import { useAuth } from "@components/auth/AuthProvider";
 import { getFileExt } from "@library/storage";
 import { trackEvent, getAnalyticsSessionId } from "@library/analytics";
 import { ALLOWED_VIDEO_MIME_TYPES, PHASE2_MAX_VIDEO_MB, bytesFromMb } from "@config/uploadLimits";
+import { extractYouTubeVideoId, toYouTubeEmbedUrl } from "@library/youtube";
 import { apiGet, apiPatch, apiPost } from "@library/apiClient";
 
 const TeacherPhase2Page = () => {
@@ -16,6 +17,7 @@ const TeacherPhase2Page = () => {
   const [task, setTask] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [trainingVideos, setTrainingVideos] = useState([]);
+  const [showcaseVideos, setShowcaseVideos] = useState([]);
   const [videoFile, setVideoFile] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -29,12 +31,14 @@ const TeacherPhase2Page = () => {
       setTask(payload.task || null);
       setSubmissions(payload.submissions || []);
       setTrainingVideos(payload.trainingVideos || []);
+      setShowcaseVideos(payload.showcaseVideos || []);
       setError("");
     } catch (loadError) {
       setError(loadError?.message || "Neuspesno ucitavanje podataka za fazu 2.");
       setTask(null);
       setSubmissions([]);
       setTrainingVideos([]);
+      setShowcaseVideos([]);
     } finally {
       setLoading(false);
     }
@@ -116,7 +120,7 @@ const TeacherPhase2Page = () => {
 
   return (
     <RequireAuth>
-      <AppShell title="Faza 2" subtitle="Pogledaj trening klipove i posalji snimak dodeljene recenice.">
+      <AppShell title="Faza 2" subtitle="Pogledaj trening klipove i pošalji snimak dodeljene rečenice.">
         {loading ? (
           <div className="tfh-alert">Ucitavanje faze 2...</div>
         ) : !task ? (
@@ -158,6 +162,37 @@ const TeacherPhase2Page = () => {
                 </div>
               ) : (
                 <p>Trenutno nema aktivnih trening klipova.</p>
+              )}
+            </div>
+
+            <div className="tfh-card">
+              <h3>Showcase klipovi (YouTube)</h3>
+              {showcaseVideos.length ? (
+                <div className="tfh-showcase-grid tfh-showcase-grid--compact">
+                  {showcaseVideos.map((video) => {
+                    const videoId = video.youtube_video_id || extractYouTubeVideoId(video.youtube_url);
+                    const embedUrl = toYouTubeEmbedUrl(videoId);
+                    if (!embedUrl) return null;
+                    return (
+                      <article key={video.id} className="tfh-showcase-card">
+                        <div className="tfh-showcase-frame-wrap">
+                          <iframe
+                            src={embedUrl}
+                            title={video.title || "Showcase klip"}
+                            className="tfh-showcase-frame"
+                            loading="lazy"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                          />
+                        </div>
+                        <h3>{video.title || "Showcase klip"}</h3>
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p>Trenutno nema aktivnih showcase klipova.</p>
               )}
             </div>
 

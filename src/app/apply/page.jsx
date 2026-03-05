@@ -31,15 +31,15 @@ const ApplyPage = () => {
         <Card className="tfh-minimal-left">
           <CardBody className="gap-4">
             <span className="tfh-minimal-kicker">Onboarding proces</span>
-            <h2>3 faze selekcije</h2>
+            <h2>2 faze selekcije</h2>
             <p>
-              Kratko i jasno: sta radis po fazama i sta treba da pripremis pre slanja.
+              Kratko i jasno: šta radiš po fazama i šta treba da pripremiš pre slanja.
             </p>
             <ul className="tfh-minimal-list">
-              <li>Faza 1: popuni osnovne podatke i snimi kratak video.</li>
-              <li>Za Fazu 1 sam biras tekst koji izgovaras i unosis ga u input polje.</li>
-              <li>Faza 2: detaljniji zadatak dobijas tek nakon prolaska Faze 1.</li>
-              <li>Priprema: stabilan internet, tih prostor i jasno osvetljenje za snimanje.</li>
+              <li>Faza 1: popuni osnovne podatke i pošalji kratku glasovnu poruku.</li>
+              <li>Za Fazu 1 sam biraš tekst koji izgovaraš i unosiš ga u input polje.</li>
+              <li>Faza 2: detaljniji zadatak i video snimak dobijaš tek nakon prolaska Faze 1.</li>
+              <li>Priprema: stabilan internet, tih prostor i jasno osvetljenje za video u Fazi 2.</li>
             </ul>
             <p className="tfh-charset-line">{"\u010D\u0107\u017E\u0161\u0111"}</p>
           </CardBody>
@@ -59,7 +59,7 @@ const ApplyPage = () => {
           <Card className="tfh-minimal-card tfh-auth-choice">
             <CardBody className="gap-4">
               <h3>Novi kandidat</h3>
-              <p>Napravi nalog preko Google-a i odmah zapocni proces.</p>
+              <p>Napravi nalog preko Google-a i odmah započni proces.</p>
               <Button
                 as={Link}
                 href={signupLink}

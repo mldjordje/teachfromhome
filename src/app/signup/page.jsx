@@ -97,7 +97,7 @@ const SignupPage = () => {
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
             <h3>Registracija preko Google-a</h3>
-            <p>Unesi referral kod ako ga imas, zatim nastavi.</p>
+            <p>Unesi referral kod ako ga imaš, zatim nastavi.</p>
 
             <Input
               label="Referral kod (opciono)"
@@ -121,7 +121,7 @@ const SignupPage = () => {
               className="tfh-action-btn tfh-action-btn--ghost"
               fullWidth
             >
-              Vec imam nalog
+              Već imam nalog
             </Button>
           </CardBody>
         </Card>

@@ -8,7 +8,7 @@ import StatusBadge from "@components/app/StatusBadge";
 import { useAuth } from "@components/auth/AuthProvider";
 import { getFileExt } from "@library/storage";
 import { trackEvent, getAnalyticsSessionId } from "@library/analytics";
-import { ALLOWED_VIDEO_MIME_TYPES, PHASE1_MAX_VIDEO_MB, bytesFromMb } from "@config/uploadLimits";
+import { ALLOWED_PHASE1_AUDIO_MIME_TYPES, PHASE1_MAX_AUDIO_MB, bytesFromMb } from "@config/uploadLimits";
 import { apiGet, apiPost } from "@library/apiClient";
 
 const TeacherPhase1Page = () => {
@@ -19,7 +19,7 @@ const TeacherPhase1Page = () => {
   const [dateOfBirth, setDateOfBirth] = useState(profile?.date_of_birth || "");
   const [shortAbout, setShortAbout] = useState(profile?.short_about || "");
   const [scriptText, setScriptText] = useState("Zdravo, moje ime je ...");
-  const [videoFile, setVideoFile] = useState(null);
+  const [audioFile, setAudioFile] = useState(null);
   const [attempts, setAttempts] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -64,16 +64,16 @@ const TeacherPhase1Page = () => {
       setError("Nedostaje aktivna korisnicka sesija.");
       return;
     }
-    if (!videoFile) {
-      setError("Postavite video za fazu 1 pre slanja.");
+    if (!audioFile) {
+      setError("Postavite glasovnu poruku za fazu 1 pre slanja.");
       return;
     }
-    if (videoFile.size > bytesFromMb(PHASE1_MAX_VIDEO_MB)) {
-      setError(`Video je prevelik. Maksimalna velicina je ${PHASE1_MAX_VIDEO_MB}MB.`);
+    if (audioFile.size > bytesFromMb(PHASE1_MAX_AUDIO_MB)) {
+      setError(`Fajl je prevelik. Maksimalna veličina je ${PHASE1_MAX_AUDIO_MB}MB.`);
       return;
     }
-    if (videoFile.type && !ALLOWED_VIDEO_MIME_TYPES.includes(videoFile.type)) {
-      setError("Nepodrzan format videa. Koristite MP4, WEBM ili MOV.");
+    if (audioFile.type && !ALLOWED_PHASE1_AUDIO_MIME_TYPES.includes(audioFile.type)) {
+      setError("Nepodržan audio format. Koristite MP3, M4A, WAV, WEBM ili OGG.");
       return;
     }
     if (shortAbout.length > 50) {
@@ -84,11 +84,11 @@ const TeacherPhase1Page = () => {
     setBusy(true);
 
     const nextAttempt = attempts.length + 1;
-    const ext = getFileExt(videoFile.name);
+    const ext = getFileExt(audioFile.name);
     const pathname = `phase1/${user.id}/phase1-attempt-${nextAttempt}-${Date.now()}.${ext}`;
 
     try {
-      const blob = await upload(pathname, videoFile, {
+      const blob = await upload(pathname, audioFile, {
         access: "public",
         handleUploadUrl: "/api/blob/upload-token",
         clientPayload: JSON.stringify({ kind: "phase1" }),
@@ -113,7 +113,7 @@ const TeacherPhase1Page = () => {
       });
 
       setSuccess("Faza 1 je uspesno poslata.");
-      setVideoFile(null);
+      setAudioFile(null);
       await refreshAuthState();
       await loadAttempts();
     } catch (submitError) {
@@ -125,7 +125,7 @@ const TeacherPhase1Page = () => {
 
   return (
     <RequireAuth>
-      <AppShell title="Faza 1 prijava" subtitle="Unesi podatke i posalji intro video (najvise 3 pokusaja).">
+      <AppShell title="Faza 1 prijava" subtitle="Unesi podatke i pošalji glasovnu poruku (najviše 3 pokušaja).">
         <div className="tfh-grid">
           <div className="tfh-grid tfh-grid-3">
             <div className="tfh-card">
@@ -179,14 +179,14 @@ const TeacherPhase1Page = () => {
                 <input value={shortAbout} maxLength={50} onChange={(e) => setShortAbout(e.target.value)} required />
               </div>
               <div>
-                <label>Tekst za izgovor (4-5 recenica)</label>
+                <label>Tekst za izgovor (4-5 rečenica)</label>
                 <textarea value={scriptText} onChange={(e) => setScriptText(e.target.value)} />
                 <small>Za fazu 1 sami birate tekst koji izgovarate i unosite ga ovde.</small>
               </div>
               <div>
-                <label>Intro video</label>
-                <input type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
-                <small>Max {PHASE1_MAX_VIDEO_MB}MB (MP4/WEBM/MOV)</small>
+                <label>Glasovna poruka (audio)</label>
+                <input type="file" accept="audio/*" onChange={(e) => setAudioFile(e.target.files?.[0] || null)} />
+                <small>Max {PHASE1_MAX_AUDIO_MB}MB (MP3/M4A/WAV/WEBM/OGG)</small>
               </div>
 
               {error && <div className="tfh-alert tfh-error">{error}</div>}
@@ -194,7 +194,7 @@ const TeacherPhase1Page = () => {
 
               <div className="tfh-actions">
                 <button type="submit" className="tfh-btn" disabled={!canSubmit}>
-                  {busy ? "Slanje..." : "Posalji fazu 1"}
+                  {busy ? "Slanje..." : "Pošalji fazu 1"}
                 </button>
               </div>
             </form>

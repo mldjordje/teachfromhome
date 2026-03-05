@@ -81,7 +81,7 @@ const AdminCandidateDetailPage = () => {
   };
 
   const deletePhase1Video = async (row) => {
-    if (!window.confirm(`Obrisi Faza 1 video za pokusaj ${row.attempt_no}?`)) return;
+    if (!window.confirm(`Obriši Faza 1 glasovnu poruku za pokušaj ${row.attempt_no}?`)) return;
     await runAction("delete-phase1-video", async () => {
       await apiDelete("/api/admin/phase1/submission", {
         user_id: data.profile.user_id,
@@ -155,9 +155,9 @@ const AdminCandidateDetailPage = () => {
                           <Button
                             size="sm"
                             variant="bordered"
-                            onPress={() => openPreview(pendingPhase1.video_blob_url, `Faza 1 pokusaj ${pendingPhase1.attempt_no}`)}
+                            onPress={() => openPreview(pendingPhase1.video_blob_url, `Faza 1 pokušaj ${pendingPhase1.attempt_no}`)}
                           >
-                            Pregled videa
+                            Preslušaj
                           </Button>
                         )}
                         <Textarea
@@ -335,9 +335,9 @@ const AdminCandidateDetailPage = () => {
                             <Button
                               size="sm"
                               variant="bordered"
-                              onPress={() => openPreview(row.video_blob_url, `Faza 1 pokusaj ${row.attempt_no}`)}
+                              onPress={() => openPreview(row.video_blob_url, `Faza 1 pokušaj ${row.attempt_no}`)}
                             >
-                              Pregled videa
+                              Preslušaj
                             </Button>
                             {["rejected", "moved_to_phase2"].includes(row.status) && (
                               <Button
@@ -348,7 +348,7 @@ const AdminCandidateDetailPage = () => {
                                 isLoading={busyAction === "delete-phase1-video"}
                                 onPress={() => deletePhase1Video(row)}
                               >
-                                Obrisi video
+                                Obriši snimak
                               </Button>
                             )}
                           </div>

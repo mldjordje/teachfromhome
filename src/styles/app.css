@@ -2049,5 +2049,191 @@ textarea.tfh-admin-control {
   background: #020617;
 }
 
+/* 2026-03 polish */
+.tfh-page {
+  width: min(1120px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 22px;
+  padding-bottom: 40px;
+}
+
+.tfh-page--public {
+  width: min(1080px, 100%);
+}
+
+.tfh-page-head-card,
+.tfh-admin-panel-card,
+.tfh-kpi-panel,
+.tfh-card,
+.tfh-mobile-item,
+.tfh-minimal-left,
+.tfh-minimal-card,
+.tfh-showcase-page-head {
+  border-radius: 18px !important;
+}
+
+.tfh-btn,
+.tfh-action-btn,
+.tfh-action-grid-btn,
+.tfh-topbar-btn--solid {
+  min-height: 44px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(119, 188, 255, 0.46) !important;
+  background: linear-gradient(135deg, #1d4ed8, #1e6cf0) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 20px rgba(30, 92, 222, 0.32) !important;
+  animation: none !important;
+  text-decoration: none !important;
+}
+
+.tfh-action-btn--ghost,
+.tfh-topbar-btn--ghost,
+.tfh-btn-outline,
+.tfh-action-grid-btn--ghost {
+  border: 1px solid rgba(119, 188, 255, 0.34) !important;
+  background: rgba(10, 21, 43, 0.68) !important;
+  color: #dce9ff !important;
+  box-shadow: none !important;
+  animation: none !important;
+  text-decoration: none !important;
+}
+
+.tfh-form input,
+.tfh-form textarea,
+.tfh-form select,
+.tfh-admin-filter-select,
+.tfh-admin-inline-select,
+.tfh-admin-control,
+.tfh-admin-modern-input,
+.tfh-admin-modern-select,
+.tfh-admin-modern-file {
+  min-height: 46px;
+  border-radius: 12px !important;
+  border-color: rgba(119, 188, 255, 0.34) !important;
+  background: rgba(7, 16, 34, 0.78) !important;
+  color: #e6efff !important;
+}
+
+textarea.tfh-admin-control,
+.tfh-form textarea {
+  min-height: 110px;
+}
+
+.tfh-minimal-auth {
+  width: min(1040px, 100%);
+  margin: 0 auto;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.tfh-minimal-left .nextui-card-body,
+.tfh-minimal-card .nextui-card-body {
+  padding: clamp(20px, 3vw, 30px) !important;
+  gap: 12px !important;
+}
+
+.tfh-minimal-left h2 {
+  margin: 6px 0 10px;
+  font-size: clamp(34px, 5vw, 52px);
+  line-height: 1.06;
+}
+
+.tfh-minimal-card h3 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 38px);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+}
+
+.tfh-minimal-list li {
+  line-height: 1.5;
+}
+
+.tfh-minimal-card p,
+.tfh-minimal-left p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.tfh-minimal-card a,
+.tfh-minimal-card button {
+  text-decoration: none !important;
+}
+
+.tfh-action-btn,
+.tfh-action-btn--ghost {
+  width: 100% !important;
+  justify-content: center !important;
+}
+
+.tfh-admin-toolbar-left,
+.tfh-admin-toolbar-right {
+  min-width: 0;
+}
+
+.tfh-admin-toolbar-right .tfh-action-grid-btn,
+.tfh-admin-pagination-actions .nextui-button,
+.tfh-admin-pagination-actions .tfh-action-grid-btn {
+  min-width: 140px;
+}
+
+.tfh-table-wrap {
+  border-radius: 14px;
+}
+
+.tfh-audio-player-wrap {
+  padding: 20px 16px;
+  background: rgba(4, 9, 21, 0.82);
+}
+
+.tfh-audio-player {
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .tfh-page {
+    padding-top: 14px;
+    padding-bottom: 26px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .tfh-topbar-inner {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .tfh-portal-nav-wrap {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .tfh-admin-toolbar-left,
+  .tfh-admin-toolbar-right,
+  .tfh-admin-toolbar-right .tfh-action-grid-btn,
+  .tfh-admin-pagination-actions .nextui-button,
+  .tfh-admin-pagination-actions .tfh-action-grid-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tfh-minimal-auth {
+    gap: 14px;
+  }
+
+  .tfh-minimal-left h2,
+  .tfh-minimal-card h3 {
+    font-size: clamp(28px, 9vw, 36px);
+  }
+
+  .tfh-topbar-btn,
+  .tfh-btn,
+  .tfh-action-btn,
+  .tfh-action-grid-btn {
+    min-height: 44px !important;
+  }
+}
+
 
 

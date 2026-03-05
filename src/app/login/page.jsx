@@ -52,7 +52,7 @@ const LoginPage = () => {
           <CardBody className="gap-4">
             <span className="tfh-minimal-kicker">Bezbedan pristup</span>
             <h2>Jedna prijava, brz ulazak</h2>
-            <p>Sistem automatski prepoznaje ulogu i vodi te na odgovarajuci panel.</p>
+            <p>Sistem automatski prepoznaje ulogu i vodi te na odgovarajući panel.</p>
             <ul className="tfh-minimal-list">
               <li>Samo Google OAuth</li>
               <li>Bez resetovanja lozinke</li>
@@ -79,7 +79,7 @@ const LoginPage = () => {
               variant="flat"
               fullWidth
             >
-              Nemas nalog?
+              Nemaš nalog?
             </Button>
           </CardBody>
         </Card>

@@ -2,6 +2,7 @@ import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/src/server/db/client";
 import {
   profiles,
+  showcaseVideos,
   teacherPhase1Submissions,
   teacherPhase2Submissions,
   teacherPhase2Tasks,
@@ -74,6 +75,17 @@ const mapTrainingVideo = (row) => ({
   is_active: row.isActive,
   created_at: row.createdAt,
   updated_at: row.updatedAt,
+});
+
+const mapShowcaseVideo = (row) => ({
+  id: row.id,
+  title: row.title,
+  youtube_url: row.youtubeUrl,
+  youtube_video_id: row.youtubeVideoId,
+  thumbnail_url: row.thumbnailUrl,
+  order_index: row.orderIndex,
+  is_active: row.isActive,
+  created_at: row.createdAt,
 });
 
 export const getTeacherDashboardData = async (userId) => {
@@ -259,7 +271,7 @@ export const submitTeacherPhase1 = async ({
 };
 
 export const getTeacherPhase2Data = async (userId) => {
-  const [taskRows, submissions, videos] = await Promise.all([
+  const [taskRows, submissions, videos, showcase] = await Promise.all([
     db.select().from(teacherPhase2Tasks).where(eq(teacherPhase2Tasks.userId, userId)).limit(1),
     db
       .select()
@@ -271,12 +283,18 @@ export const getTeacherPhase2Data = async (userId) => {
       .from(trainingVideos)
       .where(eq(trainingVideos.isActive, true))
       .orderBy(asc(trainingVideos.category), asc(trainingVideos.orderIndex)),
+    db
+      .select()
+      .from(showcaseVideos)
+      .where(eq(showcaseVideos.isActive, true))
+      .orderBy(asc(showcaseVideos.orderIndex), desc(showcaseVideos.createdAt)),
   ]);
 
   return {
     task: mapPhase2Task(taskRows[0] || null),
     submissions: submissions.map(mapPhase2Submission),
     trainingVideos: videos.map(mapTrainingVideo),
+    showcaseVideos: showcase.map(mapShowcaseVideo),
   };
 };
 

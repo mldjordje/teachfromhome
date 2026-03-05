@@ -35,8 +35,8 @@ const ResponsiveMedia = ({ desktopSrc, mobileSrc, alt, className }) => (
 const content = {
   sr: {
     badge: "TeachFromHome.app",
-    title: "Predaj engleski online i radi od kuce",
-    subtitle: "Fleksibilan raspored, internacionalni ucenici i brz onboarding u 2 faze.",
+    title: "Predaj engleski online i radi od kuće",
+    subtitle: "Fleksibilan raspored, internacionalni učenici i brz onboarding u 2 faze.",
     ctaApply: "Prijavi se",
     ctaProcess: "Pogledaj proces",
     whyTitle: "Zasto kandidati biraju TeachFromHome",
@@ -58,8 +58,22 @@ const content = {
       },
     ],
     aboutTitle: "O poslu",
-    aboutText:
-      "Trazimo tecan engleski, profesionalnu komunikaciju i stabilnu internet konekciju. Iskustvo u predavanju je prednost.",
+    aboutLead:
+      "Tražimo tečan engleski, profesionalnu komunikaciju i stabilnu internet konekciju. Iskustvo u predavanju je prednost, ali nije obavezno.",
+    aboutParagraphs: [
+      "Organizovan je trening i obuka za nove predavače, tako da kandidati mogu naučiti metodologiju rada i dobiti podršku na početku.",
+      "Predavanje se održava online sa decom iz Kine uzrasta od 4 do 14 godina. Svi nastavni materijali su već obezbeđeni ili ih roditelji šalju unapred, tako da predavači ne moraju da pripremaju sopstveni materijal.",
+      "Rad se odvija online, sa fleksibilnim radnim vremenom i mogućnošću rada od kuće. Određeni broj časova može biti otkazan od strane predavača bez plaćanja penala, što omogućava dodatnu fleksibilnost u organizaciji rasporeda.",
+      "Časovi se održavaju putem ClassIn aplikacije, koja je jednostavna za korišćenje i namenjena online nastavi.",
+    ],
+    aboutEquipmentTitle: "Potrebna oprema za rad",
+    aboutEquipment: [
+      "stabilna i brza internet konekcija",
+      "headset (slušalice sa mikrofonom)",
+      "kompjuter ili laptop",
+    ],
+    aboutMobileNote:
+      "Časovi se takođe mogu držati i preko mobilnog telefona, ukoliko predavaču to više odgovara.",
     earningsTitle: "Zarada",
     earningsCards: [
       { label: "Pocetna mesecna zarada", value: "40.000+ RSD" },
@@ -69,12 +83,12 @@ const content = {
     processTitle: "Proces prijave u 2 faze",
     processSteps: [
       "Napravi nalog i popuni profil.",
-      "U Fazi 1 sam biras tekst, unosis ga i saljes intro video.",
-      "Ako prodjes, dobijas zadatak za Fazu 2.",
+      "U Fazi 1 sam biraš tekst, unosiš ga i šalješ glasovnu poruku.",
+      "Ako prođeš, dobijaš zadatak za Fazu 2 i tada šalješ video snimak.",
       "Nakon prihvatanja, tim te kontaktira za start.",
     ],
     showcaseTitle: "Klipovi primljenih kandidata",
-    showcaseText: "Pogledaj kratke klipove kandidata koji su uspesno prosli proces.",
+    showcaseText: "Pogledaj kratke klipove kandidata koji su uspešno prošli proces.",
     showcaseCta: "Pogledaj sve klipove",
     finalTitle: "Pozicije se brzo popunjavaju",
     finalText: "Prijave se pregledaju svakodnevno. Ako prodjes selekciju, brzo kreces sa radom.",
@@ -104,8 +118,17 @@ const content = {
       },
     ],
     aboutTitle: "About the job",
-    aboutText:
-      "We look for fluent English, professional communication, and reliable internet. Teaching experience is a plus.",
+    aboutLead:
+      "We look for fluent English, professional communication, and reliable internet. Teaching experience is a plus, but not required.",
+    aboutParagraphs: [
+      "Structured training is provided for new teachers, including onboarding support and methodology guidance.",
+      "Classes are held online with children in China (ages 4-14). Teaching materials are already provided or sent by parents in advance.",
+      "Work is fully remote with a flexible schedule and limited penalty-free class cancellations for better planning flexibility.",
+      "Classes are conducted via the ClassIn app, designed for easy online teaching.",
+    ],
+    aboutEquipmentTitle: "Required equipment",
+    aboutEquipment: ["stable high-speed internet", "headset (headphones with microphone)", "computer or laptop"],
+    aboutMobileNote: "Classes can also be delivered from a mobile phone when preferred by the teacher.",
     earningsTitle: "Earnings",
     earningsCards: [
       { label: "Monthly starting range", value: "40,000+ RSD" },
@@ -115,8 +138,8 @@ const content = {
     processTitle: "2-step application process",
     processSteps: [
       "Create account and complete your profile.",
-      "Submit your Phase 1 intro video with your own script.",
-      "If approved, receive your Phase 2 task.",
+      "In Phase 1, provide your own short script and submit a voice message.",
+      "If approved, receive your Phase 2 sentence and submit your video.",
       "After acceptance, team reaches out for onboarding.",
     ],
     showcaseTitle: "Accepted Candidate Clips",
@@ -222,9 +245,19 @@ const TeachFromHomeLanding = () => {
 
       <motion.section id="about-job" className="tfh-anchor-section tfh-landing-section tfh-about-section" {...reveal}>
         <div className="container tfh-about-grid">
-          <div>
+          <div className="tfh-about-copy">
             <h2>{t.aboutTitle}</h2>
-            <p>{t.aboutText}</p>
+            <p>{t.aboutLead}</p>
+            {(t.aboutParagraphs || []).map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+            <h3>{t.aboutEquipmentTitle}</h3>
+            <ul>
+              {(t.aboutEquipment || []).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <p>{t.aboutMobileNote}</p>
           </div>
           <ResponsiveMedia
             desktopSrc="/images/teachfromhome/hero2-desktop.jpeg"
