@@ -14,6 +14,8 @@ const AdminDashboardPage = () => {
   const [phase2Pending, setPhase2Pending] = useState(0);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [analyticsSummary, setAnalyticsSummary] = useState({});
+  const [funnel, setFunnel] = useState({ stages: [], visit_to_accept_rate: 0, signup_to_accept_rate: 0 });
+  const [dailyFunnel, setDailyFunnel] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [maintenanceBusy, setMaintenanceBusy] = useState(false);
@@ -28,9 +30,11 @@ const AdminDashboardPage = () => {
         setPhase2Pending(payload.phase2Pending || 0);
         setAcceptedCount(payload.acceptedCount || 0);
         setAnalyticsSummary(payload.analyticsSummary || {});
+        setFunnel(payload.funnel || { stages: [] });
+        setDailyFunnel(payload.dailyFunnel || []);
         setError("");
       } catch (loadError) {
-        setError(loadError?.message || "Neuspesno ucitavanje admin kontrolne table.");
+        setError(loadError?.message || "Neuspešno učitavanje admin kontrolne table.");
       } finally {
         setLoading(false);
       }
@@ -46,7 +50,7 @@ const AdminDashboardPage = () => {
     try {
       const result = await apiPost("/api/admin/storage/cleanup", {});
       setMaintenanceMessage(
-        `Ciscenje zavrseno. Obrisano zastarelih: ${result?.deleted?.stale || 0}, zatvorenih: ${result?.deleted?.closed || 0}.`,
+        `Čišćenje završeno. Obrisano zastarelih: ${result?.deleted?.stale || 0}, zatvorenih: ${result?.deleted?.closed || 0}.`,
       );
     } catch (cleanupError) {
       setMaintenanceMessage(cleanupError?.message || "Storage cleanup nije uspeo.");
@@ -64,7 +68,7 @@ const AdminDashboardPage = () => {
           <Card className="tfh-admin-panel-card">
             <CardBody className="flex flex-row items-center gap-3 py-8">
               <Spinner size="sm" />
-              <p>Ucitavanje admin metrika...</p>
+              <p>Učitavanje admin metrika...</p>
             </CardBody>
           </Card>
         ) : (
@@ -72,19 +76,19 @@ const AdminDashboardPage = () => {
             <div className="grid gap-4 md:grid-cols-3">
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="tfh-admin-kpi-label">Faza 1 na cekanju</span>
+                  <span className="tfh-admin-kpi-label">Faza 1 na čekanju</span>
                   <strong className="tfh-admin-kpi-value">{phase1Pending}</strong>
                 </CardBody>
               </Card>
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="tfh-admin-kpi-label">Faza 2 na cekanju</span>
+                  <span className="tfh-admin-kpi-label">Faza 2 na čekanju</span>
                   <strong className="tfh-admin-kpi-value">{phase2Pending}</strong>
                 </CardBody>
               </Card>
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="tfh-admin-kpi-label">Prihvaceni kandidati</span>
+                  <span className="tfh-admin-kpi-label">Prihvaćeni kandidati</span>
                   <strong className="tfh-admin-kpi-value">{acceptedCount}</strong>
                 </CardBody>
               </Card>
@@ -104,6 +108,53 @@ const AdminDashboardPage = () => {
                     </article>
                   ))}
                 </div>
+              </CardBody>
+            </Card>
+
+            <Card className="tfh-admin-panel-card">
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Funnel konverzije</h3>
+              </CardHeader>
+              <Divider />
+              <CardBody className="grid gap-3">
+                <div className="tfh-funnel-summary">
+                  <span>Visit → Accept: {funnel.visit_to_accept_rate ?? 0}%</span>
+                  <span>Signup → Accept: {funnel.signup_to_accept_rate ?? 0}%</span>
+                </div>
+                <div className="tfh-funnel-grid">
+                  {(funnel.stages || []).map((stage) => (
+                    <article key={stage.key} className="tfh-funnel-stage">
+                      <span>{stage.label}</span>
+                      <strong>{stage.count}</strong>
+                      <small>{stage.rate_from_prev}% od prethodne faze</small>
+                    </article>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card className="tfh-admin-panel-card">
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Dnevni trend (14 dana)</h3>
+              </CardHeader>
+              <Divider />
+              <CardBody>
+                {dailyFunnel.length ? (
+                  <div className="tfh-funnel-daily-list">
+                    {dailyFunnel.map((day) => (
+                      <article key={day.day} className="tfh-funnel-daily-item">
+                        <strong>{day.day}</strong>
+                        <span>Posete: {day.visits}</span>
+                        <span>Signup: {day.started_signup}</span>
+                        <span>Faza1: {day.phase1_submitted}</span>
+                        <span>Accept: {day.accepted}</span>
+                        <span>Accept/visit: {day.accept_rate_from_visits}%</span>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <p>Nema dovoljno događaja za dnevni trend.</p>
+                )}
               </CardBody>
             </Card>
 

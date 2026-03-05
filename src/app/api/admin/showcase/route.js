@@ -27,9 +27,12 @@ export async function POST(request) {
     const row = await createShowcaseVideo({
       adminUserId: auth.user.id,
       title: body.title,
+      source: body.source || null,
       youtubeUrl: body.youtube_url,
       youtubeVideoId: body.youtube_video_id,
       thumbnailUrl: body.thumbnail_url || null,
+      storageBlobKey: body.storage_blob_key || null,
+      storageBlobUrl: body.storage_blob_url || null,
       orderIndex: body.order_index,
       isActive: body.is_active,
     });

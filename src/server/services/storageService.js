@@ -6,6 +6,7 @@ export const phaseLimits = {
   phase1: 25 * 1024 * 1024,
   phase2: 35 * 1024 * 1024,
   training: 100 * 1024 * 1024,
+  showcase: 100 * 1024 * 1024,
 };
 
 export const getAllowedVideoMimeTypes = () => VIDEO_MIME_TYPES;
@@ -59,5 +60,6 @@ export const getPhaseFromBlobPath = (pathname) => {
   if (pathname.startsWith("phase1/")) return "phase1";
   if (pathname.startsWith("phase2/")) return "phase2";
   if (pathname.startsWith("training/")) return "training";
+  if (pathname.startsWith("showcase/")) return "showcase";
   return null;
 };

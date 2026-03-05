@@ -40,7 +40,7 @@ const AdminLoginPage = () => {
     try {
       await signInWithGoogle({ nextPath: adminNext });
     } catch (err) {
-      setError(err?.message || "Google prijava nije uspela. Pokusajte ponovo.");
+      setError(err?.message || "Google prijava nije uspela. Pokušajte ponovo.");
       setBusy(false);
     }
   };
@@ -51,7 +51,7 @@ const AdminLoginPage = () => {
         <div className="tfh-minimal-left">
           <span className="tfh-minimal-kicker">Admin radni prostor</span>
           <h2>Operacije i kontrola queue-a</h2>
-          <p>Na jednom mestu upravljate prijavama kandidata, trening klipovima, referral tokom i odrzavanjem sistema.</p>
+          <p>Na jednom mestu upravljate prijavama kandidata, trening klipovima, referral tokom i održavanjem sistema.</p>
           <ul className="tfh-minimal-list">
             <li>Review faze 1 i faze 2</li>
             <li>Trening klipovi i referral alati</li>
@@ -62,7 +62,7 @@ const AdminLoginPage = () => {
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
             <h3>Admin Google prijava</h3>
-            <p>Samo nalozi upisani u admin_users tabelu mogu uci u panel.</p>
+            <p>Samo nalozi upisani u admin_users tabelu mogu ući u panel.</p>
 
             <Button size="lg" onPress={onGoogleLogin} isLoading={busy} className="tfh-action-btn" fullWidth>
               {busy ? "Preusmeravanje..." : "Prijava preko Google-a"}

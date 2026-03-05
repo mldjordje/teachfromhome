@@ -21,13 +21,26 @@ const ShowcaseVideoGrid = ({ limit = 0, compact = false }) => {
 
         const normalized = (data ?? [])
           .map((row) => {
+            const storageUrl = row.storage_blob_url || row.storageBlobUrl || null;
+            const source = row.source || (storageUrl ? "native" : "youtube");
             const youtubeVideoId = row.youtube_video_id || row.youtubeVideoId || null;
             const youtubeUrl = row.youtube_url || row.youtubeUrl || null;
             const videoId = youtubeVideoId || extractYouTubeVideoId(youtubeUrl);
             const embedUrl = toYouTubeEmbedUrl(videoId);
+
+            if (source === "native" && storageUrl) {
+              return {
+                ...row,
+                source: "native",
+                mediaUrl: storageUrl,
+                title: row.title || "Showcase klip",
+              };
+            }
+
             if (!videoId || !embedUrl) return null;
             return {
               ...row,
+              source: "youtube",
               title: row.title || "Showcase klip",
               videoId,
               embedUrl,
@@ -75,15 +88,26 @@ const ShowcaseVideoGrid = ({ limit = 0, compact = false }) => {
       {videos.map((video) => (
         <article key={video.id} className="tfh-showcase-card">
           <div className="tfh-showcase-frame-wrap">
-            <iframe
-              src={video.embedUrl}
-              title={video.title}
-              className="tfh-showcase-frame"
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-            />
+            {video.source === "native" ? (
+              <video
+                src={video.mediaUrl}
+                title={video.title}
+                className="tfh-showcase-frame tfh-showcase-native-player"
+                controls
+                playsInline
+                preload="metadata"
+              />
+            ) : (
+              <iframe
+                src={video.embedUrl}
+                title={video.title}
+                className="tfh-showcase-frame"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
+            )}
           </div>
           <h3>{video.title}</h3>
         </article>

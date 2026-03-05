@@ -170,21 +170,34 @@ const TeacherPhase2Page = () => {
               {showcaseVideos.length ? (
                 <div className="tfh-showcase-grid tfh-showcase-grid--compact">
                   {showcaseVideos.map((video) => {
+                    const storageUrl = video.storage_blob_url || video.storageBlobUrl || null;
+                    const source = video.source || (storageUrl ? "native" : "youtube");
                     const videoId = video.youtube_video_id || extractYouTubeVideoId(video.youtube_url);
                     const embedUrl = toYouTubeEmbedUrl(videoId);
-                    if (!embedUrl) return null;
+                    if (source !== "native" && !embedUrl) return null;
                     return (
                       <article key={video.id} className="tfh-showcase-card">
                         <div className="tfh-showcase-frame-wrap">
-                          <iframe
-                            src={embedUrl}
-                            title={video.title || "Showcase klip"}
-                            className="tfh-showcase-frame"
-                            loading="lazy"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerPolicy="strict-origin-when-cross-origin"
-                            allowFullScreen
-                          />
+                          {source === "native" && storageUrl ? (
+                            <video
+                              src={storageUrl}
+                              title={video.title || "Showcase klip"}
+                              className="tfh-showcase-frame tfh-showcase-native-player"
+                              controls
+                              playsInline
+                              preload="metadata"
+                            />
+                          ) : (
+                            <iframe
+                              src={embedUrl}
+                              title={video.title || "Showcase klip"}
+                              className="tfh-showcase-frame"
+                              loading="lazy"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              referrerPolicy="strict-origin-when-cross-origin"
+                              allowFullScreen
+                            />
+                          )}
                         </div>
                         <h3>{video.title || "Showcase klip"}</h3>
                       </article>

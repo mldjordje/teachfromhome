@@ -15,6 +15,8 @@ const PHASE2_ALLOWED_CONTENT_TYPES = ["video/mp4", "video/webm", "video/quicktim
 
 const TRAINING_ALLOWED_CONTENT_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
 
+const SHOWCASE_ALLOWED_CONTENT_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+
 export const parseUploadPayload = (clientPayloadRaw) => {
   if (!clientPayloadRaw) {
     return { kind: "unknown" };
@@ -67,6 +69,20 @@ export const getUploadPolicy = ({ pathname, payload, userId, isAdmin }) => {
       tokenPayload: JSON.stringify({
         owner_id: userId,
         kind: "training",
+      }),
+      addRandomSuffix: false,
+      allowOverwrite: false,
+      cacheControlMaxAge: 60,
+    };
+  }
+
+  if (pathname.startsWith("showcase/") && isAdmin) {
+    return {
+      maximumSizeInBytes: phaseLimits.showcase,
+      allowedContentTypes: SHOWCASE_ALLOWED_CONTENT_TYPES,
+      tokenPayload: JSON.stringify({
+        owner_id: userId,
+        kind: "showcase",
       }),
       addRandomSuffix: false,
       allowOverwrite: false,

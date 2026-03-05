@@ -54,6 +54,61 @@ const AdminCandidateDetailPage = () => {
     return [...data.phase2_submissions].reverse().find((row) => row.status === "submitted") || null;
   }, [data]);
 
+  const timeline = useMemo(() => {
+    if (!data) return [];
+
+    const items = [];
+
+    for (const row of data.phase1_attempts || []) {
+      items.push({
+        id: `p1-submit-${row.submission_id}`,
+        at: row.created_at,
+        title: `Faza 1 pokušaj #${row.attempt_no} poslat`,
+        detail: `Status: ${row.status}`,
+      });
+
+      if (row.reviewed_at) {
+        items.push({
+          id: `p1-review-${row.submission_id}`,
+          at: row.reviewed_at,
+          title: `Faza 1 pokušaj #${row.attempt_no} review`,
+          detail: `Rezultat: ${row.status}${row.reject_reason ? ` (${row.reject_reason})` : ""}`,
+        });
+      }
+    }
+
+    if (data.phase2_task?.task_created_at) {
+      items.push({
+        id: `p2-task-${data.phase2_task.task_id}`,
+        at: data.phase2_task.task_created_at,
+        title: "Kreiran zadatak za Fazu 2",
+        detail: data.phase2_task.phase2_sentence ? `Rečenica: ${data.phase2_task.phase2_sentence}` : "",
+      });
+    }
+
+    for (const row of data.phase2_submissions || []) {
+      items.push({
+        id: `p2-submit-${row.id}`,
+        at: row.created_at,
+        title: `Faza 2 pokušaj #${row.attempt_no} poslat`,
+        detail: `Status: ${row.status}`,
+      });
+
+      if (row.reviewed_at) {
+        items.push({
+          id: `p2-review-${row.id}`,
+          at: row.reviewed_at,
+          title: `Faza 2 pokušaj #${row.attempt_no} review`,
+          detail: row.feedback ? `Rezultat: ${row.status}. Feedback: ${row.feedback}` : `Rezultat: ${row.status}`,
+        });
+      }
+    }
+
+    return items
+      .filter((item) => item.at)
+      .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
+  }, [data]);
+
   const runAction = async (actionName, fn) => {
     setBusyAction(actionName);
     setActionMessage("");
@@ -136,6 +191,28 @@ const AdminCandidateDetailPage = () => {
                 <p>{data.profile.phone || "-"}</p>
                 <p>Trenutna faza: {data.profile.current_phase}</p>
                 <p>Kratko o kandidatu: {data.profile.short_about || "-"}</p>
+              </CardBody>
+            </Card>
+
+            <Card className="tfh-admin-panel-card">
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Timeline aktivnosti</h3>
+              </CardHeader>
+              <Divider />
+              <CardBody>
+                {timeline.length ? (
+                  <div className="tfh-timeline-list">
+                    {timeline.map((item) => (
+                      <article key={item.id} className="tfh-timeline-item">
+                        <strong>{item.title}</strong>
+                        <p>{item.detail || "-"}</p>
+                        <small>{new Date(item.at).toLocaleString()}</small>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <p>Nema timeline događaja.</p>
+                )}
               </CardBody>
             </Card>
 

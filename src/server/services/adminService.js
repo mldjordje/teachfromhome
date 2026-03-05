@@ -19,6 +19,13 @@ import { setProfilePhase } from "@/src/server/services/authService";
 
 const trackedEvents = ["visits", "started_signup", "phase1_submitted", "phase1_passed", "phase2_submitted", "accepted"];
 
+const toPercent = (value, base) => {
+  const num = Number(value || 0);
+  const den = Number(base || 0);
+  if (!den) return 0;
+  return Math.round((num / den) * 1000) / 10;
+};
+
 const mapPhase1 = (row) => ({
   submission_id: row.id,
   user_id: row.userId,
@@ -68,20 +75,34 @@ const mapTrainingVideo = (row) => ({
 
 const mapShowcaseVideo = (row) => ({
   id: row.id,
+  source: row.source || (row.storageBlobUrl ? "native" : "youtube"),
   title: row.title,
   youtube_url: row.youtubeUrl,
   youtube_video_id: row.youtubeVideoId,
   thumbnail_url: row.thumbnailUrl,
+  storage_blob_key: row.storageBlobKey,
+  storage_blob_url: row.storageBlobUrl,
   order_index: row.orderIndex,
   is_active: row.isActive,
   created_at: row.createdAt,
 });
 
 export const getAdminDashboardData = async () => {
-  const [phase1Pending, phase2Pending, acceptedCount] = await Promise.all([
+  const [phase1Pending, phase2Pending, acceptedCount, dailyRows] = await Promise.all([
     db.execute(sql`select count(*)::int as count from teacher_phase1_submissions where status = 'pending' and is_deleted = false`),
     db.execute(sql`select count(*)::int as count from teacher_phase2_tasks where status in ('submitted','retry','assigned')`),
     db.execute(sql`select count(*)::int as count from profiles where current_phase = 'accepted'`),
+    db.execute(sql`
+      select
+        date_trunc('day', created_at) as day,
+        event_name,
+        count(*)::int as count
+      from analytics_events
+      where created_at >= now() - interval '14 days'
+        and event_name in ('visits', 'started_signup', 'phase1_submitted', 'phase1_passed', 'phase2_submitted', 'accepted')
+      group by 1, 2
+      order by 1 asc
+    `),
   ]);
 
   const analyticsSummary = {};
@@ -90,11 +111,61 @@ export const getAdminDashboardData = async () => {
     analyticsSummary[eventName] = Number(result.rows?.[0]?.count || 0);
   }
 
+  const funnelStages = [
+    { key: "visits", label: "Posete" },
+    { key: "started_signup", label: "Započete prijave" },
+    { key: "phase1_submitted", label: "Faza 1 poslata" },
+    { key: "phase1_passed", label: "Faza 1 prošla" },
+    { key: "phase2_submitted", label: "Faza 2 poslata" },
+    { key: "accepted", label: "Prihvaćeni" },
+  ].map((stage, index, list) => {
+    const count = Number(analyticsSummary[stage.key] || 0);
+    const prev = index > 0 ? Number(analyticsSummary[list[index - 1].key] || 0) : 0;
+    return {
+      key: stage.key,
+      label: stage.label,
+      count,
+      rate_from_prev: index === 0 ? 100 : toPercent(count, prev),
+      rate_from_visits: toPercent(count, analyticsSummary.visits || 0),
+    };
+  });
+
+  const dailyMap = new Map();
+  for (const row of dailyRows.rows || []) {
+    const dayKey = new Date(row.day).toISOString().slice(0, 10);
+    if (!dailyMap.has(dayKey)) {
+      dailyMap.set(dayKey, {
+        day: dayKey,
+        visits: 0,
+        started_signup: 0,
+        phase1_submitted: 0,
+        phase1_passed: 0,
+        phase2_submitted: 0,
+        accepted: 0,
+      });
+    }
+
+    const bucket = dailyMap.get(dayKey);
+    bucket[row.event_name] = Number(row.count || 0);
+  }
+
+  const dailyFunnel = [...dailyMap.values()].map((item) => ({
+    ...item,
+    accept_rate_from_visits: toPercent(item.accepted, item.visits),
+    phase1_rate_from_visits: toPercent(item.phase1_submitted, item.visits),
+  }));
+
   return {
     phase1Pending: Number(phase1Pending.rows?.[0]?.count || 0),
     phase2Pending: Number(phase2Pending.rows?.[0]?.count || 0),
     acceptedCount: Number(acceptedCount.rows?.[0]?.count || 0),
     analyticsSummary,
+    funnel: {
+      stages: funnelStages,
+      visit_to_accept_rate: toPercent(analyticsSummary.accepted || 0, analyticsSummary.visits || 0),
+      signup_to_accept_rate: toPercent(analyticsSummary.accepted || 0, analyticsSummary.started_signup || 0),
+    },
+    dailyFunnel,
   };
 };
 
@@ -883,14 +954,46 @@ export const listShowcaseVideosAdmin = async () => {
   return rows.map(mapShowcaseVideo);
 };
 
-export const createShowcaseVideo = async ({ adminUserId, title, youtubeUrl, youtubeVideoId, thumbnailUrl, orderIndex, isActive }) => {
+export const createShowcaseVideo = async ({
+  adminUserId,
+  title,
+  source,
+  youtubeUrl,
+  youtubeVideoId,
+  thumbnailUrl,
+  storageBlobKey,
+  storageBlobUrl,
+  orderIndex,
+  isActive,
+}) => {
+  const hasNativeSource = Boolean(storageBlobKey || storageBlobUrl || source === "native");
+  const hasYoutubeSource = Boolean(youtubeUrl || youtubeVideoId || source === "youtube");
+
+  if (!hasNativeSource && !hasYoutubeSource) {
+    throw new ApiError(400, "Provide either native storage video or YouTube data for showcase item.");
+  }
+
+  const normalizedSource = hasNativeSource ? "native" : "youtube";
+
+  const normalizedYoutubeUrl =
+    normalizedSource === "youtube" ? requireNonEmptyString(youtubeUrl, "youtube_url") : youtubeUrl || null;
+  const normalizedYoutubeVideoId =
+    normalizedSource === "youtube" ? requireNonEmptyString(youtubeVideoId, "youtube_video_id") : youtubeVideoId || null;
+  const normalizedStorageBlobKey =
+    normalizedSource === "native" ? requireNonEmptyString(storageBlobKey, "storage_blob_key") : storageBlobKey || null;
+  const normalizedStorageBlobUrl =
+    normalizedSource === "native" ? requireNonEmptyString(storageBlobUrl, "storage_blob_url") : storageBlobUrl || null;
+
   const [row] = await db
     .insert(showcaseVideos)
     .values({
       title: requireNonEmptyString(title, "title"),
-      youtubeUrl: requireNonEmptyString(youtubeUrl, "youtube_url"),
-      youtubeVideoId: requireNonEmptyString(youtubeVideoId, "youtube_video_id"),
+      source: normalizedSource,
+      youtubeUrl: normalizedYoutubeUrl,
+      youtubeVideoId: normalizedYoutubeVideoId,
       thumbnailUrl: thumbnailUrl || null,
+      storageBlobKey: normalizedStorageBlobKey,
+      storageBlobUrl: normalizedStorageBlobUrl,
       orderIndex: Number(orderIndex || 0),
       isActive: Boolean(isActive),
       createdBy: adminUserId,
@@ -916,5 +1019,14 @@ export const toggleShowcaseVideo = async ({ videoId }) => {
 };
 
 export const deleteShowcaseVideo = async ({ videoId }) => {
+  const [current] = await db.select().from(showcaseVideos).where(eq(showcaseVideos.id, videoId)).limit(1);
+  if (!current) {
+    throw new ApiError(404, "Showcase video not found");
+  }
+
+  if (current.storageBlobUrl || current.storageBlobKey) {
+    await removeBlobSafe(current.storageBlobUrl || current.storageBlobKey);
+  }
+
   await db.delete(showcaseVideos).where(eq(showcaseVideos.id, videoId));
 };

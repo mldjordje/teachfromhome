@@ -20,6 +20,10 @@ const AdminPhase2Page = () => {
   const [busyTaskId, setBusyTaskId] = useState("");
   const [busyDeleteId, setBusyDeleteId] = useState("");
   const [feedbackMap, setFeedbackMap] = useState({});
+  const [selectedTaskIds, setSelectedTaskIds] = useState([]);
+  const [bulkFeedback, setBulkFeedback] = useState("");
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [info, setInfo] = useState("");
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
 
@@ -48,7 +52,35 @@ const AdminPhase2Page = () => {
     loadRows();
   }, [statusFilter, page, pageSize]);
 
+  useEffect(() => {
+    setSelectedTaskIds((prev) => prev.filter((id) => rows.some((row) => row.task_id === id)));
+  }, [rows]);
+
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const allTaskIds = rows.map((row) => row.task_id);
+  const allSelected = allTaskIds.length > 0 && allTaskIds.every((id) => selectedTaskIds.includes(id));
+  const selectedRows = rows.filter((row) => selectedTaskIds.includes(row.task_id));
+  const selectedReviewRows = selectedRows.filter(
+    (row) => row.latest_submission_id && ["submitted", "retry", "assigned"].includes(row.task_status),
+  );
+  const selectedDeleteRows = selectedRows.filter(
+    (row) =>
+      row.latest_submission_id &&
+      row.latest_video_blob_url &&
+      (["accepted", "rejected"].includes(row.latest_submission_status) || ["accepted", "rejected"].includes(row.task_status)),
+  );
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedTaskIds([]);
+      return;
+    }
+    setSelectedTaskIds(allTaskIds);
+  };
+
+  const toggleSelected = (taskId) => {
+    setSelectedTaskIds((prev) => (prev.includes(taskId) ? prev.filter((id) => id !== taskId) : [...prev, taskId]));
+  };
 
   const reviewAction = async (row, action) => {
     if (!row.latest_submission_id) {
@@ -58,6 +90,7 @@ const AdminPhase2Page = () => {
 
     setBusyTaskId(row.task_id);
     setError("");
+    setInfo("");
 
     try {
       await apiPost("/api/admin/phase2/review", {
@@ -93,6 +126,7 @@ const AdminPhase2Page = () => {
 
     setBusyDeleteId(row.latest_submission_id);
     setError("");
+    setInfo("");
 
     try {
       await apiDelete("/api/admin/phase2/submission", {
@@ -105,6 +139,72 @@ const AdminPhase2Page = () => {
     } finally {
       setBusyDeleteId("");
     }
+  };
+
+  const runBulk = async (rowsToProcess, fn, label) => {
+    if (!rowsToProcess.length) {
+      setError("Nema izabranih stavki za ovu bulk akciju.");
+      return;
+    }
+
+    setBulkBusy(true);
+    setError("");
+    setInfo("");
+
+    let okCount = 0;
+    let failedCount = 0;
+    let lastError = "";
+
+    for (const row of rowsToProcess) {
+      try {
+        // Sequential updates keep task/submission state transitions consistent.
+        // eslint-disable-next-line no-await-in-loop
+        await fn(row);
+        okCount += 1;
+      } catch (err) {
+        failedCount += 1;
+        lastError = err?.message || "Nepoznata greška.";
+      }
+    }
+
+    await loadRows();
+    setSelectedTaskIds([]);
+    setBulkBusy(false);
+
+    if (failedCount) {
+      setError(`${label}: uspešno ${okCount}, neuspešno ${failedCount}. ${lastError}`);
+      return;
+    }
+
+    setInfo(`${label}: obrađeno ${okCount} stavki.`);
+  };
+
+  const bulkReview = async (action) => {
+    await runBulk(
+      selectedReviewRows,
+      (row) =>
+        apiPost("/api/admin/phase2/review", {
+          action,
+          task_id: row.task_id,
+          submission_id: row.latest_submission_id,
+          feedback: bulkFeedback || null,
+        }),
+      `Bulk ${action}`,
+    );
+  };
+
+  const bulkDelete = async () => {
+    if (!window.confirm("Obriši izabrane finalne Phase 2 snimke?")) return;
+
+    await runBulk(
+      selectedDeleteRows,
+      (row) =>
+        apiDelete("/api/admin/phase2/submission", {
+          task_id: row.task_id,
+          submission_id: row.latest_submission_id,
+        }),
+      "Bulk brisanje",
+    );
   };
 
   return (
@@ -179,6 +279,44 @@ const AdminPhase2Page = () => {
         </Card>
 
         {error && <Alert color="danger" title={error} className="mb-4" />}
+        {info && <Alert color="success" title={info} className="mb-4" />}
+
+        <Card className="tfh-admin-panel-card mb-4">
+          <CardHeader>
+            <h3 className="text-lg font-semibold">Bulk akcije</h3>
+          </CardHeader>
+          <Divider />
+          <CardBody className="grid gap-3">
+            <p className="tfh-admin-muted text-sm">
+              Izabrano: {selectedRows.length} | Za review: {selectedReviewRows.length} | Za brisanje: {selectedDeleteRows.length}
+            </p>
+
+            <label className="tfh-admin-modern-field">
+              <span className="tfh-admin-modern-label">Feedback za bulk review</span>
+              <textarea
+                className="tfh-admin-control"
+                value={bulkFeedback}
+                onChange={(event) => setBulkFeedback(event.target.value)}
+                placeholder="Opcioni feedback za accept/retry/reject"
+              />
+            </label>
+
+            <div className="tfh-admin-pagination-actions">
+              <Button size="sm" color="success" isLoading={bulkBusy} onPress={() => bulkReview("accept")}>
+                Bulk prihvati
+              </Button>
+              <Button size="sm" color="warning" variant="flat" isLoading={bulkBusy} onPress={() => bulkReview("retry")}>
+                Bulk retry
+              </Button>
+              <Button size="sm" color="danger" variant="flat" isLoading={bulkBusy} onPress={() => bulkReview("reject")}>
+                Bulk odbij
+              </Button>
+              <Button size="sm" color="danger" variant="bordered" isLoading={bulkBusy} onPress={bulkDelete}>
+                Bulk obriši finalne snimke
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
 
         <Card className="tfh-admin-panel-card">
           <CardHeader>
@@ -193,8 +331,20 @@ const AdminPhase2Page = () => {
               </div>
             ) : rows.length ? (
               <div className="tfh-mobile-list">
+                <label className="tfh-admin-checkline">
+                  <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
+                  <span>Izaberi sve na stranici</span>
+                </label>
                 {rows.map((row) => (
                   <article key={row.task_id} className="tfh-mobile-item tfh-mobile-item--admin">
+                    <label className="tfh-admin-checkline">
+                      <input
+                        type="checkbox"
+                        checked={selectedTaskIds.includes(row.task_id)}
+                        onChange={() => toggleSelected(row.task_id)}
+                      />
+                      <span>Izaberi za bulk</span>
+                    </label>
                     <div className="tfh-mobile-item-top">
                       <strong>
                         {row.first_name} {row.last_name}
