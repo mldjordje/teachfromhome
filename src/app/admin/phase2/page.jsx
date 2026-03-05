@@ -245,6 +245,9 @@ const AdminPhase2Page = () => {
               <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
                 Osvezi
               </Button>
+              <Button as={Link} href="/admin/accepted" variant="light" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
+                Prihvaceni
+              </Button>
               <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
                 Pregled kandidata
               </Button>

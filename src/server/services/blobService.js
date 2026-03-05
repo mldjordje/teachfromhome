@@ -9,6 +9,10 @@ const PHASE1_ALLOWED_CONTENT_TYPES = [
   "audio/wav",
   "audio/webm",
   "audio/ogg",
+  // Browser MediaRecorder on some devices reports audio capture as video/* container.
+  "video/webm",
+  "video/mp4",
+  "video/ogg",
 ];
 
 const PHASE2_ALLOWED_CONTENT_TYPES = ["video/mp4", "video/webm", "video/quicktime"];

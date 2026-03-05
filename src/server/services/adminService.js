@@ -10,11 +10,11 @@ import {
   teacherPhase2Tasks,
   trainingVideos,
 } from "@/src/server/db/schema";
-import { ApiError, parsePagination, requireAllowed, requireNonEmptyString } from "@/src/server/http/errors";
+import { ApiError, requireAllowed, requireNonEmptyString } from "@/src/server/http/errors";
 import { createAnalyticsEvent } from "@/src/server/services/analyticsService";
 import { sendEmail } from "@/src/server/services/emailService";
 import { createNotification } from "@/src/server/services/notificationService";
-import { removeBlobSafe } from "@/src/server/services/storageService";
+import { getBlobPreviewUrl, parseBlobUrl, removeBlobSafe } from "@/src/server/services/storageService";
 import { setProfilePhase } from "@/src/server/services/authService";
 
 const trackedEvents = ["visits", "started_signup", "phase1_submitted", "phase1_passed", "phase2_submitted", "accepted"];
@@ -86,6 +86,31 @@ const mapShowcaseVideo = (row) => ({
   is_active: row.isActive,
   created_at: row.createdAt,
 });
+
+const sanitizeFileSegment = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+
+const detectBlobExtension = ({ blobKey, blobUrl }) => {
+  const sourcePath = blobKey || parseBlobUrl(blobUrl || "") || "";
+  const cleanPath = sourcePath.split("?")[0];
+  const parts = cleanPath.split(".");
+  if (parts.length <= 1) return "mp4";
+  const ext = parts.pop()?.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return ext || "mp4";
+};
+
+const buildAcceptedClipFileName = ({ firstName, lastName, email, attemptNo, blobKey, blobUrl }) => {
+  const personSegment = sanitizeFileSegment([firstName, lastName].filter(Boolean).join("-"));
+  const emailSegment = sanitizeFileSegment(String(email || "").split("@")[0]);
+  const candidateSegment = personSegment || emailSegment || "candidate";
+  const safeAttempt = Number(attemptNo) > 0 ? Number(attemptNo) : "x";
+  const ext = detectBlobExtension({ blobKey, blobUrl });
+  return `accepted-${candidateSegment}-phase2-attempt-${safeAttempt}.${ext}`;
+};
 
 export const getAdminDashboardData = async () => {
   const [phase1Pending, phase2Pending, acceptedCount, dailyRows] = await Promise.all([
@@ -431,6 +456,142 @@ export const listAdminPhase2Queue = async ({ status = "submitted", page = 1, pag
     page,
     pageSize,
     total: Number(countRows[0]?.count || 0),
+  };
+};
+
+export const listAcceptedCandidates = async ({ q = "", page = 1, pageSize = 20 }) => {
+  const filters = [eq(teacherPhase2Tasks.status, "accepted")];
+  if (q) {
+    const pattern = `%${q}%`;
+    filters.push(
+      or(
+        like(profiles.email, pattern),
+        like(profiles.firstName, pattern),
+        like(profiles.lastName, pattern),
+        like(profiles.phone, pattern),
+      ),
+    );
+  }
+
+  const whereClause = and(...filters);
+
+  const [items, countRows] = await Promise.all([
+    db
+      .select({
+        task: teacherPhase2Tasks,
+        profile: profiles,
+      })
+      .from(teacherPhase2Tasks)
+      .innerJoin(profiles, eq(profiles.userId, teacherPhase2Tasks.userId))
+      .where(whereClause)
+      .orderBy(desc(teacherPhase2Tasks.updatedAt))
+      .limit(pageSize)
+      .offset((page - 1) * pageSize),
+    db
+      .select({ count: sql`count(*)::int` })
+      .from(teacherPhase2Tasks)
+      .innerJoin(profiles, eq(profiles.userId, teacherPhase2Tasks.userId))
+      .where(whereClause),
+  ]);
+
+  const taskIds = items.map((item) => item.task.id);
+  const latestSubmissionByTask = new Map();
+
+  if (taskIds.length) {
+    const submissionRows = await db
+      .select()
+      .from(teacherPhase2Submissions)
+      .where(and(inArray(teacherPhase2Submissions.taskId, taskIds), eq(teacherPhase2Submissions.isDeleted, false)))
+      .orderBy(desc(teacherPhase2Submissions.attemptNo), desc(teacherPhase2Submissions.createdAt));
+
+    for (const submission of submissionRows) {
+      if (!latestSubmissionByTask.has(submission.taskId)) {
+        latestSubmissionByTask.set(submission.taskId, submission);
+      }
+    }
+  }
+
+  const rows = items.map((item) => {
+    const latest = latestSubmissionByTask.get(item.task.id) || null;
+    return {
+      user_id: item.profile.userId,
+      first_name: item.profile.firstName,
+      last_name: item.profile.lastName,
+      email: item.profile.email,
+      phone: item.profile.phone,
+      current_phase: item.profile.currentPhase,
+      task_id: item.task.id,
+      phase2_sentence: item.task.phase2Sentence,
+      task_status: item.task.status,
+      attempts_allowed: item.task.attemptsAllowed,
+      current_attempts: item.task.currentAttempts,
+      task_updated_at: item.task.updatedAt,
+      task_closed_at: item.task.closedAt,
+      accepted_at: latest?.reviewedAt || item.task.closedAt || item.task.updatedAt,
+      latest_submission_id: latest?.id || null,
+      latest_submission_status: latest?.status || null,
+      latest_attempt_no: latest?.attemptNo || null,
+      latest_video_blob_key: latest?.videoBlobKey || null,
+      latest_video_blob_url: latest?.videoBlobUrl || null,
+      latest_submission_created_at: latest?.createdAt || null,
+      latest_submission_reviewed_at: latest?.reviewedAt || null,
+    };
+  });
+
+  return {
+    rows,
+    page,
+    pageSize,
+    total: Number(countRows[0]?.count || 0),
+  };
+};
+
+export const getAcceptedCandidateDownload = async ({ submissionId }) => {
+  const parsedSubmissionId = requireNonEmptyString(submissionId, "submission_id");
+
+  const [row] = await db
+    .select({
+      submission: teacherPhase2Submissions,
+      task: teacherPhase2Tasks,
+      profile: profiles,
+    })
+    .from(teacherPhase2Submissions)
+    .innerJoin(teacherPhase2Tasks, eq(teacherPhase2Tasks.id, teacherPhase2Submissions.taskId))
+    .innerJoin(profiles, eq(profiles.userId, teacherPhase2Submissions.userId))
+    .where(and(eq(teacherPhase2Submissions.id, parsedSubmissionId), eq(teacherPhase2Submissions.isDeleted, false)))
+    .limit(1);
+
+  if (!row) {
+    throw new ApiError(404, "Accepted candidate clip not found");
+  }
+
+  const isAccepted =
+    row.task.status === "accepted" || row.submission.status === "accepted" || row.profile.currentPhase === "accepted";
+
+  if (!isAccepted) {
+    throw new ApiError(409, "Candidate is not in accepted state");
+  }
+
+  const blobRef = row.submission.videoBlobUrl || row.submission.videoBlobKey;
+  if (!blobRef) {
+    throw new ApiError(404, "Clip is missing for this submission");
+  }
+
+  const downloadUrl = await getBlobPreviewUrl(blobRef);
+  if (!downloadUrl) {
+    throw new ApiError(404, "Clip download URL could not be generated");
+  }
+
+  return {
+    downloadUrl,
+    fileName: buildAcceptedClipFileName({
+      firstName: row.profile.firstName,
+      lastName: row.profile.lastName,
+      email: row.profile.email,
+      attemptNo: row.submission.attemptNo,
+      blobKey: row.submission.videoBlobKey,
+      blobUrl: row.submission.videoBlobUrl,
+    }),
   };
 };
 

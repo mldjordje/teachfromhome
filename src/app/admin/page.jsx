@@ -166,6 +166,7 @@ const AdminDashboardPage = () => {
               <CardBody className="tfh-admin-action-grid">
                 <Link href="/admin/phase1" className="tfh-admin-quick-link">Faza 1 queue</Link>
                 <Link href="/admin/phase2" className="tfh-admin-quick-link">Faza 2 queue</Link>
+                <Link href="/admin/accepted" className="tfh-admin-quick-link">Prihvaceni kandidati</Link>
                 <Link href="/admin/candidates" className="tfh-admin-quick-link">Kandidati</Link>
                 <Link href="/admin/training" className="tfh-admin-quick-link tfh-admin-quick-link--ghost">Trening klipovi</Link>
                 <Link href="/admin/referrals" className="tfh-admin-quick-link tfh-admin-quick-link--ghost">Preporuke</Link>

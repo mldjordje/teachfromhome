@@ -20,6 +20,7 @@ const adminLinks = [
   { href: "/admin", label: "Admin po\u010detna" },
   { href: "/admin/phase1", label: "Admin faza 1" },
   { href: "/admin/phase2", label: "Admin faza 2" },
+  { href: "/admin/accepted", label: "Prihvaceni" },
   { href: "/admin/training", label: "Trening klipovi" },
   { href: "/admin/referrals", label: "Preporuke" },
   { href: "/admin/showcase", label: "Showcase" },

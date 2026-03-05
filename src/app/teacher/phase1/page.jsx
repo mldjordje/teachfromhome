@@ -25,8 +25,19 @@ const FILE_EXTENSION_BY_MIME = {
 
 const normalizeMimeType = (mimeType = "") => String(mimeType).toLowerCase().split(";")[0].trim();
 
-const isAllowedAudioMimeType = (mimeType = "") => {
+const PHASE1_AUDIO_MIME_ALIASES = {
+  "video/webm": "audio/webm",
+  "video/ogg": "audio/ogg",
+  "video/mp4": "audio/mp4",
+};
+
+const normalizePhase1AudioMimeType = (mimeType = "") => {
   const normalized = normalizeMimeType(mimeType);
+  return PHASE1_AUDIO_MIME_ALIASES[normalized] || normalized;
+};
+
+const isAllowedAudioMimeType = (mimeType = "") => {
+  const normalized = normalizePhase1AudioMimeType(mimeType);
   if (!normalized) return true;
   return ALLOWED_PHASE1_AUDIO_MIME_TYPES.includes(normalized);
 };
@@ -198,7 +209,7 @@ const TeacherPhase1Page = () => {
           return;
         }
 
-        const detectedMimeType = normalizeMimeType(recorder.mimeType || chunks[0]?.type || "audio/webm");
+        const detectedMimeType = normalizePhase1AudioMimeType(recorder.mimeType || chunks[0]?.type || "audio/webm");
         const blob = new Blob(chunks, { type: detectedMimeType || "audio/webm" });
         setRecordedAudioBlob(blob);
         setRecordedAudioPreview(blob);
@@ -235,7 +246,7 @@ const TeacherPhase1Page = () => {
 
   const buildRecordedAudioFile = () => {
     if (!recordedAudioBlob) return null;
-    const normalizedMimeType = normalizeMimeType(recordedAudioBlob.type || "audio/webm");
+    const normalizedMimeType = normalizePhase1AudioMimeType(recordedAudioBlob.type || "audio/webm");
     const extension = FILE_EXTENSION_BY_MIME[normalizedMimeType] || "webm";
     return new File([recordedAudioBlob], `phase1-recording-${Date.now()}.${extension}`, { type: normalizedMimeType || "audio/webm" });
   };
@@ -250,11 +261,16 @@ const TeacherPhase1Page = () => {
       return;
     }
 
-    const selectedAudioFile = audioSource === "record" ? buildRecordedAudioFile() : audioFile;
-    if (!selectedAudioFile) {
+    const selectedAudioFileRaw = audioSource === "record" ? buildRecordedAudioFile() : audioFile;
+    if (!selectedAudioFileRaw) {
       setError(audioSource === "record" ? "Prvo snimite glasovnu poruku pa zatim posaljite." : "Postavite glasovnu poruku za fazu 1 pre slanja.");
       return;
     }
+    const normalizedAudioMimeType = normalizePhase1AudioMimeType(selectedAudioFileRaw.type || "");
+    const selectedAudioFile =
+      normalizedAudioMimeType && normalizedAudioMimeType !== selectedAudioFileRaw.type
+        ? new File([selectedAudioFileRaw], selectedAudioFileRaw.name, { type: normalizedAudioMimeType })
+        : selectedAudioFileRaw;
     if (selectedAudioFile.size > bytesFromMb(PHASE1_MAX_AUDIO_MB)) {
       setError(`Fajl je prevelik. Maksimalna velicina je ${PHASE1_MAX_AUDIO_MB}MB.`);
       return;
