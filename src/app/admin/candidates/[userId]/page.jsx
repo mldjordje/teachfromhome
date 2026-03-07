@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner, Textarea } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
@@ -13,6 +13,7 @@ import { apiDelete, apiGet, apiPost } from "@library/apiClient";
 
 const AdminCandidateDetailPage = () => {
   const params = useParams();
+  const router = useRouter();
   const userId = params?.userId;
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -156,14 +157,36 @@ const AdminCandidateDetailPage = () => {
     });
   };
 
+  const deleteCandidateAccount = async () => {
+    const fullName = `${data?.profile?.first_name || ""} ${data?.profile?.last_name || ""}`.trim();
+    const confirmed = window.confirm(
+      `Obrisi kandidata ${fullName || data?.profile?.email || userId} i sve povezane prijave? Ova akcija je trajna.`,
+    );
+    if (!confirmed) return;
+
+    await runAction("delete-candidate", async () => {
+      await apiDelete(`/api/admin/candidates/${userId}`);
+      router.replace("/admin/candidates");
+    });
+  };
+
   return (
     <RequireAuth adminOnly>
       <AppShell title="Detalj kandidata" subtitle="Timeline prikaz kandidata za fazu 1 i fazu 2.">
         <AdminPhaseSwitch />
 
-        <div className="mb-3">
+        <div className="mb-3 flex flex-wrap gap-2">
           <Button as={Link} href="/admin/candidates" variant="bordered" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
             Nazad na kandidate
+          </Button>
+          <Button
+            color="danger"
+            variant="flat"
+            className="tfh-admin-decision-btn tfh-admin-decision-btn--delete"
+            isLoading={busyAction === "delete-candidate"}
+            onPress={deleteCandidateAccount}
+          >
+            Obrisi kandidata
           </Button>
         </div>
 

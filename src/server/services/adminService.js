@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, inArray, like, or, sql } from "drizzle-orm";
 import { db } from "@/src/server/db/client";
 import {
+  adminUsers,
   analyticsEvents,
   profiles,
   referralRewards,
@@ -1102,6 +1103,56 @@ export const getCandidateDetail = async (userId) => {
       created_at: row.createdAt,
       reviewed_at: row.reviewedAt,
     })),
+  };
+};
+
+export const deleteCandidate = async ({ adminUserId, userId }) => {
+  const parsedUserId = requireNonEmptyString(userId, "user_id");
+
+  if (parsedUserId === adminUserId) {
+    throw new ApiError(400, "Admin ne moze obrisati sopstveni nalog.");
+  }
+
+  const [profile, adminRow] = await Promise.all([
+    db.select().from(profiles).where(eq(profiles.userId, parsedUserId)).limit(1),
+    db.select().from(adminUsers).where(eq(adminUsers.userId, parsedUserId)).limit(1),
+  ]);
+
+  if (!profile[0]) {
+    throw new ApiError(404, "Candidate not found");
+  }
+
+  if (adminRow[0]) {
+    throw new ApiError(400, "Admin nalog ne moze biti obrisan kroz candidates stranu.");
+  }
+
+  const [phase1Rows, phase2Rows] = await Promise.all([
+    db
+      .select({
+        videoBlobUrl: teacherPhase1Submissions.videoBlobUrl,
+        videoBlobKey: teacherPhase1Submissions.videoBlobKey,
+      })
+      .from(teacherPhase1Submissions)
+      .where(and(eq(teacherPhase1Submissions.userId, parsedUserId), eq(teacherPhase1Submissions.isDeleted, false))),
+    db
+      .select({
+        videoBlobUrl: teacherPhase2Submissions.videoBlobUrl,
+        videoBlobKey: teacherPhase2Submissions.videoBlobKey,
+      })
+      .from(teacherPhase2Submissions)
+      .where(and(eq(teacherPhase2Submissions.userId, parsedUserId), eq(teacherPhase2Submissions.isDeleted, false))),
+  ]);
+
+  const blobRefs = [...phase1Rows, ...phase2Rows]
+    .map((row) => row.videoBlobUrl || row.videoBlobKey)
+    .filter(Boolean);
+
+  await Promise.all(blobRefs.map((blobRef) => removeBlobSafe(blobRef)));
+  await db.delete(profiles).where(eq(profiles.userId, parsedUserId));
+
+  return {
+    ok: true,
+    removed_blob_count: blobRefs.length,
   };
 };
 

@@ -258,7 +258,7 @@ const AdminPhase1Page = () => {
   };
 
   const renderActionPanel = (row) => (
-    <div className="flex flex-col gap-2">
+    <div className="tfh-admin-decision-stack">
       <label className="tfh-admin-modern-field">
         <span className="tfh-admin-modern-label">Rečenica za Fazu 2</span>
         <textarea
@@ -272,12 +272,18 @@ const AdminPhase1Page = () => {
           }
         />
       </label>
-      <Button size="sm" color="primary" onPress={() => moveToPhase2(row)} isLoading={busyId === row.submission_id}>
+      <Button
+        size="sm"
+        color="primary"
+        className="tfh-admin-decision-btn tfh-admin-decision-btn--move"
+        onPress={() => moveToPhase2(row)}
+        isLoading={busyId === row.submission_id}
+      >
         Prebaci u Fazu 2
       </Button>
 
       <select
-        className="tfh-admin-inline-select"
+        className="tfh-admin-inline-select tfh-admin-inline-select--bold"
         value={rejectReasons[row.submission_id] || "bad_pronunciation"}
         onChange={(e) =>
           setRejectReasons((prev) => ({
@@ -305,7 +311,14 @@ const AdminPhase1Page = () => {
         />
       </label>
 
-      <Button size="sm" color="danger" variant="flat" onPress={() => rejectPhase1(row)} isLoading={busyId === row.submission_id}>
+      <Button
+        size="sm"
+        color="danger"
+        variant="flat"
+        className="tfh-admin-decision-btn tfh-admin-decision-btn--reject"
+        onPress={() => rejectPhase1(row)}
+        isLoading={busyId === row.submission_id}
+      >
         Odbij
       </Button>
     </div>
@@ -394,14 +407,24 @@ const AdminPhase1Page = () => {
                 placeholder="Jedna rečenica za sve izabrane pending kandidate"
               />
             </label>
-            <div className="tfh-admin-pagination-actions">
-              <Button size="sm" color="primary" isLoading={bulkBusy} onPress={bulkMoveToPhase2}>
+            <div className="tfh-admin-pagination-actions tfh-admin-bulk-actions">
+              <Button
+                size="sm"
+                color="primary"
+                className="tfh-admin-decision-btn tfh-admin-decision-btn--move"
+                isLoading={bulkBusy}
+                onPress={bulkMoveToPhase2}
+              >
                 Bulk prebaci u Fazu 2
               </Button>
             </div>
 
             <div className="grid gap-2 md:grid-cols-2">
-              <select className="tfh-admin-inline-select" value={bulkRejectReason} onChange={(e) => setBulkRejectReason(e.target.value)}>
+              <select
+                className="tfh-admin-inline-select tfh-admin-inline-select--bold"
+                value={bulkRejectReason}
+                onChange={(e) => setBulkRejectReason(e.target.value)}
+              >
                 <option value="bad_accent">bad_accent</option>
                 <option value="bad_pronunciation">bad_pronunciation</option>
                 <option value="low_energy">low_energy</option>
@@ -413,11 +436,25 @@ const AdminPhase1Page = () => {
                 placeholder="Napomena za bulk odbijanje (opciono)"
               />
             </div>
-            <div className="tfh-admin-pagination-actions">
-              <Button size="sm" color="danger" variant="flat" isLoading={bulkBusy} onPress={bulkReject}>
+            <div className="tfh-admin-pagination-actions tfh-admin-bulk-actions">
+              <Button
+                size="sm"
+                color="danger"
+                variant="flat"
+                className="tfh-admin-decision-btn tfh-admin-decision-btn--reject"
+                isLoading={bulkBusy}
+                onPress={bulkReject}
+              >
                 Bulk odbij pending
               </Button>
-              <Button size="sm" color="danger" variant="bordered" isLoading={bulkBusy} onPress={bulkDelete}>
+              <Button
+                size="sm"
+                color="danger"
+                variant="bordered"
+                className="tfh-admin-decision-btn tfh-admin-decision-btn--delete"
+                isLoading={bulkBusy}
+                onPress={bulkDelete}
+              >
                 Bulk obriši review-ovane snimke
               </Button>
             </div>
@@ -437,8 +474,8 @@ const AdminPhase1Page = () => {
               </div>
             ) : rows.length ? (
               <>
-                <label className="tfh-admin-checkline mb-2">
-                  <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
+                <label className="tfh-admin-checkline tfh-bulk-select-line tfh-bulk-select-line--master mb-2">
+                  <input className="tfh-bulk-select-input" type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
                   <span>Izaberi sve na stranici</span>
                 </label>
                 <div className="tfh-table-wrap hidden lg:block">
@@ -446,7 +483,7 @@ const AdminPhase1Page = () => {
                     <thead>
                       <tr>
                         <th>
-                          <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
+                          <input className="tfh-bulk-select-input" type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
                         </th>
                         <th>Kandidat</th>
                         <th>Status</th>
@@ -460,6 +497,7 @@ const AdminPhase1Page = () => {
                         <tr key={row.submission_id}>
                           <td>
                             <input
+                              className="tfh-bulk-select-input"
                               type="checkbox"
                               checked={selectedSubmissionIds.includes(row.submission_id)}
                               onChange={() => toggleSelected(row.submission_id)}
@@ -491,7 +529,7 @@ const AdminPhase1Page = () => {
                                       size="sm"
                                       color="danger"
                                       variant="flat"
-                                      className="tfh-action-grid-btn tfh-action-grid-btn--ghost"
+                                      className="tfh-admin-decision-btn tfh-admin-decision-btn--delete"
                                       isLoading={busyDeleteId === row.submission_id}
                                       onPress={() => deletePhase1Video(row)}
                                     >
@@ -511,8 +549,9 @@ const AdminPhase1Page = () => {
                 <div className="tfh-mobile-list lg:hidden">
                   {rows.map((row) => (
                     <article key={row.submission_id} className="tfh-mobile-item tfh-mobile-item--admin">
-                      <label className="tfh-admin-checkline">
+                      <label className="tfh-admin-checkline tfh-bulk-select-line">
                         <input
+                          className="tfh-bulk-select-input"
                           type="checkbox"
                           checked={selectedSubmissionIds.includes(row.submission_id)}
                           onChange={() => toggleSelected(row.submission_id)}
@@ -539,7 +578,7 @@ const AdminPhase1Page = () => {
                             size="sm"
                             color="danger"
                             variant="flat"
-                            className="tfh-action-grid-btn tfh-action-grid-btn--ghost"
+                            className="tfh-admin-decision-btn tfh-admin-decision-btn--delete"
                             isLoading={busyDeleteId === row.submission_id}
                             onPress={() => deletePhase1Video(row)}
                           >

@@ -19,7 +19,7 @@ const ApplyPage = () => {
     router.replace(isAdmin ? "/admin" : NEXT_PHASE1);
   }, [isAdmin, loading, router, user]);
 
-  const loginLink = `/login?next=${encodeURIComponent(NEXT_PHASE1)}`;
+  const loginLink = `/login?next=${encodeURIComponent(NEXT_PHASE1)}&auto=1`;
   const signupLink = `/signup?next=${encodeURIComponent(NEXT_PHASE1)}`;
 
   return (

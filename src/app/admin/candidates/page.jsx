@@ -7,7 +7,7 @@ import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import AdminPhaseSwitch from "@components/app/AdminPhaseSwitch";
 import StatusBadge from "@components/app/StatusBadge";
-import { apiGet } from "@library/apiClient";
+import { apiDelete, apiGet } from "@library/apiClient";
 
 const AdminCandidatesPage = () => {
   const [rows, setRows] = useState([]);
@@ -19,6 +19,7 @@ const AdminCandidatesPage = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [busyDeleteId, setBusyDeleteId] = useState("");
 
   const loadRows = async () => {
     setLoading(true);
@@ -65,6 +66,26 @@ const AdminCandidatesPage = () => {
       return;
     }
     loadRows();
+  };
+
+  const onDeleteCandidate = async (row) => {
+    const fullName = `${row.first_name || ""} ${row.last_name || ""}`.trim();
+    const confirmed = window.confirm(
+      `Obrisi kandidata ${fullName || row.email || row.user_id} i sve povezane prijave? Ova akcija je trajna.`,
+    );
+    if (!confirmed) return;
+
+    setBusyDeleteId(row.user_id);
+    setError("");
+
+    try {
+      await apiDelete(`/api/admin/candidates/${row.user_id}`);
+      await loadRows();
+    } catch (deleteError) {
+      setError(deleteError?.message || "Brisanje kandidata nije uspelo.");
+    } finally {
+      setBusyDeleteId("");
+    }
   };
 
   return (
@@ -183,6 +204,16 @@ const AdminCandidatesPage = () => {
                     <div className="flex gap-2">
                       <Button as={Link} href={`/admin/candidates/${row.user_id}`} size="sm" color="primary">
                         Otvori detalj
+                      </Button>
+                      <Button
+                        size="sm"
+                        color="danger"
+                        variant="flat"
+                        className="tfh-admin-decision-btn tfh-admin-decision-btn--delete"
+                        isLoading={busyDeleteId === row.user_id}
+                        onPress={() => onDeleteCandidate(row)}
+                      >
+                        Obrisi
                       </Button>
                     </div>
                   </article>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Alert, Button, Card, CardBody } from "@heroui/react";
@@ -19,6 +19,7 @@ const LoginPage = () => {
     () => sanitizeNextPath(searchParams?.get("next") || null, "/teacher/dashboard"),
     [searchParams],
   );
+  const autoStart = useMemo(() => searchParams?.get("auto") === "1", [searchParams]);
 
   useEffect(() => {
     if (loading || !user) return;
@@ -32,18 +33,22 @@ const LoginPage = () => {
     router.replace(nextFromQuery);
   }, [isAdmin, loading, nextFromQuery, router, user]);
 
-  const onGoogleLogin = async () => {
+  const onGoogleLogin = useCallback(async () => {
     setError("");
     setBusy(true);
 
     try {
-      // Route back through /login so role-based redirect runs after session hydration.
-      await signInWithGoogle({ nextPath: `/login?next=${encodeURIComponent(nextFromQuery)}` });
+      await signInWithGoogle({ nextPath: nextFromQuery });
     } catch (err) {
       setError(err?.message || "Google prijava nije uspela. Pokusajte ponovo.");
       setBusy(false);
     }
-  };
+  }, [nextFromQuery]);
+
+  useEffect(() => {
+    if (!autoStart || loading || user || busy) return;
+    onGoogleLogin();
+  }, [autoStart, busy, loading, onGoogleLogin, user]);
 
   return (
     <AppShell title="Prijava" subtitle="Pristup kandidatskom ili admin nalogu preko Google-a." publicView>

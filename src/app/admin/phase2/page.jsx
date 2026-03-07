@@ -307,17 +307,44 @@ const AdminPhase2Page = () => {
               />
             </label>
 
-            <div className="tfh-admin-pagination-actions">
-              <Button size="sm" color="success" isLoading={bulkBusy} onPress={() => bulkReview("accept")}>
+            <div className="tfh-admin-pagination-actions tfh-admin-bulk-actions">
+              <Button
+                size="sm"
+                color="success"
+                className="tfh-admin-decision-btn tfh-admin-decision-btn--accept"
+                isLoading={bulkBusy}
+                onPress={() => bulkReview("accept")}
+              >
                 Bulk prihvati
               </Button>
-              <Button size="sm" color="warning" variant="flat" isLoading={bulkBusy} onPress={() => bulkReview("retry")}>
+              <Button
+                size="sm"
+                color="warning"
+                variant="flat"
+                className="tfh-admin-decision-btn tfh-admin-decision-btn--retry"
+                isLoading={bulkBusy}
+                onPress={() => bulkReview("retry")}
+              >
                 Bulk retry
               </Button>
-              <Button size="sm" color="danger" variant="flat" isLoading={bulkBusy} onPress={() => bulkReview("reject")}>
+              <Button
+                size="sm"
+                color="danger"
+                variant="flat"
+                className="tfh-admin-decision-btn tfh-admin-decision-btn--reject"
+                isLoading={bulkBusy}
+                onPress={() => bulkReview("reject")}
+              >
                 Bulk odbij
               </Button>
-              <Button size="sm" color="danger" variant="bordered" isLoading={bulkBusy} onPress={bulkDelete}>
+              <Button
+                size="sm"
+                color="danger"
+                variant="bordered"
+                className="tfh-admin-decision-btn tfh-admin-decision-btn--delete"
+                isLoading={bulkBusy}
+                onPress={bulkDelete}
+              >
                 Bulk obriši finalne snimke
               </Button>
             </div>
@@ -337,14 +364,15 @@ const AdminPhase2Page = () => {
               </div>
             ) : rows.length ? (
               <div className="tfh-mobile-list">
-                <label className="tfh-admin-checkline">
-                  <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
+                <label className="tfh-admin-checkline tfh-bulk-select-line tfh-bulk-select-line--master">
+                  <input className="tfh-bulk-select-input" type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
                   <span>Izaberi sve na stranici</span>
                 </label>
                 {rows.map((row) => (
                   <article key={row.task_id} className="tfh-mobile-item tfh-mobile-item--admin">
-                    <label className="tfh-admin-checkline">
+                    <label className="tfh-admin-checkline tfh-bulk-select-line">
                       <input
+                        className="tfh-bulk-select-input"
                         type="checkbox"
                         checked={selectedTaskIds.includes(row.task_id)}
                         onChange={() => toggleSelected(row.task_id)}
@@ -381,7 +409,7 @@ const AdminPhase2Page = () => {
                     )}
 
                     {row.latest_submission_id && ["submitted", "retry", "assigned"].includes(row.task_status) && (
-                      <div className="flex flex-col gap-2">
+                      <div className="tfh-admin-decision-stack">
                         <label className="tfh-admin-modern-field">
                           <span className="tfh-admin-modern-label">Feedback</span>
                           <textarea
@@ -396,14 +424,21 @@ const AdminPhase2Page = () => {
                             }
                           />
                         </label>
-                        <div className="flex flex-wrap gap-2">
-                          <Button size="sm" color="success" onPress={() => reviewAction(row, "accept")} isLoading={busyTaskId === row.task_id}>
+                        <div className="tfh-admin-decision-row">
+                          <Button
+                            size="sm"
+                            color="success"
+                            className="tfh-admin-decision-btn tfh-admin-decision-btn--accept"
+                            onPress={() => reviewAction(row, "accept")}
+                            isLoading={busyTaskId === row.task_id}
+                          >
                             Prihvati
                           </Button>
                           <Button
                             size="sm"
                             color="warning"
                             variant="flat"
+                            className="tfh-admin-decision-btn tfh-admin-decision-btn--retry"
                             onPress={() => reviewAction(row, "retry")}
                             isLoading={busyTaskId === row.task_id}
                           >
@@ -413,6 +448,7 @@ const AdminPhase2Page = () => {
                             size="sm"
                             color="danger"
                             variant="flat"
+                            className="tfh-admin-decision-btn tfh-admin-decision-btn--reject"
                             onPress={() => reviewAction(row, "reject")}
                             isLoading={busyTaskId === row.task_id}
                           >
@@ -430,7 +466,7 @@ const AdminPhase2Page = () => {
                           size="sm"
                           color="danger"
                           variant="flat"
-                          className="tfh-action-grid-btn tfh-action-grid-btn--ghost"
+                          className="tfh-admin-decision-btn tfh-admin-decision-btn--delete"
                           isLoading={busyDeleteId === row.latest_submission_id}
                           onPress={() => deletePhase2Video(row)}
                         >

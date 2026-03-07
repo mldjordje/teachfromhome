@@ -68,6 +68,7 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
   const guestAction = useMemo(() => {
     if (!isPublicEntry) return null;
     if (pathname === "/apply") return { href: "/login", label: "Prijava" };
+    if (pathname === "/login") return { href: "/login?auto=1", label: "Google prijava" };
     if (pathname === "/signup") return { href: "/login", label: "Prijava" };
     if (pathname === "/admin/login") return { href: "/login", label: "Prijava kandidata" };
     return { href: "/apply", label: "Prijavi se" };

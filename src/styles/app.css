@@ -2703,5 +2703,122 @@ textarea.tfh-admin-control,
   }
 }
 
+/* 2026-03 admin action refresh */
+.tfh-app-shell .nextui-button {
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.tfh-app-shell .nextui-button > span,
+.tfh-app-shell .nextui-button [data-slot="content"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  width: 100%;
+}
+
+.tfh-admin-decision-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.tfh-admin-decision-row {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.tfh-admin-bulk-actions {
+  gap: 10px !important;
+}
+
+.tfh-admin-bulk-actions .nextui-button,
+.tfh-admin-bulk-actions .tfh-admin-decision-btn {
+  min-width: 180px;
+}
+
+.tfh-admin-decision-btn {
+  min-height: 42px !important;
+  border-radius: 10px !important;
+  border-width: 1px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+  text-decoration: none !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  padding: 0 14px !important;
+}
+
+.tfh-admin-decision-btn--move,
+.tfh-admin-decision-btn--accept {
+  border-color: rgba(98, 217, 255, 0.5) !important;
+  background: linear-gradient(120deg, #1458ff, #0ea5e9) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 20px rgba(20, 88, 255, 0.25) !important;
+}
+
+.tfh-admin-decision-btn--retry {
+  border-color: rgba(255, 214, 120, 0.5) !important;
+  background: rgba(255, 183, 67, 0.18) !important;
+  color: #ffe9b6 !important;
+}
+
+.tfh-admin-decision-btn--reject,
+.tfh-admin-decision-btn--delete {
+  border-color: rgba(255, 137, 137, 0.48) !important;
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #ffd3d3 !important;
+}
+
+.tfh-admin-decision-btn--delete {
+  background: rgba(127, 29, 29, 0.34) !important;
+}
+
+.tfh-admin-inline-select--bold {
+  border-color: rgba(122, 189, 255, 0.56) !important;
+  box-shadow: 0 0 0 1px rgba(110, 179, 255, 0.26) inset;
+}
+
+.tfh-bulk-select-line {
+  min-height: 42px;
+  border: 1px solid rgba(122, 189, 255, 0.42);
+  border-radius: 10px;
+  background: rgba(14, 29, 56, 0.66);
+  padding: 8px 10px;
+}
+
+.tfh-bulk-select-line--master {
+  background: rgba(27, 56, 103, 0.5);
+  border-color: rgba(143, 207, 255, 0.6);
+}
+
+.tfh-bulk-select-line span {
+  color: #e6f1ff !important;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tfh-bulk-select-input {
+  width: 18px !important;
+  height: 18px !important;
+  accent-color: #38bdf8;
+}
+
+@media (max-width: 767px) {
+  .tfh-admin-decision-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tfh-admin-bulk-actions .nextui-button,
+  .tfh-admin-bulk-actions .tfh-admin-decision-btn {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
 
 
