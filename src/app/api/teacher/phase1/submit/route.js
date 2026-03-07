@@ -20,7 +20,6 @@ export async function POST(request) {
       phone: payload.phone,
       email: payload.email,
       shortAbout: payload.short_about,
-      scriptText: payload.script_text,
       videoBlobKey: payload.video_blob_key,
       videoBlobUrl: payload.video_blob_url,
       sessionId: payload.session_id || null,

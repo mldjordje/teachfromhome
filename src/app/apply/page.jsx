@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button, Card, CardBody } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
+import { PHASE1_SHARED_SCRIPT_TEXT } from "@config/phaseTexts";
 
 const NEXT_PHASE1 = "/teacher/phase1";
 
@@ -22,26 +23,33 @@ const ApplyPage = () => {
   const signupLink = `/signup?next=${encodeURIComponent(NEXT_PHASE1)}`;
 
   return (
-    <AppShell
-      title="Prijava kandidata"
-      subtitle="Uloguj se ili napravi nalog i kreni odmah sa Fazom 1."
-      publicView
-    >
-      <section className="tfh-minimal-auth tfh-minimal-auth--stacked">
-        <Card className="tfh-minimal-left">
+    <AppShell title="Prijava kandidata" subtitle="Uloguj se ili napravi nalog i kreni sa Fazom 1." publicView>
+      <section className="tfh-minimal-auth tfh-minimal-auth--stacked tfh-apply-grid">
+        <Card className="tfh-minimal-left tfh-apply-overview">
           <CardBody className="gap-4">
             <span className="tfh-minimal-kicker">Onboarding proces</span>
             <h2>2 faze selekcije</h2>
-            <p>
-              Kratko i jasno: šta radiš po fazama i šta treba da pripremiš pre slanja.
-            </p>
-            <ul className="tfh-minimal-list">
-              <li>Faza 1: popuni osnovne podatke i pošalji kratku glasovnu poruku.</li>
-              <li>Za Fazu 1 sam biraš tekst koji izgovaraš i unosiš ga u input polje.</li>
-              <li>Faza 2: detaljniji zadatak i video snimak dobijaš tek nakon prolaska Faze 1.</li>
-              <li>Priprema: stabilan internet, tih prostor i jasno osvetljenje za video u Fazi 2.</li>
-            </ul>
-            <p className="tfh-charset-line">{"\u010D\u0107\u017E\u0161\u0111"}</p>
+            <p>Jasan tok prijave, bez dodatnih koraka van platforme.</p>
+
+            <div className="tfh-apply-step-grid">
+              <article className="tfh-apply-step">
+                <strong>Korak 1</strong>
+                <p>Popunis osnovne podatke i posaljes audio za fazu 1.</p>
+              </article>
+              <article className="tfh-apply-step">
+                <strong>Korak 2</strong>
+                <p>Admin pregledava prijavu i javlja rezultat.</p>
+              </article>
+              <article className="tfh-apply-step">
+                <strong>Korak 3</strong>
+                <p>Nakon prolaza dobijas zadatak za fazu 2.</p>
+              </article>
+            </div>
+
+            <div className="tfh-apply-script-block">
+              <span>Faza 1: tekst koji se cita</span>
+              <p>{PHASE1_SHARED_SCRIPT_TEXT}</p>
+            </div>
           </CardBody>
         </Card>
 
@@ -59,7 +67,7 @@ const ApplyPage = () => {
           <Card className="tfh-minimal-card tfh-auth-choice">
             <CardBody className="gap-4">
               <h3>Novi kandidat</h3>
-              <p>Napravi nalog preko Google-a i odmah započni proces.</p>
+              <p>Napravi nalog preko Google-a i odmah zapocni proces.</p>
               <Button
                 as={Link}
                 href={signupLink}

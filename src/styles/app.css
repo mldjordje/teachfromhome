@@ -2579,5 +2579,129 @@ textarea.tfh-admin-control,
   }
 }
 
+/* 2026-03 apply + admin phase navigation polish */
+.tfh-admin-phase-switch {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.tfh-admin-phase-link {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid var(--tfh-up-line);
+  background: rgba(8, 16, 33, 0.7);
+  color: #dce9ff !important;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  padding: 0 12px;
+  transition: all 0.2s ease;
+}
+
+.tfh-admin-phase-link:hover {
+  border-color: var(--tfh-up-line-strong);
+  background: rgba(17, 33, 65, 0.86);
+  color: #f4f8ff !important;
+}
+
+.tfh-admin-phase-link.is-active {
+  border-color: rgba(110, 179, 255, 0.66);
+  background: linear-gradient(120deg, #2758ff, #20a8ff);
+  box-shadow: 0 10px 22px rgba(26, 106, 235, 0.28);
+  color: #ffffff !important;
+}
+
+.tfh-admin-toolbar-right .nextui-button,
+.tfh-admin-toolbar-right .tfh-action-grid-btn {
+  min-width: 148px;
+}
+
+.tfh-apply-grid {
+  align-items: stretch;
+}
+
+.tfh-apply-overview .nextui-card-body {
+  gap: 14px !important;
+}
+
+.tfh-apply-step-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.tfh-apply-step {
+  border: 1px solid #d7e2ef;
+  border-radius: 12px;
+  background: linear-gradient(140deg, #ffffff, #f8fbff);
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.tfh-apply-step strong {
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.tfh-apply-step p {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.tfh-apply-script-block {
+  border: 1px dashed #bfd3ee;
+  border-radius: 12px;
+  background: #f8fbff;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.tfh-apply-script-block span {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tfh-apply-script-block p {
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1023px) {
+  .tfh-admin-phase-switch {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tfh-apply-step-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .tfh-admin-phase-switch {
+    grid-template-columns: 1fr;
+  }
+
+  .tfh-admin-toolbar-right .nextui-button,
+  .tfh-admin-toolbar-right .tfh-action-grid-btn {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
 
 

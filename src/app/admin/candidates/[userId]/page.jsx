@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner, Textarea } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
+import AdminPhaseSwitch from "@components/app/AdminPhaseSwitch";
 import StatusBadge from "@components/app/StatusBadge";
 import VideoPreviewModal from "@components/app/VideoPreviewModal";
 import { apiDelete, apiGet, apiPost } from "@library/apiClient";
@@ -158,6 +159,8 @@ const AdminCandidateDetailPage = () => {
   return (
     <RequireAuth adminOnly>
       <AppShell title="Detalj kandidata" subtitle="Timeline prikaz kandidata za fazu 1 i fazu 2.">
+        <AdminPhaseSwitch />
+
         <div className="mb-3">
           <Button as={Link} href="/admin/candidates" variant="bordered" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
             Nazad na kandidate

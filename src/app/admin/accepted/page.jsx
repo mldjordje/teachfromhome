@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
+import AdminPhaseSwitch from "@components/app/AdminPhaseSwitch";
 import VideoPreviewModal from "@components/app/VideoPreviewModal";
 import { apiGet } from "@library/apiClient";
 
@@ -70,6 +71,8 @@ const AdminAcceptedCandidatesPage = () => {
         title="Prihvaceni kandidati"
         subtitle="Kandidati koji su prosli Fazu 2. Pregledaj i preuzmi poslednji klip za prosledjivanje HR timu."
       >
+        <AdminPhaseSwitch />
+
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="grid gap-3 md:grid-cols-4">
             <input

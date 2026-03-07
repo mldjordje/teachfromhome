@@ -5,6 +5,7 @@ import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@he
 import Link from "next/link";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
+import AdminPhaseSwitch from "@components/app/AdminPhaseSwitch";
 import StatusBadge from "@components/app/StatusBadge";
 import VideoPreviewModal from "@components/app/VideoPreviewModal";
 import { apiDelete, apiGet, apiPost } from "@library/apiClient";
@@ -210,6 +211,8 @@ const AdminPhase2Page = () => {
   return (
     <RequireAuth adminOnly>
       <AppShell title="Admin faza 2 queue" subtitle="Pregledaj poslednje prijave i odluci: prihvati, retry ili odbij.">
+        <AdminPhaseSwitch />
+
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="tfh-admin-toolbar">
             <div className="tfh-admin-toolbar-left">

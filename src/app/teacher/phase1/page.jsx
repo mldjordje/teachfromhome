@@ -9,6 +9,7 @@ import { useAuth } from "@components/auth/AuthProvider";
 import { getFileExt } from "@library/storage";
 import { trackEvent, getAnalyticsSessionId } from "@library/analytics";
 import { ALLOWED_PHASE1_AUDIO_MIME_TYPES, PHASE1_MAX_AUDIO_MB, bytesFromMb } from "@config/uploadLimits";
+import { PHASE1_SHARED_SCRIPT_TEXT } from "@config/phaseTexts";
 import { apiGet, apiPost } from "@library/apiClient";
 
 const RECORDER_MIME_TYPE_CANDIDATES = ["audio/webm", "audio/ogg", "audio/mp4"];
@@ -55,7 +56,6 @@ const TeacherPhase1Page = () => {
   const [phone, setPhone] = useState(profile?.phone || "");
   const [dateOfBirth, setDateOfBirth] = useState(profile?.date_of_birth || "");
   const [shortAbout, setShortAbout] = useState(profile?.short_about || "");
-  const [scriptText, setScriptText] = useState("Zdravo, moje ime je ...");
   const [audioSource, setAudioSource] = useState("upload");
   const [audioFile, setAudioFile] = useState(null);
   const [recorderSupported, setRecorderSupported] = useState(false);
@@ -306,7 +306,7 @@ const TeacherPhase1Page = () => {
         short_about: shortAbout,
         video_blob_key: blob.pathname,
         video_blob_url: blob.url,
-        script_text: scriptText,
+        script_text: PHASE1_SHARED_SCRIPT_TEXT,
         session_id: getAnalyticsSessionId(),
       });
 
@@ -383,9 +383,9 @@ const TeacherPhase1Page = () => {
                 <input value={shortAbout} maxLength={50} onChange={(e) => setShortAbout(e.target.value)} required />
               </div>
               <div>
-                <label>Tekst za izgovor (4-5 recenica)</label>
-                <textarea value={scriptText} onChange={(e) => setScriptText(e.target.value)} />
-                <small>Za fazu 1 sami birate tekst koji izgovarate i unosite ga ovde.</small>
+                <label>Tekst za izgovor (fiksni tekst za sve kandidate)</label>
+                <textarea value={PHASE1_SHARED_SCRIPT_TEXT} readOnly />
+                <small>U fazi 1 svi kandidati citaju isti tekst.</small>
               </div>
               <div>
                 <label>Glasovna poruka (audio)</label>

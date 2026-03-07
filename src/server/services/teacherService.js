@@ -16,6 +16,7 @@ import { removeBlobSafe } from "@/src/server/services/storageService";
 import { listRewardsForUser } from "@/src/server/services/referralService";
 import { generateUniqueReferralCode, getProfile, listAdminProfiles } from "@/src/server/services/authService";
 import { sendEmail } from "@/src/server/services/emailService";
+import { PHASE1_SHARED_SCRIPT_TEXT } from "@/src/config/phaseTexts";
 
 const MAX_PHASE1_ATTEMPTS = 3;
 
@@ -198,7 +199,6 @@ export const submitTeacherPhase1 = async ({
   phone,
   email,
   shortAbout,
-  scriptText,
   videoBlobKey,
   videoBlobUrl,
   sessionId,
@@ -289,7 +289,7 @@ export const submitTeacherPhase1 = async ({
       attemptNo: nextAttempt,
       videoBlobKey: requireNonEmptyString(videoBlobKey, "video_blob_key"),
       videoBlobUrl: requireNonEmptyString(videoBlobUrl, "video_blob_url"),
-      scriptText: scriptText?.trim() || "Please introduce yourself in 4-5 sentences.",
+      scriptText: PHASE1_SHARED_SCRIPT_TEXT,
       status: "pending",
     })
     .returning();

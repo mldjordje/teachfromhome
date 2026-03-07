@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
+import AdminPhaseSwitch from "@components/app/AdminPhaseSwitch";
 import StatusBadge from "@components/app/StatusBadge";
 import { apiGet } from "@library/apiClient";
 
@@ -69,6 +70,8 @@ const AdminCandidatesPage = () => {
   return (
     <RequireAuth adminOnly>
       <AppShell title="Kandidati" subtitle="Pregled kandidata sa brzim filterima i detaljnim prikazom.">
+        <AdminPhaseSwitch />
+
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="grid gap-3 md:grid-cols-4">
             <select className="tfh-admin-filter-select" value={status} onChange={(e) => onStatusChange(e.target.value)}>
