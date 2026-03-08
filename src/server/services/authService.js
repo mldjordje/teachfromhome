@@ -82,6 +82,24 @@ export const upsertProfileOnLogin = async ({ userId, email, name }) => {
   const current = await db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
 
   if (!current.length) {
+    const byEmail = await db.select().from(profiles).where(eq(profiles.email, normalizedEmail)).limit(1);
+
+    if (byEmail.length) {
+      const existing = byEmail[0];
+      await db
+        .update(profiles)
+        .set({
+          email: normalizedEmail,
+          firstName: existing.firstName || firstName,
+          lastName: existing.lastName || lastName,
+          updatedAt: new Date(),
+        })
+        .where(eq(profiles.userId, existing.userId));
+
+      await ensureAdminRoleForUser({ userId: existing.userId, email: normalizedEmail });
+      return existing.userId;
+    }
+
     const referralCode = await generateUniqueReferralCode();
     await db.insert(profiles).values({
       userId,
@@ -104,6 +122,7 @@ export const upsertProfileOnLogin = async ({ userId, email, name }) => {
   }
 
   await ensureAdminRoleForUser({ userId, email: normalizedEmail });
+  return userId;
 };
 
 export const isAdminUser = async (userId) => {
@@ -185,8 +204,8 @@ export const ensureProfileExists = async ({ userId, email, name = null }) => {
   const current = await getProfile(userId);
   if (current) return current;
 
-  await upsertProfileOnLogin({ userId, email, name });
-  const next = await getProfile(userId);
+  const resolvedUserId = await upsertProfileOnLogin({ userId, email, name });
+  const next = await getProfile(resolvedUserId || userId);
   if (!next) {
     throw new ApiError(500, "Failed to create profile");
   }

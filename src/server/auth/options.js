@@ -22,22 +22,20 @@ export const authOptions = {
         return false;
       }
 
-      const userId = `${account.provider}:${account.providerAccountId}`;
-      await upsertProfileOnLogin({
-        userId,
-        email: user.email,
-        name: user.name || "",
-      });
-
       return true;
     },
     async jwt({ token, account, user }) {
-      if (account?.provider && account?.providerAccountId) {
-        token.userId = `${account.provider}:${account.providerAccountId}`;
-      }
-
       if (user?.email) {
         token.email = user.email;
+      }
+
+      if (account?.provider && account?.providerAccountId && token?.email) {
+        const authProviderUserId = `${account.provider}:${account.providerAccountId}`;
+        token.userId = await upsertProfileOnLogin({
+          userId: authProviderUserId,
+          email: token.email,
+          name: user?.name || "",
+        });
       }
 
       if (token?.userId) {

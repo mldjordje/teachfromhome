@@ -10,7 +10,7 @@ export async function middleware(request) {
     return NextResponse.next();
   }
 
-  const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
+  const token = await getToken({ req: request, secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET });
 
   const isAdminPath = pathname.startsWith("/admin");
   const isTeacherPath = pathname.startsWith("/teacher");
