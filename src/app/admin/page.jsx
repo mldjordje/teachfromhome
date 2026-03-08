@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Alert, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
+import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import { apiGet, apiPost } from "@library/apiClient";
@@ -16,9 +16,12 @@ const AdminDashboardPage = () => {
   const [analyticsSummary, setAnalyticsSummary] = useState({});
   const [funnel, setFunnel] = useState({ stages: [], visit_to_accept_rate: 0, signup_to_accept_rate: 0 });
   const [dailyFunnel, setDailyFunnel] = useState([]);
+  const [stuckCandidates, setStuckCandidates] = useState([]);
+  const [stuckSummary, setStuckSummary] = useState({ total: 0, phase1_pending_review: 0, phase2_waiting_candidate: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [maintenanceBusy, setMaintenanceBusy] = useState(false);
+  const [reminderBusyKey, setReminderBusyKey] = useState("");
   const [maintenanceMessage, setMaintenanceMessage] = useState("");
 
   useEffect(() => {
@@ -32,6 +35,8 @@ const AdminDashboardPage = () => {
         setAnalyticsSummary(payload.analyticsSummary || {});
         setFunnel(payload.funnel || { stages: [] });
         setDailyFunnel(payload.dailyFunnel || []);
+        setStuckCandidates(payload.stuckCandidates || []);
+        setStuckSummary(payload.stuckSummary || { total: 0, phase1_pending_review: 0, phase2_waiting_candidate: 0 });
         setError("");
       } catch (loadError) {
         setError(loadError?.message || "Neuspešno učitavanje admin kontrolne table.");
@@ -56,6 +61,26 @@ const AdminDashboardPage = () => {
       setMaintenanceMessage(cleanupError?.message || "Storage cleanup nije uspeo.");
     } finally {
       setMaintenanceBusy(false);
+    }
+  };
+
+  const sendReminder = async (row) => {
+    if (!row?.reminder_kind) return;
+
+    const busyKey = `${row.user_id}-${row.reminder_kind}`;
+    setReminderBusyKey(busyKey);
+    setMaintenanceMessage("");
+
+    try {
+      await apiPost("/api/admin/candidates/remind", {
+        user_id: row.user_id,
+        kind: row.reminder_kind,
+      });
+      setMaintenanceMessage(`Reminder je poslat kandidatu ${row.email}.`);
+    } catch (reminderError) {
+      setMaintenanceMessage(reminderError?.message || "Slanje remindera nije uspelo.");
+    } finally {
+      setReminderBusyKey("");
     }
   };
 
@@ -154,6 +179,60 @@ const AdminDashboardPage = () => {
                   </div>
                 ) : (
                   <p>Nema dovoljno događaja za dnevni trend.</p>
+                )}
+              </CardBody>
+            </Card>
+
+            <Card className="tfh-admin-panel-card">
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Zaglavljeni kandidati</h3>
+              </CardHeader>
+              <Divider />
+              <CardBody className="tfh-stuck-board">
+                <div className="tfh-funnel-summary">
+                  <span>Ukupno: {stuckSummary.total || 0}</span>
+                  <span>Faza 1 review: {stuckSummary.phase1_pending_review || 0}</span>
+                  <span>Faza 2 ceka kandidata: {stuckSummary.phase2_waiting_candidate || 0}</span>
+                </div>
+                {stuckCandidates.length ? (
+                  <div className="tfh-stuck-list">
+                    {stuckCandidates.map((row) => {
+                      const reminderKey = `${row.user_id}-${row.reminder_kind}`;
+                      const displayName = [row.first_name, row.last_name].filter(Boolean).join(" ").trim() || row.email || row.user_id;
+                      return (
+                        <article key={row.id} className="tfh-stuck-item">
+                          <div className="tfh-stuck-item-copy">
+                            <strong>{displayName}</strong>
+                            <p>{row.email}</p>
+                            <p>
+                              {row.stuck_label} - {row.days_waiting} dan(a)
+                            </p>
+                            {row.attempts_progress && <p>Pokusaji: {row.attempts_progress}</p>}
+                          </div>
+                          <div className="tfh-stuck-item-actions">
+                            <Link href={row.queue_link} className="tfh-admin-quick-link tfh-admin-quick-link--ghost">
+                              Otvori queue
+                            </Link>
+                            <Link href={row.candidate_link} className="tfh-admin-quick-link tfh-admin-quick-link--ghost">
+                              Kandidat
+                            </Link>
+                            {row.reminder_kind && (
+                              <Button
+                                size="sm"
+                                className="tfh-admin-quick-link"
+                                isLoading={reminderBusyKey === reminderKey}
+                                onPress={() => sendReminder(row)}
+                              >
+                                Posalji reminder
+                              </Button>
+                            )}
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p>Nema kandidata koji su trenutno zaglavljeni po pravilima.</p>
                 )}
               </CardBody>
             </Card>

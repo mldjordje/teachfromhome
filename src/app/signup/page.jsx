@@ -9,6 +9,7 @@ import { useAuth } from "@components/auth/AuthProvider";
 import { trackEvent } from "@library/analytics";
 import { sanitizeNextPath, signInWithGoogle } from "@library/auth";
 import { apiPost } from "@library/apiClient";
+import { buildTeacherApplicationFlow, resolveTeacherPostLoginPath } from "@config/teacherFlow";
 
 const REFERRAL_STORAGE_KEY = "tfh_pending_referral_code";
 
@@ -29,10 +30,36 @@ const SignupPage = () => {
   useEffect(() => {
     if (loading || !user || typeof window === "undefined") return;
 
+    const resolveTeacherTarget = async () => {
+      try {
+        const response = await fetch("/api/teacher/dashboard", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store",
+        });
+
+        if (!response.ok) return nextTarget;
+
+        const payload = await response.json();
+        const flow = buildTeacherApplicationFlow({
+          phase1Attempts: payload?.phase1Attempts || [],
+          phase2Task: payload?.phase2Task || null,
+        });
+
+        return resolveTeacherPostLoginPath({
+          requestedPath: nextTarget,
+          flow,
+        });
+      } catch (_error) {
+        return nextTarget;
+      }
+    };
+
     const finalizeSignup = async () => {
       const pendingCode = window.localStorage.getItem(REFERRAL_STORAGE_KEY)?.trim();
       if (!pendingCode) {
-        router.replace(isAdmin ? "/admin" : nextTarget);
+        const teacherTarget = await resolveTeacherTarget();
+        router.replace(isAdmin ? "/admin" : teacherTarget);
         return;
       }
 
@@ -46,7 +73,8 @@ const SignupPage = () => {
       } catch (refError) {
         setError(refError?.message || "Referral kod nije moguce primeniti.");
       } finally {
-        router.replace(isAdmin ? "/admin" : nextTarget);
+        const teacherTarget = await resolveTeacherTarget();
+        router.replace(isAdmin ? "/admin" : teacherTarget);
       }
     };
 

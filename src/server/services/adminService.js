@@ -17,6 +17,7 @@ import { sendEmail } from "@/src/server/services/emailService";
 import { createNotification } from "@/src/server/services/notificationService";
 import { getBlobPreviewUrl, parseBlobUrl, removeBlobSafe } from "@/src/server/services/storageService";
 import { setProfilePhase } from "@/src/server/services/authService";
+import { MAX_PHASE1_ATTEMPTS } from "@/src/config/teacherFlow";
 
 const trackedEvents = ["visits", "started_signup", "phase1_submitted", "phase1_passed", "phase2_submitted", "accepted"];
 
@@ -113,8 +114,71 @@ const buildAcceptedClipFileName = ({ firstName, lastName, email, attemptNo, blob
   return `accepted-${candidateSegment}-phase2-attempt-${safeAttempt}.${ext}`;
 };
 
+const daysSince = (value) => {
+  const time = new Date(value).getTime();
+  if (!Number.isFinite(time)) return 1;
+  const diffMs = Date.now() - time;
+  if (diffMs <= 0) return 1;
+  return Math.max(1, Math.floor(diffMs / (24 * 60 * 60 * 1000)));
+};
+
+const buildStuckCandidates = ({ phase1Rows = [], phase2Rows = [] }) => {
+  const phase1Items = (phase1Rows || []).map((row) => ({
+    id: `phase1-${row.submission_id}`,
+    user_id: row.user_id,
+    first_name: row.first_name,
+    last_name: row.last_name,
+    email: row.email,
+    status: "pending",
+    stuck_kind: "phase1_pending_review",
+    stuck_label: "Faza 1 ceka admin review",
+    days_waiting: daysSince(row.created_at),
+    waiting_since: row.created_at,
+    queue_link: "/admin/phase1",
+    candidate_link: `/admin/candidates/${encodeURIComponent(row.user_id)}`,
+    reminder_kind: null,
+  }));
+
+  const phase2Items = (phase2Rows || []).map((row) => {
+    const taskStatus = String(row.status || "");
+    return {
+      id: `phase2-${row.task_id}`,
+      user_id: row.user_id,
+      first_name: row.first_name,
+      last_name: row.last_name,
+      email: row.email,
+      status: taskStatus,
+      stuck_kind: taskStatus === "retry" ? "phase2_retry_waiting_candidate" : "phase2_assigned_waiting_candidate",
+      stuck_label: taskStatus === "retry" ? "Faza 2 retry ceka kandidata" : "Faza 2 dodeljena, bez predaje",
+      days_waiting: daysSince(row.updated_at),
+      waiting_since: row.updated_at,
+      queue_link: "/admin/phase2",
+      candidate_link: `/admin/candidates/${encodeURIComponent(row.user_id)}`,
+      reminder_kind: "phase2_submit",
+      attempts_progress: `${Number(row.current_attempts || 0)} / ${Number(row.attempts_allowed || 3)}`,
+    };
+  });
+
+  const items = [...phase1Items, ...phase2Items]
+    .sort((a, b) => {
+      const dayDiff = Number(b.days_waiting || 0) - Number(a.days_waiting || 0);
+      if (dayDiff !== 0) return dayDiff;
+      return new Date(a.waiting_since).getTime() - new Date(b.waiting_since).getTime();
+    })
+    .slice(0, 12);
+
+  return {
+    rows: items,
+    summary: {
+      total: items.length,
+      phase1_pending_review: phase1Items.length,
+      phase2_waiting_candidate: phase2Items.length,
+    },
+  };
+};
+
 export const getAdminDashboardData = async () => {
-  const [phase1Pending, phase2Pending, acceptedCount, dailyRows] = await Promise.all([
+  const [phase1Pending, phase2Pending, acceptedCount, dailyRows, stuckPhase1, stuckPhase2] = await Promise.all([
     db.execute(sql`select count(*)::int as count from teacher_phase1_submissions where status = 'pending' and is_deleted = false`),
     db.execute(sql`select count(*)::int as count from teacher_phase2_tasks where status in ('submitted','retry','assigned')`),
     db.execute(sql`select count(*)::int as count from profiles where current_phase = 'accepted'`),
@@ -128,6 +192,40 @@ export const getAdminDashboardData = async () => {
         and event_name in ('visits', 'started_signup', 'phase1_submitted', 'phase1_passed', 'phase2_submitted', 'accepted')
       group by 1, 2
       order by 1 asc
+    `),
+    db.execute(sql`
+      select
+        p.user_id,
+        p.first_name,
+        p.last_name,
+        p.email,
+        s.id as submission_id,
+        s.created_at
+      from teacher_phase1_submissions s
+      inner join profiles p on p.user_id = s.user_id
+      where s.status = 'pending'
+        and s.is_deleted = false
+        and s.created_at < now() - interval '48 hours'
+      order by s.created_at asc
+      limit 24
+    `),
+    db.execute(sql`
+      select
+        p.user_id,
+        p.first_name,
+        p.last_name,
+        p.email,
+        t.id as task_id,
+        t.status,
+        t.current_attempts,
+        t.attempts_allowed,
+        t.updated_at
+      from teacher_phase2_tasks t
+      inner join profiles p on p.user_id = t.user_id
+      where t.status in ('assigned', 'retry')
+        and t.updated_at < now() - interval '48 hours'
+      order by t.updated_at asc
+      limit 24
     `),
   ]);
 
@@ -181,6 +279,11 @@ export const getAdminDashboardData = async () => {
     phase1_rate_from_visits: toPercent(item.phase1_submitted, item.visits),
   }));
 
+  const stuck = buildStuckCandidates({
+    phase1Rows: stuckPhase1.rows || [],
+    phase2Rows: stuckPhase2.rows || [],
+  });
+
   return {
     phase1Pending: Number(phase1Pending.rows?.[0]?.count || 0),
     phase2Pending: Number(phase2Pending.rows?.[0]?.count || 0),
@@ -192,6 +295,8 @@ export const getAdminDashboardData = async () => {
       signup_to_accept_rate: toPercent(analyticsSummary.accepted || 0, analyticsSummary.started_signup || 0),
     },
     dailyFunnel,
+    stuckCandidates: stuck.rows,
+    stuckSummary: stuck.summary,
   };
 };
 
@@ -1054,6 +1159,91 @@ export const listCandidates = async ({ status = "all", phase = "all", q = "", pa
     pageSize,
     total: Number(totalRows[0]?.count || 0),
   };
+};
+
+export const sendCandidateReminder = async ({ adminUserId, userId, kind }) => {
+  const parsedUserId = requireNonEmptyString(userId, "user_id");
+  const parsedKind = requireAllowed(kind, ["phase1_retry", "phase2_submit"], "kind");
+
+  const [profile] = await db.select().from(profiles).where(eq(profiles.userId, parsedUserId)).limit(1);
+  if (!profile) {
+    throw new ApiError(404, "Candidate not found");
+  }
+
+  const firstName = profile.firstName || "Kandidat";
+
+  if (parsedKind === "phase2_submit") {
+    const [task] = await db.select().from(teacherPhase2Tasks).where(eq(teacherPhase2Tasks.userId, parsedUserId)).limit(1);
+
+    if (!task || !["assigned", "retry"].includes(task.status)) {
+      throw new ApiError(409, "Reminder moze da se posalje samo kada kandidat treba da posalje Fazu 2.");
+    }
+
+    const body =
+      task.status === "retry"
+        ? "Podsetnik: u aplikaciji te ceka retry za Fazu 2. Posalji novi pokusaj kada zavrsis dorade."
+        : "Podsetnik: dodeljen ti je zadatak za Fazu 2. Posalji video da bi prijava isla dalje.";
+
+    await createNotification({
+      userId: parsedUserId,
+      type: "phase2",
+      title: "Podsetnik za Fazu 2",
+      body,
+      payload: {
+        reminder_kind: parsedKind,
+        admin_user_id: adminUserId,
+        task_status: task.status,
+      },
+    });
+
+    if (profile.email) {
+      await sendEmail({
+        to: profile.email,
+        subject: "TeachFromHome podsetnik - Faza 2",
+        text:
+          task.status === "retry"
+            ? `Zdravo ${firstName},\n\nPodsetnik: tvoj poslednji Phase 2 video je vracen na doradu (retry). Prijavi se i posalji novi pokusaj.\n\nTeachFromHome tim`
+            : `Zdravo ${firstName},\n\nPodsetnik: dodeljen ti je zadatak za Phase 2. Prijavi se i posalji video kako bi prijava nastavila dalje.\n\nTeachFromHome tim`,
+      });
+    }
+
+    return { ok: true, kind: parsedKind };
+  }
+
+  const attempts = await db
+    .select()
+    .from(teacherPhase1Submissions)
+    .where(and(eq(teacherPhase1Submissions.userId, parsedUserId), eq(teacherPhase1Submissions.isDeleted, false)))
+    .orderBy(desc(teacherPhase1Submissions.attemptNo));
+
+  const latestAttempt = attempts[0] || null;
+  const attemptsLeft = Math.max(0, MAX_PHASE1_ATTEMPTS - attempts.length);
+
+  if (!latestAttempt || latestAttempt.status !== "rejected" || attemptsLeft <= 0) {
+    throw new ApiError(409, "Reminder za Fazu 1 moze da se posalje samo kandidatu koji ima pravo na novi pokusaj.");
+  }
+
+  await createNotification({
+    userId: parsedUserId,
+    type: "phase1",
+    title: "Podsetnik za Fazu 1",
+    body: `Podsetnik: mozes da posaljes novi pokusaj za Fazu 1. Preostalo pokusaja: ${attemptsLeft}.`,
+    payload: {
+      reminder_kind: parsedKind,
+      admin_user_id: adminUserId,
+      attempts_left: attemptsLeft,
+    },
+  });
+
+  if (profile.email) {
+    await sendEmail({
+      to: profile.email,
+      subject: "TeachFromHome podsetnik - Faza 1",
+      text: `Zdravo ${firstName},\n\nPodsetnik: mozes da posaljes novi pokusaj za Phase 1. Preostalo pokusaja: ${attemptsLeft}.\n\nTeachFromHome tim`,
+    });
+  }
+
+  return { ok: true, kind: parsedKind };
 };
 
 export const getCandidateDetail = async (userId) => {

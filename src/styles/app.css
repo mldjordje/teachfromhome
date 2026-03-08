@@ -218,23 +218,6 @@
   background: rgba(255, 255, 255, 0.18);
 }
 
-.tfh-page {
-  width: 100%;
-  max-width: 1220px;
-  margin: 0 auto;
-  padding: 30px 20px 56px;
-}
-
-.tfh-page--public {
-  max-width: 1120px;
-  padding-top: 32px;
-}
-
-.tfh-page--portal {
-  max-width: 1220px;
-  padding-top: 24px;
-}
-
 .tfh-page-head {
   position: relative;
   margin-bottom: 18px;
@@ -1550,35 +1533,6 @@
   .tfh-topbar-btn:hover,
   .tfh-portal-nav-link:hover {
     transform: translateY(-1px);
-  }
-}
-
-@media (max-width: 767px) {
-  .tfh-page {
-    padding-top: 14px;
-    padding-bottom: 28px;
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  .tfh-topbar-inner {
-    gap: 10px;
-  }
-
-  .tfh-topbar-btn,
-  .tfh-btn,
-  .tfh-action-btn,
-  .tfh-action-grid-btn {
-    min-height: 44px !important;
-  }
-
-  .tfh-admin-toolbar-left,
-  .tfh-admin-toolbar-right {
-    gap: 8px;
-  }
-
-  .tfh-admin-filter-select {
-    min-width: 100%;
   }
 }
 
@@ -2984,6 +2938,33 @@ textarea.tfh-admin-control,
 }
 
 @media (max-width: 767px) {
+  .tfh-page {
+    padding-top: 14px;
+    padding-bottom: 26px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .tfh-topbar-inner {
+    gap: 10px;
+  }
+
+  .tfh-topbar-btn,
+  .tfh-btn,
+  .tfh-action-btn,
+  .tfh-action-grid-btn {
+    min-height: 44px !important;
+  }
+
+  .tfh-admin-toolbar-left,
+  .tfh-admin-toolbar-right {
+    gap: 8px;
+  }
+
+  .tfh-admin-filter-select {
+    min-width: 100%;
+  }
+
   .tfh-page--auth .tfh-minimal-auth {
     gap: 16px;
   }
@@ -3018,5 +2999,63 @@ textarea.tfh-admin-control,
     transform: none !important;
     filter: none !important;
     transition: none !important;
+  }
+}
+
+/* 2026-03 admin stuck candidates */
+.tfh-stuck-board {
+  display: grid;
+  gap: 12px;
+}
+
+.tfh-stuck-list {
+  display: grid;
+  gap: 10px;
+}
+
+.tfh-stuck-item {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  border: 1px solid rgba(122, 189, 255, 0.34);
+  border-radius: 12px;
+  background: rgba(9, 19, 37, 0.6);
+  padding: 12px;
+}
+
+.tfh-stuck-item-copy strong {
+  color: #f4f8ff;
+  font-size: 15px;
+}
+
+.tfh-stuck-item-copy p {
+  margin: 2px 0 0;
+  color: #b9c8e9;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.tfh-stuck-item-actions {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  justify-items: stretch;
+  min-width: 156px;
+}
+
+.tfh-stuck-item-actions .tfh-admin-quick-link,
+.tfh-stuck-item-actions .nextui-button {
+  min-height: 38px;
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .tfh-stuck-item {
+    grid-template-columns: 1fr;
+  }
+
+  .tfh-stuck-item-actions {
+    min-width: 0;
   }
 }

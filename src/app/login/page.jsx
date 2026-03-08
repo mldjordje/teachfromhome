@@ -7,6 +7,7 @@ import { Alert, Button, Card, CardBody } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { sanitizeNextPath, signInWithGoogle } from "@library/auth";
+import { buildTeacherApplicationFlow, resolveTeacherPostLoginPath } from "@config/teacherFlow";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -24,13 +25,51 @@ const LoginPage = () => {
   useEffect(() => {
     if (loading || !user) return;
 
-    if (isAdmin) {
-      const adminTarget = nextFromQuery.startsWith("/admin") ? nextFromQuery : "/admin";
-      router.replace(adminTarget);
-      return;
-    }
+    let active = true;
 
-    router.replace(nextFromQuery);
+    const routeUser = async () => {
+      if (isAdmin) {
+        const adminTarget = nextFromQuery.startsWith("/admin") ? nextFromQuery : "/admin";
+        router.replace(adminTarget);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/teacher/dashboard", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          router.replace(nextFromQuery);
+          return;
+        }
+
+        const payload = await response.json();
+        if (!active) return;
+
+        const flow = buildTeacherApplicationFlow({
+          phase1Attempts: payload?.phase1Attempts || [],
+          phase2Task: payload?.phase2Task || null,
+        });
+        const nextPath = resolveTeacherPostLoginPath({
+          requestedPath: nextFromQuery,
+          flow,
+        });
+
+        router.replace(nextPath);
+      } catch (_error) {
+        if (!active) return;
+        router.replace(nextFromQuery);
+      }
+    };
+
+    routeUser();
+
+    return () => {
+      active = false;
+    };
   }, [isAdmin, loading, nextFromQuery, router, user]);
 
   const onGoogleLogin = useCallback(async () => {

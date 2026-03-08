@@ -8,110 +8,7 @@ import StatusBadge from "@components/app/StatusBadge";
 import { useAuth } from "@components/auth/AuthProvider";
 import { trackEvent } from "@library/analytics";
 import { apiGet } from "@library/apiClient";
-
-const getApplicationState = ({ latestPhase1, phase1Attempts, phase2Task }) => {
-  if (!latestPhase1) {
-    return {
-      title: "Prijava nije zapoceta",
-      description: "Posalji Fazu 1 da bi usao u proces selekcije.",
-      ctaHref: "/teacher/phase1",
-      ctaLabel: "Zapocni Fazu 1",
-      tone: "info",
-    };
-  }
-
-  if (latestPhase1.status === "pending") {
-    return {
-      title: "Faza 1 je poslata",
-      description: "Tvoja prijava je na proveri. Nema dodatnih koraka dok review ne bude zavrsen.",
-      ctaHref: "/teacher/phase1",
-      ctaLabel: "Pogledaj prijavu",
-      tone: "info",
-    };
-  }
-
-  if (latestPhase1.status === "rejected") {
-    const hasAttemptsLeft = phase1Attempts.length < 3;
-    return {
-      title: hasAttemptsLeft ? "Potrebna je nova Faza 1 prijava" : "Maksimalan broj pokusaja je iskoriscen",
-      description: hasAttemptsLeft
-        ? `Imas jos ${3 - phase1Attempts.length} pokusaj(a). Pregledaj feedback i posalji novi audio.`
-        : "Kontaktiraj podrsku ako mislis da je doslo do greske.",
-      ctaHref: hasAttemptsLeft ? "/teacher/phase1" : "/teacher/notifications",
-      ctaLabel: hasAttemptsLeft ? "Posalji novi pokusaj" : "Otvori obavestenja",
-      tone: hasAttemptsLeft ? "warning" : "danger",
-    };
-  }
-
-  if (!phase2Task && latestPhase1.status === "moved_to_phase2") {
-    return {
-      title: "Prosao/la si Fazu 1",
-      description: "Cekas dodelu konkretnog zadatka za Fazu 2.",
-      ctaHref: "/teacher/phase2",
-      ctaLabel: "Otvori Fazu 2",
-      tone: "success",
-    };
-  }
-
-  if (!phase2Task) {
-    return {
-      title: "Profil je aktivan",
-      description: "Nastavi sa sledecim korakom iz svog dashboarda.",
-      ctaHref: "/teacher/profile",
-      ctaLabel: "Otvori profil",
-      tone: "info",
-    };
-  }
-
-  if (phase2Task.status === "assigned") {
-    return {
-      title: "Dodeljen ti je zadatak za Fazu 2",
-      description: "Pogledaj recenicu i posalji video.",
-      ctaHref: "/teacher/phase2",
-      ctaLabel: "Posalji Fazu 2",
-      tone: "success",
-    };
-  }
-
-  if (phase2Task.status === "submitted") {
-    return {
-      title: "Faza 2 je poslata",
-      description: "Prijava je na admin proveri. Sacekaj povratnu informaciju.",
-      ctaHref: "/teacher/phase2",
-      ctaLabel: "Pogledaj status",
-      tone: "info",
-    };
-  }
-
-  if (phase2Task.status === "retry") {
-    return {
-      title: "Potreban je retry za Fazu 2",
-      description: "Procitaj feedback i posalji novi pokusaj.",
-      ctaHref: "/teacher/phase2",
-      ctaLabel: "Posalji novi pokusaj",
-      tone: "warning",
-      feedback: phase2Task.last_feedback || "",
-    };
-  }
-
-  if (phase2Task.status === "accepted") {
-    return {
-      title: "Cestitamo, prijava je prihvacena",
-      description: "Tim ce te uskoro kontaktirati sa sledecim informacijama.",
-      ctaHref: "/teacher/notifications",
-      ctaLabel: "Otvori obavestenja",
-      tone: "success",
-    };
-  }
-
-  return {
-    title: "Faza 2 nije prihvacena",
-    description: phase2Task.last_feedback || "Prijava je zatvorena. Za dodatna pitanja pogledaj obavestenja.",
-    ctaHref: "/teacher/notifications",
-    ctaLabel: "Otvori obavestenja",
-    tone: "danger",
-  };
-};
+import { buildTeacherApplicationFlow } from "@config/teacherFlow";
 
 const TeacherDashboard = () => {
   const { profile: authProfile, session } = useAuth();
@@ -156,8 +53,8 @@ const TeacherDashboard = () => {
   }, [phase1Attempts]);
 
   const application = useMemo(
-    () => getApplicationState({ latestPhase1, phase1Attempts, phase2Task }),
-    [latestPhase1, phase1Attempts, phase2Task],
+    () => buildTeacherApplicationFlow({ phase1Attempts, phase2Task }),
+    [phase1Attempts, phase2Task],
   );
 
   const flowSteps = useMemo(() => {
@@ -195,7 +92,7 @@ const TeacherDashboard = () => {
               </div>
 
               <div className="tfh-actions">
-                <Link href={application.ctaHref} className="tfh-btn">
+                <Link href={application.nextPath} className="tfh-btn">
                   {application.ctaLabel}
                 </Link>
                 <Link href="/teacher/notifications" className="tfh-btn tfh-btn-outline">
