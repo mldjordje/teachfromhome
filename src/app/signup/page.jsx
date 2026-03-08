@@ -42,7 +42,7 @@ const SignupPage = () => {
         });
 
         window.localStorage.removeItem(REFERRAL_STORAGE_KEY);
-        setSuccess("Referral kod je povezan sa nalogom.");
+        setSuccess("Referral kod je uspesno povezan.");
       } catch (refError) {
         setError(refError?.message || "Referral kod nije moguce primeniti.");
       } finally {
@@ -70,7 +70,6 @@ const SignupPage = () => {
         }
       }
 
-      // Route back through /signup so role-based redirect runs after session hydration.
       await signInWithGoogle({ nextPath: `/signup?next=${encodeURIComponent(nextTarget)}` });
     } catch (err) {
       setError(err?.message || "Registracija nije uspela. Pokusajte ponovo.");
@@ -79,25 +78,24 @@ const SignupPage = () => {
   };
 
   return (
-    <AppShell title="Registracija" subtitle="Otvorite kandidatski nalog u jednom koraku." publicView>
+    <AppShell title="Registracija" subtitle="Kreiraj kandidatski nalog za manje od jednog minuta." publicView>
       <section className="tfh-minimal-auth">
         <Card className="tfh-minimal-left">
           <CardBody className="gap-4">
             <span className="tfh-minimal-kicker">Novi kandidat</span>
             <h2>Brza registracija</h2>
-            <p>Registracija preko Google-a odmah kreira nalog i vodi te direktno na Fazu 1.</p>
+            <p>Unesi referral kod ako ga imas i nastavi preko Google naloga.</p>
             <ul className="tfh-minimal-list">
-              <li>Brzo kreiranje naloga</li>
+              <li>Google registracija</li>
               <li>Opcioni referral kod</li>
-              <li>Direktan pristup dashboard-u</li>
+              <li>Direktan ulazak na sledeci korak</li>
             </ul>
           </CardBody>
         </Card>
 
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
-            <h3>Registracija preko Google-a</h3>
-            <p>Unesi referral kod ako ga imaš, zatim nastavi.</p>
+            <h3>Napravi nalog</h3>
 
             <Input
               label="Referral kod (opciono)"
@@ -108,7 +106,7 @@ const SignupPage = () => {
             />
 
             <Button size="lg" onPress={onGoogleSignup} isLoading={busy} className="tfh-action-btn" fullWidth>
-              {busy ? "Preusmeravanje..." : "Nastavi preko Google-a"}
+              {busy ? "Preusmeravanje..." : "Nastavi sa Google"}
             </Button>
 
             {error && <Alert color="danger" title={error} />}
@@ -121,7 +119,7 @@ const SignupPage = () => {
               className="tfh-action-btn tfh-action-btn--ghost"
               fullWidth
             >
-              Već imam nalog
+              Vec imam nalog
             </Button>
           </CardBody>
         </Card>

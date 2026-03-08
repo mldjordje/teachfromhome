@@ -61,7 +61,7 @@ const TeacherPhase2Page = () => {
       return;
     }
     if (!videoFile) {
-      setError("Postavite video za fazu 2 pre slanja.");
+      setError("Postavi video pre slanja.");
       return;
     }
     if (videoFile.size > bytesFromMb(PHASE2_MAX_VIDEO_MB)) {
@@ -69,7 +69,7 @@ const TeacherPhase2Page = () => {
       return;
     }
     if (videoFile.type && !ALLOWED_VIDEO_MIME_TYPES.includes(videoFile.type)) {
-      setError("Nepodrzan format videa. Koristite MP4, WEBM ili MOV.");
+      setError("Nepodrzan format videa. Koristi MP4, WEBM ili MOV.");
       return;
     }
 
@@ -97,7 +97,7 @@ const TeacherPhase2Page = () => {
         metadata: { attempt_no: nextAttempt },
       });
 
-      setSuccess("Prijava za fazu 2 je uspesno poslata.");
+      setSuccess("Faza 2 je uspesno poslata.");
       setVideoFile(null);
       await loadData();
     } catch (submitError) {
@@ -120,16 +120,16 @@ const TeacherPhase2Page = () => {
 
   return (
     <RequireAuth>
-      <AppShell title="Faza 2" subtitle="Pogledaj trening klipove i pošalji snimak dodeljene rečenice.">
+      <AppShell title="Faza 2" subtitle="Dodeljena recenica, snimak i status na jednom mestu.">
         {loading ? (
           <div className="tfh-alert">Ucitavanje faze 2...</div>
         ) : !task ? (
-          <div className="tfh-alert">Zadatak za fazu 2 jos nije dodeljen. Zavrsite fazu 1 i sacekajte admin odluku.</div>
+          <div className="tfh-alert">Zadatak za fazu 2 jos nije dodeljen. Zavrsi fazu 1 i sacekaj admin odluku.</div>
         ) : (
           <div className="tfh-grid">
             <div className="tfh-grid tfh-grid-3">
               <div className="tfh-card">
-                <h3>Status zadatka</h3>
+                <h3>Status</h3>
                 <p>
                   <StatusBadge status={task.status} />
                 </p>
@@ -141,12 +141,51 @@ const TeacherPhase2Page = () => {
                 </p>
               </div>
               <div className="tfh-card">
-                <h3>Dodeljena recenica</h3>
+                <h3>Recenica</h3>
                 <p>{task.phase2_sentence}</p>
               </div>
             </div>
 
-            {task.last_feedback && <div className="tfh-alert">Admin feedback: {task.last_feedback}</div>}
+            {task.last_feedback && <div className="tfh-alert">Feedback: {task.last_feedback}</div>}
+
+            <div className="tfh-card">
+              <h3>Posalji Fazu 2</h3>
+              <form className="tfh-form" onSubmit={onSubmit}>
+                <div>
+                  <label>Postavi video</label>
+                  <input type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
+                  <small>Max {PHASE2_MAX_VIDEO_MB}MB (MP4/WEBM/MOV)</small>
+                </div>
+                {error && <div className="tfh-alert tfh-error">{error}</div>}
+                {success && <div className="tfh-alert tfh-success">{success}</div>}
+                <div className="tfh-actions">
+                  <button type="submit" className="tfh-btn" disabled={!canSubmit}>
+                    {busy ? "Slanje..." : "Posalji"}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div className="tfh-card">
+              <h3>Istorija slanja</h3>
+              {submissions.length ? (
+                <div className="tfh-mobile-list">
+                  {submissions.map((row) => (
+                    <article key={row.id} className="tfh-mobile-item">
+                      <div className="tfh-mobile-item-top">
+                        <strong>Pokusaj {row.attempt_no}</strong>
+                        <StatusBadge status={row.status} />
+                      </div>
+                      <p>Feedback: {row.feedback || "-"}</p>
+                      <p>{new Date(row.created_at).toLocaleString()}</p>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <p>Jos nema slanja za fazu 2.</p>
+              )}
+              {latestSubmission?.status === "accepted" && <div className="tfh-alert tfh-success">Prijava je odobrena. Tim ce te uskoro kontaktirati.</div>}
+            </div>
 
             <div className="tfh-card">
               <h3>Trening klipovi</h3>
@@ -166,7 +205,7 @@ const TeacherPhase2Page = () => {
             </div>
 
             <div className="tfh-card">
-              <h3>Showcase klipovi (YouTube)</h3>
+              <h3>Showcase klipovi</h3>
               {showcaseVideos.length ? (
                 <div className="tfh-showcase-grid tfh-showcase-grid--compact">
                   {showcaseVideos.map((video) => {
@@ -207,45 +246,6 @@ const TeacherPhase2Page = () => {
               ) : (
                 <p>Trenutno nema aktivnih showcase klipova.</p>
               )}
-            </div>
-
-            <div className="tfh-card">
-              <h3>Posalji video za fazu 2</h3>
-              <form className="tfh-form" onSubmit={onSubmit}>
-                <div>
-                  <label>Postavi snimak</label>
-                  <input type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
-                  <small>Max {PHASE2_MAX_VIDEO_MB}MB (MP4/WEBM/MOV)</small>
-                </div>
-                {error && <div className="tfh-alert tfh-error">{error}</div>}
-                {success && <div className="tfh-alert tfh-success">{success}</div>}
-                <div className="tfh-actions">
-                  <button type="submit" className="tfh-btn" disabled={!canSubmit}>
-                    {busy ? "Slanje..." : "Posalji fazu 2"}
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <div className="tfh-card">
-              <h3>Istorija slanja</h3>
-              {submissions.length ? (
-                <div className="tfh-mobile-list">
-                  {submissions.map((row) => (
-                    <article key={row.id} className="tfh-mobile-item">
-                      <div className="tfh-mobile-item-top">
-                        <strong>Pokusaj {row.attempt_no}</strong>
-                        <StatusBadge status={row.status} />
-                      </div>
-                      <p>Feedback: {row.feedback || "-"}</p>
-                      <p>{new Date(row.created_at).toLocaleString()}</p>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <p>Jos nema slanja za fazu 2.</p>
-              )}
-              {latestSubmission?.status === "accepted" && <div className="tfh-alert tfh-success">Prijava je odobrena. Tim ce vas uskoro kontaktirati.</div>}
             </div>
           </div>
         )}

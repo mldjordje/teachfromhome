@@ -2822,3 +2822,75 @@ textarea.tfh-admin-control,
 
 
 
+
+/* 2026-03 teacher clean flow */
+.tfh-application-status {
+  display: grid;
+  gap: 12px;
+}
+
+.tfh-application-status p {
+  margin: 0;
+}
+
+.tfh-application-status--info {
+  border-color: #bfdbfe;
+  background: linear-gradient(145deg, #eff6ff, #f8fbff);
+}
+
+.tfh-application-status--warning {
+  border-color: #fed7aa;
+  background: linear-gradient(145deg, #fff7ed, #fffbf5);
+}
+
+.tfh-application-status--success {
+  border-color: #bbf7d0;
+  background: linear-gradient(145deg, #ecfdf5, #f3fff8);
+}
+
+.tfh-application-status--danger {
+  border-color: #fecaca;
+  background: linear-gradient(145deg, #fef2f2, #fff8f8);
+}
+
+.tfh-flow-steps {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.tfh-flow-step {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid #d7e2ef;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  padding: 0 10px;
+}
+
+.tfh-flow-step.is-done {
+  border-color: #93c5fd;
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.tfh-badge.phase1,
+.tfh-badge.phase2,
+.tfh-badge.info,
+.tfh-badge.system,
+.tfh-badge.referral {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+@media (max-width: 767px) {
+  .tfh-flow-steps {
+    grid-template-columns: 1fr 1fr;
+  }
+}

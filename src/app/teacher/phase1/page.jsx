@@ -329,7 +329,7 @@ const TeacherPhase1Page = () => {
 
   return (
     <RequireAuth>
-      <AppShell title="Faza 1 prijava" subtitle="Unesi podatke i posalji glasovnu poruku (najvise 3 pokusaja).">
+      <AppShell title="Faza 1" subtitle="Posalji audio prijavu. Maksimalno 3 pokusaja.">
         <div className="tfh-grid">
           <div className="tfh-grid tfh-grid-3">
             <div className="tfh-card">
@@ -353,7 +353,7 @@ const TeacherPhase1Page = () => {
           {latest?.status === "pending" && <div className="tfh-alert">Poslednji pokusaj je na proveri. Sacekajte admin odluku.</div>}
 
           <div className="tfh-card">
-            <h3>Posalji fazu 1</h3>
+            <h3>Posalji prijavu</h3>
             <form className="tfh-form" onSubmit={onSubmit}>
               <div className="tfh-grid tfh-grid-2">
                 <div>
@@ -375,20 +375,20 @@ const TeacherPhase1Page = () => {
               </div>
 
               <div>
-                <label>Email (mora biti isti kao Google nalog)</label>
+                <label>Email</label>
                 <input value={user?.email || ""} readOnly />
               </div>
               <div>
-                <label>Kratko o meni (max 50)</label>
+                <label>Kratko o meni</label>
                 <input value={shortAbout} maxLength={50} onChange={(e) => setShortAbout(e.target.value)} required />
               </div>
               <div>
-                <label>Tekst za izgovor (fiksni tekst za sve kandidate)</label>
+                <label>Tekst za izgovor</label>
                 <textarea value={PHASE1_SHARED_SCRIPT_TEXT} readOnly />
-                <small>U fazi 1 svi kandidati citaju isti tekst.</small>
+                <small>Ovaj tekst je isti za sve kandidate.</small>
               </div>
               <div>
-                <label>Glasovna poruka (audio)</label>
+                <label>Audio snimak</label>
                 <div className="tfh-audio-source-toggle">
                   <button
                     type="button"
@@ -455,7 +455,7 @@ const TeacherPhase1Page = () => {
 
               <div className="tfh-actions">
                 <button type="submit" className="tfh-btn" disabled={!canSubmit}>
-                  {busy ? "Slanje..." : "Posalji fazu 1"}
+                  {busy ? "Slanje..." : "Posalji prijavu"}
                 </button>
               </div>
             </form>

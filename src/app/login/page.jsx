@@ -51,28 +51,28 @@ const LoginPage = () => {
   }, [autoStart, busy, loading, onGoogleLogin, user]);
 
   return (
-    <AppShell title="Prijava" subtitle="Pristup kandidatskom ili admin nalogu preko Google-a." publicView>
+    <AppShell title="Prijava" subtitle="Google prijava i automatski nastavak na tvoj status." publicView>
       <section className="tfh-minimal-auth">
         <Card className="tfh-minimal-left">
           <CardBody className="gap-4">
-            <span className="tfh-minimal-kicker">Bezbedan pristup</span>
-            <h2>Jedna prijava, brz ulazak</h2>
-            <p>Sistem automatski prepoznaje ulogu i vodi te na odgovarajući panel.</p>
+            <span className="tfh-minimal-kicker">Brz ulazak</span>
+            <h2>Jedna prijava</h2>
+            <p>Nakon logina odmah vidis status prijave i sledeci korak.</p>
             <ul className="tfh-minimal-list">
-              <li>Samo Google OAuth</li>
-              <li>Bez resetovanja lozinke</li>
-              <li>Optimizovano za telefon i desktop</li>
+              <li>Google OAuth</li>
+              <li>Bez posebne lozinke</li>
+              <li>Telefon + desktop</li>
             </ul>
           </CardBody>
         </Card>
 
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
-            <h3>Nastavi preko Google-a</h3>
-            <p>Koristi postojeci Google nalog za nastavak procesa.</p>
+            <h3>Nastavi</h3>
+            <p>Koristi svoj Google nalog.</p>
 
             <Button className="tfh-action-btn" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
-              {busy ? "Preusmeravanje..." : "Prijavi se Google nalogom"}
+              {busy ? "Preusmeravanje..." : "Prijavi se"}
             </Button>
 
             {error && <Alert color="danger" title={error} />}
@@ -84,7 +84,7 @@ const LoginPage = () => {
               variant="flat"
               fullWidth
             >
-              Nemaš nalog?
+              Prvi put? Registracija
             </Button>
           </CardBody>
         </Card>

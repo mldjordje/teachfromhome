@@ -1,6 +1,8 @@
+import { getStatusLabel } from "@config/statusMeta";
+
 const StatusBadge = ({ status }) => {
-  if (!status) return <span className="tfh-badge">unknown</span>;
-  return <span className={`tfh-badge ${status}`}>{status}</span>;
+  const parsed = status ? String(status) : "unknown";
+  return <span className={`tfh-badge ${parsed}`}>{getStatusLabel(parsed)}</span>;
 };
 
 export default StatusBadge;

@@ -9,10 +9,10 @@ import appData from "@data/app.json";
 import { useAuth } from "@components/auth/AuthProvider";
 
 const teacherLinks = [
-  { href: "/teacher/dashboard", label: "Kontrolna tabla" },
+  { href: "/teacher/dashboard", label: "Moj status" },
   { href: "/teacher/phase1", label: "Faza 1" },
   { href: "/teacher/phase2", label: "Faza 2" },
-  { href: "/teacher/notifications", label: "Obave\u0161tenja" },
+  { href: "/teacher/notifications", label: "Obavestenja" },
   { href: "/teacher/profile", label: "Profil" },
 ];
 
