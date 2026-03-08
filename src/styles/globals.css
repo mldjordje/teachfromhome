@@ -19,6 +19,16 @@ img.mfp-img {
 
 html {
     scroll-behavior: smooth;
+    min-height: 100%;
+    background: #050914;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    overflow-x: hidden;
+    background: #050914;
 }
 
 .tfh-visually-hidden {

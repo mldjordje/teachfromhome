@@ -44,6 +44,80 @@ const AppShell = ({ title, subtitle, children, publicView = false }) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [pathname]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const pageRoot = document.querySelector(".tfh-page");
+    if (!(pageRoot instanceof HTMLElement)) return undefined;
+
+    const selector = [
+      ".tfh-page-head-card",
+      ".tfh-card",
+      ".tfh-kpi-panel",
+      ".tfh-admin-panel-card",
+      ".tfh-minimal-head",
+      ".tfh-minimal-left",
+      ".tfh-minimal-card",
+      ".tfh-alert",
+      "section[data-animate]",
+    ].join(",");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const seen = new WeakSet();
+    let order = 0;
+
+    const observer = reduceMotion
+      ? null
+      : new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add("is-visible");
+              observer?.unobserve(entry.target);
+            });
+          },
+          {
+            threshold: 0.2,
+            rootMargin: "0px 0px -10% 0px",
+          },
+        );
+
+    const registerTarget = (node) => {
+      if (!(node instanceof HTMLElement)) return;
+      if (seen.has(node) || node.classList.contains("tfh-no-reveal")) return;
+
+      seen.add(node);
+      node.classList.add("tfh-reveal-target");
+      node.style.setProperty("--tfh-reveal-delay", `${Math.min(order, 6) * 45}ms`);
+      order += 1;
+
+      if (reduceMotion) {
+        node.classList.add("is-visible");
+        return;
+      }
+
+      observer?.observe(node);
+    };
+
+    const registerTargets = () => {
+      pageRoot.querySelectorAll(selector).forEach((node) => {
+        registerTarget(node);
+      });
+    };
+
+    registerTargets();
+
+    const mutationObserver = new MutationObserver(() => {
+      registerTargets();
+    });
+
+    mutationObserver.observe(pageRoot, { childList: true, subtree: true });
+
+    return () => {
+      observer?.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [pathname]);
+
   const onSignOut = async () => {
     await signOut();
     router.push("/login");

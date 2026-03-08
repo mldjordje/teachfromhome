@@ -67,25 +67,22 @@ const LoginPage = () => {
         </Card>
 
         <Card className="tfh-minimal-card tfh-minimal-primary">
-          <CardBody className="gap-4">
-            <h3>Nastavi</h3>
-            <p>Koristi svoj Google nalog.</p>
+          <CardBody className="tfh-auth-cta-body">
+            <div className="tfh-auth-cta-copy">
+              <span className="tfh-minimal-kicker">Nastavi</span>
+              <h3>Google prijava</h3>
+              <p>Koristi svoj Google nalog i nastavi tamo gde si stao.</p>
+            </div>
 
-            <Button className="tfh-action-btn" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
+            <Button className="tfh-action-btn tfh-auth-cta-primary" size="lg" onPress={onGoogleLogin} isLoading={busy} fullWidth>
               {busy ? "Preusmeravanje..." : "Prijavi se"}
             </Button>
 
-            {error && <Alert color="danger" title={error} />}
+            {error && <Alert color="danger" title={error} className="tfh-auth-cta-alert" />}
 
-            <Button
-              as={Link}
-              href={`/signup?next=${encodeURIComponent(nextFromQuery)}`}
-              className="tfh-action-btn tfh-action-btn--ghost"
-              variant="flat"
-              fullWidth
-            >
+            <Link href={`/signup?next=${encodeURIComponent(nextFromQuery)}`} className="tfh-auth-cta-link">
               Prvi put? Registracija
-            </Button>
+            </Link>
           </CardBody>
         </Card>
       </section>
