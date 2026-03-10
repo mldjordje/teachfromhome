@@ -40,15 +40,29 @@ const AdminPhase1Page = () => {
           String(pageSize),
         )}`,
       );
-      setRows(payload.rows || []);
-      setTotal(Number(payload.total || 0));
+      const nextRows = payload.rows || [];
+      const nextTotal = Number(payload.total || 0);
+      const lastValidPage = Math.max(1, Math.ceil(nextTotal / pageSize));
+
+      if (page > lastValidPage) {
+        // After bulk actions, the current page can become out of range.
+        setPage(lastValidPage);
+        setRows([]);
+        setTotal(nextTotal);
+        setError("");
+        return;
+      }
+
+      setRows(nextRows);
+      setTotal(nextTotal);
       setError("");
     } catch (loadError) {
       setError(loadError.message || "Neuspešno učitavanje Faza 1 queue.");
       setRows([]);
       setTotal(0);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -602,3 +616,4 @@ const AdminPhase1Page = () => {
 };
 
 export default AdminPhase1Page;
+
