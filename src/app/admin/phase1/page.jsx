@@ -403,80 +403,6 @@ const AdminPhase1Page = () => {
 
         {error && <Alert color="danger" title={error} className="mb-4" />}
         {info && <Alert color="success" title={info} className="mb-4" />}
-
-        <Card className="tfh-admin-panel-card mb-4">
-          <CardHeader>
-            <h3 className="text-lg font-semibold">Bulk akcije</h3>
-          </CardHeader>
-          <Divider />
-          <CardBody className="grid gap-3">
-            <p className="tfh-admin-muted text-sm">
-              Izabrano: {selectedRows.length} | Pending: {selectedPendingRows.length} | Za brisanje: {selectedDeletableRows.length}
-            </p>
-
-            <label className="tfh-admin-modern-field">
-              <span className="tfh-admin-modern-label">Rečenica za bulk move u Fazu 2</span>
-              <textarea
-                className="tfh-admin-control"
-                value={bulkSentence}
-                onChange={(event) => setBulkSentence(event.target.value)}
-                placeholder="Jedna rečenica za sve izabrane pending kandidate"
-              />
-            </label>
-            <div className="tfh-admin-pagination-actions tfh-admin-bulk-actions">
-              <Button
-                size="sm"
-                color="primary"
-                className="tfh-admin-decision-btn tfh-admin-decision-btn--move"
-                isLoading={bulkBusy}
-                onPress={bulkMoveToPhase2}
-              >
-                Bulk prebaci u Fazu 2
-              </Button>
-            </div>
-
-            <div className="grid gap-2 md:grid-cols-2">
-              <select
-                className="tfh-admin-inline-select tfh-admin-inline-select--bold"
-                value={bulkRejectReason}
-                onChange={(e) => setBulkRejectReason(e.target.value)}
-              >
-                <option value="bad_accent">bad_accent</option>
-                <option value="bad_pronunciation">bad_pronunciation</option>
-                <option value="low_energy">low_energy</option>
-              </select>
-              <input
-                className="tfh-admin-control"
-                value={bulkRejectNotes}
-                onChange={(event) => setBulkRejectNotes(event.target.value)}
-                placeholder="Napomena za bulk odbijanje (opciono)"
-              />
-            </div>
-            <div className="tfh-admin-pagination-actions tfh-admin-bulk-actions">
-              <Button
-                size="sm"
-                color="danger"
-                variant="flat"
-                className="tfh-admin-decision-btn tfh-admin-decision-btn--reject"
-                isLoading={bulkBusy}
-                onPress={bulkReject}
-              >
-                Bulk odbij pending
-              </Button>
-              <Button
-                size="sm"
-                color="danger"
-                variant="bordered"
-                className="tfh-admin-decision-btn tfh-admin-decision-btn--delete"
-                isLoading={bulkBusy}
-                onPress={bulkDelete}
-              >
-                Bulk obriši review-ovane snimke
-              </Button>
-            </div>
-          </CardBody>
-        </Card>
-
         <Card className="tfh-admin-panel-card">
           <CardHeader>
             <h3 className="text-lg font-semibold">Lista prijava za Fazu 1</h3>
@@ -611,12 +537,87 @@ const AdminPhase1Page = () => {
             )}
           </CardBody>
         </Card>
+
+        <Card className="tfh-admin-panel-card mb-4">
+          <CardHeader>
+            <h3 className="text-lg font-semibold">Bulk akcije</h3>
+          </CardHeader>
+          <Divider />
+          <CardBody className="grid gap-3">
+            <p className="tfh-admin-muted text-sm">
+              Izabrano: {selectedRows.length} | Pending: {selectedPendingRows.length} | Za brisanje: {selectedDeletableRows.length}
+            </p>
+
+            <label className="tfh-admin-modern-field">
+              <span className="tfh-admin-modern-label">Rečenica za bulk move u Fazu 2</span>
+              <textarea
+                className="tfh-admin-control"
+                value={bulkSentence}
+                onChange={(event) => setBulkSentence(event.target.value)}
+                placeholder="Jedna rečenica za sve izabrane pending kandidate"
+              />
+            </label>
+            <div className="tfh-admin-pagination-actions tfh-admin-bulk-actions">
+              <Button
+                size="sm"
+                color="primary"
+                className="tfh-admin-decision-btn tfh-admin-decision-btn--move"
+                isLoading={bulkBusy}
+                onPress={bulkMoveToPhase2}
+              >
+                Bulk prebaci u Fazu 2
+              </Button>
+            </div>
+
+            <div className="grid gap-2 md:grid-cols-2">
+              <select
+                className="tfh-admin-inline-select tfh-admin-inline-select--bold"
+                value={bulkRejectReason}
+                onChange={(e) => setBulkRejectReason(e.target.value)}
+              >
+                <option value="bad_accent">bad_accent</option>
+                <option value="bad_pronunciation">bad_pronunciation</option>
+                <option value="low_energy">low_energy</option>
+              </select>
+              <input
+                className="tfh-admin-control"
+                value={bulkRejectNotes}
+                onChange={(event) => setBulkRejectNotes(event.target.value)}
+                placeholder="Napomena za bulk odbijanje (opciono)"
+              />
+            </div>
+            <div className="tfh-admin-pagination-actions tfh-admin-bulk-actions">
+              <Button
+                size="sm"
+                color="danger"
+                variant="flat"
+                className="tfh-admin-decision-btn tfh-admin-decision-btn--reject"
+                isLoading={bulkBusy}
+                onPress={bulkReject}
+              >
+                Bulk odbij pending
+              </Button>
+              <Button
+                size="sm"
+                color="danger"
+                variant="bordered"
+                className="tfh-admin-decision-btn tfh-admin-decision-btn--delete"
+                isLoading={bulkBusy}
+                onPress={bulkDelete}
+              >
+                Bulk obriši review-ovane snimke
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
         <VideoPreviewModal open={Boolean(previewUrl)} src={previewUrl} title={previewTitle} onClose={closePreview} />
+
       </AppShell>
     </RequireAuth>
   );
 };
 
 export default AdminPhase1Page;
+
 
 

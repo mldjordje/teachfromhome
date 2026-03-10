@@ -1608,6 +1608,19 @@
   border-color: var(--tfh-up-line) !important;
 }
 
+.tfh-app-shell--admin .tfh-mobile-item--admin {
+  border-color: var(--tfh-up-line) !important;
+  background: linear-gradient(160deg, rgba(6, 14, 32, 0.96), rgba(11, 26, 50, 0.96)) !important;
+  box-shadow: 0 12px 24px rgba(2, 8, 25, 0.34);
+}
+
+.tfh-app-shell--admin .tfh-mobile-item--admin strong,
+.tfh-app-shell--admin .tfh-mobile-item--admin p,
+.tfh-app-shell--admin .tfh-mobile-item--admin span,
+.tfh-app-shell--admin .tfh-mobile-item--admin small {
+  color: #e7efff !important;
+}
+
 .tfh-admin-muted {
   color: #b9c8e9 !important;
 }
