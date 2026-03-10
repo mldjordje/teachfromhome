@@ -17,7 +17,11 @@ export async function GET(request) {
       pageSize,
     });
 
-    return Response.json(data);
+    return Response.json(data, {
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
+    });
   } catch (error) {
     return toErrorResponse(error);
   }

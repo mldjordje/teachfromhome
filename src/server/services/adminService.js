@@ -310,7 +310,6 @@ export const listAdminPhase1Queue = async ({ status = "pending", page = 1, pageS
   const [countRow] = await db
     .select({ count: sql`count(*)::int` })
     .from(teacherPhase1Submissions)
-    .innerJoin(profiles, eq(profiles.userId, teacherPhase1Submissions.userId))
     .where(whereClause);
 
   const total = Number(countRow?.count || 0);
@@ -323,7 +322,7 @@ export const listAdminPhase1Queue = async ({ status = "pending", page = 1, pageS
       profile: profiles,
     })
     .from(teacherPhase1Submissions)
-    .innerJoin(profiles, eq(profiles.userId, teacherPhase1Submissions.userId))
+    .leftJoin(profiles, eq(profiles.userId, teacherPhase1Submissions.userId))
     .where(whereClause)
     .orderBy(desc(teacherPhase1Submissions.createdAt))
     .limit(pageSize)
@@ -331,10 +330,10 @@ export const listAdminPhase1Queue = async ({ status = "pending", page = 1, pageS
 
   const rows = items.map((item) => ({
     ...mapPhase1(item.submission),
-    first_name: item.profile.firstName,
-    last_name: item.profile.lastName,
-    email: item.profile.email,
-    phone: item.profile.phone,
+    first_name: item.profile?.firstName || "Unknown",
+    last_name: item.profile?.lastName || "Candidate",
+    email: item.profile?.email || "",
+    phone: item.profile?.phone || "",
   }));
 
   return {
@@ -520,7 +519,6 @@ export const listAdminPhase2Queue = async ({ status = "submitted", page = 1, pag
   const [countRow] = await db
     .select({ count: sql`count(*)::int` })
     .from(teacherPhase2Tasks)
-    .innerJoin(profiles, eq(profiles.userId, teacherPhase2Tasks.userId))
     .where(whereClause);
 
   const total = Number(countRow?.count || 0);
@@ -533,7 +531,7 @@ export const listAdminPhase2Queue = async ({ status = "submitted", page = 1, pag
       profile: profiles,
     })
     .from(teacherPhase2Tasks)
-    .innerJoin(profiles, eq(profiles.userId, teacherPhase2Tasks.userId))
+    .leftJoin(profiles, eq(profiles.userId, teacherPhase2Tasks.userId))
     .where(whereClause)
     .orderBy(desc(teacherPhase2Tasks.updatedAt))
     .limit(pageSize)
@@ -560,9 +558,9 @@ export const listAdminPhase2Queue = async ({ status = "submitted", page = 1, pag
     const latest = latestSubmissionByTask.get(item.task.id) || null;
     return {
       ...mapPhase2Task(item.task, latest),
-      first_name: item.profile.firstName,
-      last_name: item.profile.lastName,
-      email: item.profile.email,
+      first_name: item.profile?.firstName || "Unknown",
+      last_name: item.profile?.lastName || "Candidate",
+      email: item.profile?.email || "",
     };
   });
 
