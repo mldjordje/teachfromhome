@@ -12,6 +12,8 @@ import { ALLOWED_VIDEO_MIME_TYPES, PHASE2_MAX_VIDEO_MB, bytesFromMb } from "@con
 import { extractYouTubeVideoId, toYouTubeEmbedUrl } from "@library/youtube";
 import { apiGet, apiPatch, apiPost } from "@library/apiClient";
 
+const formatFileSize = (size = 0) => `${(Number(size || 0) / (1024 * 1024)).toFixed(2)}MB`;
+
 const TeacherPhase2Page = () => {
   const { user } = useAuth();
   const [task, setTask] = useState(null);
@@ -153,8 +155,17 @@ const TeacherPhase2Page = () => {
               <form className="tfh-form" onSubmit={onSubmit}>
                 <div>
                   <label>Postavi video</label>
+                  <div className="tfh-apply-script-block">
+                    <span>Brzi vodic</span>
+                    <p>1) Snimi video sa zadatom recenicom. 2) Postavi fajl i proveri ga. 3) Klikni Posalji.</p>
+                  </div>
                   <input type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
                   <small>Max {PHASE2_MAX_VIDEO_MB}MB (MP4/WEBM/MOV)</small>
+                  {videoFile && (
+                    <small>
+                      Izabran fajl: <strong>{videoFile.name}</strong> ({formatFileSize(videoFile.size)})
+                    </small>
+                  )}
                 </div>
                 {error && <div className="tfh-alert tfh-error">{error}</div>}
                 {success && <div className="tfh-alert tfh-success">{success}</div>}
@@ -178,6 +189,11 @@ const TeacherPhase2Page = () => {
                       </div>
                       <p>Feedback: {row.feedback || "-"}</p>
                       <p>{new Date(row.created_at).toLocaleString()}</p>
+                      {row.video_blob_url ? (
+                        <video className="tfh-record-preview" src={row.video_blob_url} controls playsInline preload="metadata" />
+                      ) : (
+                        <p>Video trenutno nije dostupan.</p>
+                      )}
                     </article>
                   ))}
                 </div>

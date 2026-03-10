@@ -307,24 +307,27 @@ export const listAdminPhase1Queue = async ({ status = "pending", page = 1, pageS
   }
 
   const whereClause = and(...filters);
+  const [countRow] = await db
+    .select({ count: sql`count(*)::int` })
+    .from(teacherPhase1Submissions)
+    .innerJoin(profiles, eq(profiles.userId, teacherPhase1Submissions.userId))
+    .where(whereClause);
 
-  const [items, countRows] = await Promise.all([
-    db
-      .select({
-        submission: teacherPhase1Submissions,
-        profile: profiles,
-      })
-      .from(teacherPhase1Submissions)
-      .innerJoin(profiles, eq(profiles.userId, teacherPhase1Submissions.userId))
-      .where(whereClause)
-      .orderBy(desc(teacherPhase1Submissions.createdAt))
-      .limit(pageSize)
-      .offset((page - 1) * pageSize),
-    db
-      .select({ count: sql`count(*)::int` })
-      .from(teacherPhase1Submissions)
-      .where(whereClause),
-  ]);
+  const total = Number(countRow?.count || 0);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+
+  const items = await db
+    .select({
+      submission: teacherPhase1Submissions,
+      profile: profiles,
+    })
+    .from(teacherPhase1Submissions)
+    .innerJoin(profiles, eq(profiles.userId, teacherPhase1Submissions.userId))
+    .where(whereClause)
+    .orderBy(desc(teacherPhase1Submissions.createdAt))
+    .limit(pageSize)
+    .offset((safePage - 1) * pageSize);
 
   const rows = items.map((item) => ({
     ...mapPhase1(item.submission),
@@ -336,13 +339,13 @@ export const listAdminPhase1Queue = async ({ status = "pending", page = 1, pageS
 
   return {
     rows,
-    page,
+    page: safePage,
     pageSize,
-    total: Number(countRows[0]?.count || 0),
+    total,
     empty_reason:
       rows.length === 0
         ? status === "pending"
-          ? "Nema kandidata na čekanju."
+          ? "Nema kandidata na cekanju."
           : "Nema zapisa za izabrani status."
         : null,
   };
@@ -514,21 +517,27 @@ export const listAdminPhase2Queue = async ({ status = "submitted", page = 1, pag
   }
 
   const whereClause = taskFilters.length ? and(...taskFilters) : undefined;
+  const [countRow] = await db
+    .select({ count: sql`count(*)::int` })
+    .from(teacherPhase2Tasks)
+    .innerJoin(profiles, eq(profiles.userId, teacherPhase2Tasks.userId))
+    .where(whereClause);
 
-  const [tasks, countRows] = await Promise.all([
-    db
-      .select({
-        task: teacherPhase2Tasks,
-        profile: profiles,
-      })
-      .from(teacherPhase2Tasks)
-      .innerJoin(profiles, eq(profiles.userId, teacherPhase2Tasks.userId))
-      .where(whereClause)
-      .orderBy(desc(teacherPhase2Tasks.updatedAt))
-      .limit(pageSize)
-      .offset((page - 1) * pageSize),
-    db.select({ count: sql`count(*)::int` }).from(teacherPhase2Tasks).where(whereClause),
-  ]);
+  const total = Number(countRow?.count || 0);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+
+  const tasks = await db
+    .select({
+      task: teacherPhase2Tasks,
+      profile: profiles,
+    })
+    .from(teacherPhase2Tasks)
+    .innerJoin(profiles, eq(profiles.userId, teacherPhase2Tasks.userId))
+    .where(whereClause)
+    .orderBy(desc(teacherPhase2Tasks.updatedAt))
+    .limit(pageSize)
+    .offset((safePage - 1) * pageSize);
 
   const taskIds = tasks.map((item) => item.task.id);
   const latestSubmissionByTask = new Map();
@@ -559,9 +568,9 @@ export const listAdminPhase2Queue = async ({ status = "submitted", page = 1, pag
 
   return {
     rows,
-    page,
+    page: safePage,
     pageSize,
-    total: Number(countRows[0]?.count || 0),
+    total,
   };
 };
 

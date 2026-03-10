@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 const AUDIO_EXT_RE = /\.(mp3|m4a|wav|ogg|aac|flac)(?:$|\?)/i;
 
@@ -10,8 +11,17 @@ const isAudioSource = (src = "") => {
 };
 
 const VideoPreviewModal = ({ open, src, title = "Pregled klipa", onClose }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (!open) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
@@ -19,15 +29,18 @@ const VideoPreviewModal = ({ open, src, title = "Pregled klipa", onClose }) => {
       }
     };
 
+    window.scrollTo({ top: 0, behavior: "smooth" });
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [open, onClose]);
 
-  if (!open || !src) return null;
+  if (!mounted || !open || !src) return null;
 
   const audioOnly = isAudioSource(src);
-
-  return (
+  const modal = (
     <div className="tfh-video-modal" role="dialog" aria-modal="true" onClick={() => onClose?.()}>
       <div className="tfh-video-modal-card" onClick={(event) => event.stopPropagation()}>
         <div className="tfh-video-modal-head">
@@ -46,6 +59,8 @@ const VideoPreviewModal = ({ open, src, title = "Pregled klipa", onClose }) => {
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 };
 
 export default VideoPreviewModal;

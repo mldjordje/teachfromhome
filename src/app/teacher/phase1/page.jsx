@@ -25,6 +25,7 @@ const FILE_EXTENSION_BY_MIME = {
 };
 
 const normalizeMimeType = (mimeType = "") => String(mimeType).toLowerCase().split(";")[0].trim();
+const formatFileSize = (size = 0) => `${(Number(size || 0) / (1024 * 1024)).toFixed(2)}MB`;
 
 const PHASE1_AUDIO_MIME_ALIASES = {
   "video/webm": "audio/webm",
@@ -389,6 +390,10 @@ const TeacherPhase1Page = () => {
               </div>
               <div>
                 <label>Audio snimak</label>
+                <div className="tfh-apply-script-block">
+                  <span>Brzi vodic</span>
+                  <p>1) Izaberi Upload ili Snimi direktno. 2) Preslusaj snimak pre slanja. 3) Klikni Posalji prijavu.</p>
+                </div>
                 <div className="tfh-audio-source-toggle">
                   <button
                     type="button"
@@ -420,6 +425,11 @@ const TeacherPhase1Page = () => {
                       }}
                     />
                     <small>Max {PHASE1_MAX_AUDIO_MB}MB (MP3/M4A/WAV/WEBM/OGG)</small>
+                    {audioFile && (
+                      <small>
+                        Izabran fajl: <strong>{audioFile.name}</strong> ({formatFileSize(audioFile.size)})
+                      </small>
+                    )}
                   </div>
                 ) : (
                   <div className="tfh-record-box">
@@ -476,6 +486,14 @@ const TeacherPhase1Page = () => {
                     <p>Razlog odbijanja: {row.reject_reason || "-"}</p>
                     <p>Admin napomena: {row.admin_notes || "-"}</p>
                     <p>{new Date(row.created_at).toLocaleString()}</p>
+                    {row.video_blob_url ? (
+                      <div className="tfh-record-box">
+                        <small>Tvoj poslati snimak</small>
+                        <audio className="tfh-record-preview" controls preload="metadata" src={row.video_blob_url} />
+                      </div>
+                    ) : (
+                      <p>Snimak trenutno nije dostupan.</p>
+                    )}
                   </article>
                 ))}
               </div>
