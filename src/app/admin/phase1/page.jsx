@@ -33,31 +33,36 @@ const AdminPhase1Page = () => {
   const [previewTitle, setPreviewTitle] = useState("");
 
   const loadRows = async () => {
+    const buildQueueUrl = (targetPage) =>
+      `/api/admin/phase1?status=${encodeURIComponent(statusFilter)}&page=${encodeURIComponent(String(targetPage))}&pageSize=${encodeURIComponent(
+        String(pageSize),
+      )}`;
+
     setLoading(true);
     try {
-      const payload = await apiGet(
-        `/api/admin/phase1?status=${encodeURIComponent(statusFilter)}&page=${encodeURIComponent(String(page))}&pageSize=${encodeURIComponent(
-          String(pageSize),
-        )}`,
-      );
-      const nextRows = payload.rows || [];
-      const nextTotal = Number(payload.total || 0);
+      const payload = await apiGet(buildQueueUrl(page));
+
+      let nextRows = payload.rows || [];
+      let nextTotal = Number(payload.total || 0);
       const lastValidPage = Math.max(1, Math.ceil(nextTotal / pageSize));
 
-      if (page > lastValidPage) {
-        // After bulk actions, the current page can become out of range.
-        setPage(lastValidPage);
-        setRows([]);
-        setTotal(nextTotal);
-        setError("");
-        return;
+      // Guard against stale/out-of-range page state: on some mobile flows first load can return total>0 with empty rows.
+      if (nextTotal > 0 && (page > lastValidPage || nextRows.length === 0)) {
+        const correctedPage = Math.min(page, lastValidPage);
+        const retryPayload = await apiGet(buildQueueUrl(correctedPage));
+        nextRows = retryPayload.rows || [];
+        nextTotal = Number(retryPayload.total || nextTotal);
+
+        if (correctedPage !== page) {
+          setPage(correctedPage);
+        }
       }
 
       setRows(nextRows);
       setTotal(nextTotal);
       setError("");
     } catch (loadError) {
-      setError(loadError.message || "Neuspešno učitavanje Faza 1 queue.");
+      setError(loadError.message || "Neuspesno ucitavanje Faza 1 queue.");
       setRows([]);
       setTotal(0);
     } finally {
@@ -616,4 +621,5 @@ const AdminPhase1Page = () => {
 };
 
 export default AdminPhase1Page;
+
 
