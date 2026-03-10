@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import Link from "next/link";
 import RequireAuth from "@components/auth/RequireAuth";
@@ -31,42 +31,77 @@ const AdminPhase1Page = () => {
   const [info, setInfo] = useState("");
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
+  const loadTokenRef = useRef(0);
 
   const loadRows = async () => {
+    const loadToken = ++loadTokenRef.current;
     const buildQueueUrl = (targetPage) =>
       `/api/admin/phase1?status=${encodeURIComponent(statusFilter)}&page=${encodeURIComponent(String(targetPage))}&pageSize=${encodeURIComponent(
         String(pageSize),
       )}`;
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     setLoading(true);
     try {
-      const payload = await apiGet(buildQueueUrl(page));
+      const fetchQueue = async (targetPage) => {
+        const payload = await apiGet(buildQueueUrl(targetPage));
+        return {
+          rows: payload.rows || [],
+          total: Number(payload.total || 0),
+        };
+      };
 
-      let nextRows = payload.rows || [];
-      let nextTotal = Number(payload.total || 0);
-      const lastValidPage = Math.max(1, Math.ceil(nextTotal / pageSize));
+      let targetPage = page;
+      let { rows: nextRows, total: nextTotal } = await fetchQueue(targetPage);
+      let lastValidPage = Math.max(1, Math.ceil(nextTotal / pageSize));
 
-      // Guard against stale/out-of-range page state: on some mobile flows first load can return total>0 with empty rows.
-      if (nextTotal > 0 && (page > lastValidPage || nextRows.length === 0)) {
-        const correctedPage = Math.min(page, lastValidPage);
-        const retryPayload = await apiGet(buildQueueUrl(correctedPage));
-        nextRows = retryPayload.rows || [];
-        nextTotal = Number(retryPayload.total || nextTotal);
-
-        if (correctedPage !== page) {
-          setPage(correctedPage);
+      if (targetPage > lastValidPage) {
+        targetPage = lastValidPage;
+        ({ rows: nextRows, total: nextTotal } = await fetchQueue(targetPage));
+        if (targetPage !== page) {
+          setPage(targetPage);
         }
+      }
+
+      if (nextTotal > 0 && nextRows.length === 0) {
+        for (const delayMs of [300, 700, 1200]) {
+          // Mobile clients occasionally get an empty first read while count is already updated.
+          // A short retry window avoids requiring manual "Osvezi".
+          // eslint-disable-next-line no-await-in-loop
+          await sleep(delayMs);
+          // eslint-disable-next-line no-await-in-loop
+          ({ rows: nextRows, total: nextTotal } = await fetchQueue(targetPage));
+          lastValidPage = Math.max(1, Math.ceil(nextTotal / pageSize));
+          if (targetPage > lastValidPage) {
+            targetPage = lastValidPage;
+            if (targetPage !== page) {
+              setPage(targetPage);
+            }
+            // eslint-disable-next-line no-await-in-loop
+            ({ rows: nextRows, total: nextTotal } = await fetchQueue(targetPage));
+          }
+          if (nextTotal === 0 || nextRows.length > 0) break;
+        }
+      }
+
+      if (loadToken !== loadTokenRef.current) {
+        return;
       }
 
       setRows(nextRows);
       setTotal(nextTotal);
       setError("");
     } catch (loadError) {
+      if (loadToken !== loadTokenRef.current) {
+        return;
+      }
       setError(loadError.message || "Neuspesno ucitavanje Faza 1 queue.");
       setRows([]);
       setTotal(0);
     } finally {
-      setLoading(false);
+      if (loadToken === loadTokenRef.current) {
+        setLoading(false);
+      }
     }
   };
 
