@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
-import Link from "next/link";
 import RequireAuth from "@components/auth/RequireAuth";
 import { useAuth } from "@components/auth/AuthProvider";
 import AppShell from "@components/app/AppShell";
@@ -13,10 +12,10 @@ import { apiDelete, apiGet, apiPost } from "@library/apiClient";
 
 const AdminPhase1Page = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
+  const statusFilter = "pending";
+  const pageSize = 20;
   const [rows, setRows] = useState([]);
-  const [statusFilter, setStatusFilter] = useState("pending");
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -387,47 +386,6 @@ const AdminPhase1Page = () => {
       <AppShell title="Admin Faza 1 queue" subtitle="Pregledaj prijave, odbij ili prebaci kandidata u Fazu 2.">
         <AdminPhaseSwitch />
 
-        <Card className="tfh-admin-panel-card mb-4">
-          <CardBody className="tfh-admin-toolbar">
-            <div className="tfh-admin-toolbar-left">
-              <select
-                className="tfh-admin-filter-select"
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="all">Svi statusi</option>
-                <option value="pending">Na čekanju</option>
-                <option value="rejected">Odbijeni</option>
-                <option value="moved_to_phase2">Prebačeni u Fazu 2</option>
-              </select>
-
-              <select
-                className="tfh-admin-filter-select"
-                value={String(pageSize)}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value) || 20);
-                  setPage(1);
-                }}
-              >
-                <option value="20">20 po strani</option>
-                <option value="50">50 po strani</option>
-                <option value="100">100 po strani</option>
-              </select>
-            </div>
-
-            <div className="tfh-admin-toolbar-right">
-              <Button variant="bordered" onPress={loadRows} className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
-                Osveži
-              </Button>
-              <Button as={Link} href="/admin/candidates" variant="light" className="tfh-action-grid-btn tfh-action-grid-btn--ghost">
-                Pregled kandidata
-              </Button>
-            </div>
-          </CardBody>
-        </Card>
 
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="tfh-admin-pagination">
