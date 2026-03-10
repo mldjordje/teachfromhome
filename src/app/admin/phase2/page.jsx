@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import Link from "next/link";
 import RequireAuth from "@components/auth/RequireAuth";
+import { useAuth } from "@components/auth/AuthProvider";
 import AppShell from "@components/app/AppShell";
 import AdminPhaseSwitch from "@components/app/AdminPhaseSwitch";
 import StatusBadge from "@components/app/StatusBadge";
@@ -11,6 +12,7 @@ import VideoPreviewModal from "@components/app/VideoPreviewModal";
 import { apiDelete, apiGet, apiPost } from "@library/apiClient";
 
 const AdminPhase2Page = () => {
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const [rows, setRows] = useState([]);
   const [statusFilter, setStatusFilter] = useState("submitted");
   const [page, setPage] = useState(1);
@@ -50,8 +52,10 @@ const AdminPhase2Page = () => {
   };
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!user || !isAdmin) return;
     loadRows();
-  }, [statusFilter, page, pageSize]);
+  }, [authLoading, isAdmin, page, pageSize, statusFilter, user?.id]);
 
   useEffect(() => {
     setSelectedTaskIds((prev) => prev.filter((id) => rows.some((row) => row.task_id === id)));
