@@ -544,6 +544,19 @@ export const listAdminPhase2Queue = async ({ status = "submitted", page = 1, pag
 
 export const listAcceptedCandidates = async ({ q = "", page = 1, pageSize = 20 }) => {
   const filters = [inArray(profiles.currentPhase, ["accepted", "phase2"])];
+  const acceptedAtSort = sql`
+    coalesce(
+      (
+        select max(${teacherPhase1Submissions.reviewedAt})
+        from ${teacherPhase1Submissions}
+        where ${teacherPhase1Submissions.userId} = ${profiles.userId}
+          and ${teacherPhase1Submissions.isDeleted} = false
+          and ${teacherPhase1Submissions.status} = 'moved_to_phase2'
+      ),
+      ${profiles.updatedAt}
+    )
+  `;
+
   if (q) {
     const pattern = `%${q}%`;
     filters.push(
@@ -562,10 +575,11 @@ export const listAcceptedCandidates = async ({ q = "", page = 1, pageSize = 20 }
     db
       .select({
         profile: profiles,
+        acceptedAtSort,
       })
       .from(profiles)
       .where(whereClause)
-      .orderBy(desc(profiles.updatedAt))
+      .orderBy(desc(acceptedAtSort), desc(profiles.updatedAt))
       .limit(pageSize)
       .offset((page - 1) * pageSize),
     db
