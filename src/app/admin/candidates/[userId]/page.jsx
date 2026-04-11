@@ -20,10 +20,8 @@ const AdminCandidateDetailPage = () => {
   const [error, setError] = useState("");
   const [busyAction, setBusyAction] = useState("");
   const [actionMessage, setActionMessage] = useState("");
-  const [phase2Sentence, setPhase2Sentence] = useState("");
   const [rejectReason, setRejectReason] = useState("bad_pronunciation");
   const [rejectNotes, setRejectNotes] = useState("");
-  const [phase2Feedback, setPhase2Feedback] = useState("");
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
 
@@ -32,7 +30,6 @@ const AdminCandidateDetailPage = () => {
     try {
       const payload = await apiGet(`/api/admin/candidates/${userId}`);
       setData(payload);
-      setPhase2Sentence(payload?.phase2_task?.phase2_sentence || "");
       setError("");
     } catch (loadError) {
       setError(loadError.message || "Neuspesno ucitavanje detalja kandidata.");
@@ -51,11 +48,6 @@ const AdminCandidateDetailPage = () => {
     return [...data.phase1_attempts].reverse().find((row) => row.status === "pending") || null;
   }, [data]);
 
-  const latestSubmittedPhase2 = useMemo(() => {
-    if (!data?.phase2_submissions?.length) return null;
-    return [...data.phase2_submissions].reverse().find((row) => row.status === "submitted") || null;
-  }, [data]);
-
   const timeline = useMemo(() => {
     if (!data) return [];
 
@@ -65,7 +57,7 @@ const AdminCandidateDetailPage = () => {
       items.push({
         id: `p1-submit-${row.submission_id}`,
         at: row.created_at,
-        title: `Faza 1 pokušaj #${row.attempt_no} poslat`,
+        title: `Faza 1 pokusaj #${row.attempt_no} poslat`,
         detail: `Status: ${row.status}`,
       });
 
@@ -73,35 +65,8 @@ const AdminCandidateDetailPage = () => {
         items.push({
           id: `p1-review-${row.submission_id}`,
           at: row.reviewed_at,
-          title: `Faza 1 pokušaj #${row.attempt_no} review`,
+          title: `Faza 1 pokusaj #${row.attempt_no} review`,
           detail: `Rezultat: ${row.status}${row.reject_reason ? ` (${row.reject_reason})` : ""}`,
-        });
-      }
-    }
-
-    if (data.phase2_task?.task_created_at) {
-      items.push({
-        id: `p2-task-${data.phase2_task.task_id}`,
-        at: data.phase2_task.task_created_at,
-        title: "Kreiran zadatak za Fazu 2",
-        detail: data.phase2_task.phase2_sentence ? `Rečenica: ${data.phase2_task.phase2_sentence}` : "",
-      });
-    }
-
-    for (const row of data.phase2_submissions || []) {
-      items.push({
-        id: `p2-submit-${row.id}`,
-        at: row.created_at,
-        title: `Faza 2 pokušaj #${row.attempt_no} poslat`,
-        detail: `Status: ${row.status}`,
-      });
-
-      if (row.reviewed_at) {
-        items.push({
-          id: `p2-review-${row.id}`,
-          at: row.reviewed_at,
-          title: `Faza 2 pokušaj #${row.attempt_no} review`,
-          detail: row.feedback ? `Rezultat: ${row.status}. Feedback: ${row.feedback}` : `Rezultat: ${row.status}`,
         });
       }
     }
@@ -129,7 +94,7 @@ const AdminCandidateDetailPage = () => {
   const openPreview = (url, label) => {
     if (!url) return;
     setPreviewUrl(url);
-    setPreviewTitle(label || "Pregled klipa");
+    setPreviewTitle(label || "Pregled snimka");
   };
 
   const closePreview = () => {
@@ -138,21 +103,11 @@ const AdminCandidateDetailPage = () => {
   };
 
   const deletePhase1Video = async (row) => {
-    if (!window.confirm(`Obriši Faza 1 glasovnu poruku za pokušaj ${row.attempt_no}?`)) return;
+    if (!window.confirm(`Obrisi faza 1 glasovnu poruku za pokusaj ${row.attempt_no}?`)) return;
     await runAction("delete-phase1-video", async () => {
       await apiDelete("/api/admin/phase1/submission", {
         user_id: data.profile.user_id,
         submission_id: row.submission_id,
-      });
-    });
-  };
-
-  const deletePhase2Video = async (row) => {
-    if (!window.confirm(`Obrisi Faza 2 video za pokusaj ${row.attempt_no}?`)) return;
-    await runAction("delete-phase2-video", async () => {
-      await apiDelete("/api/admin/phase2/submission", {
-        task_id: row.task_id,
-        submission_id: row.id,
       });
     });
   };
@@ -172,7 +127,7 @@ const AdminCandidateDetailPage = () => {
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Detalj kandidata" subtitle="Timeline prikaz kandidata za fazu 1 i fazu 2.">
+      <AppShell title="Detalj kandidata" subtitle="Pregled profila i odluka nakon faze 1.">
         <AdminPhaseSwitch />
 
         <div className="mb-3 flex flex-wrap gap-2">
@@ -237,7 +192,7 @@ const AdminCandidateDetailPage = () => {
                     ))}
                   </div>
                 ) : (
-                  <p>Nema timeline događaja.</p>
+                  <p>Nema timeline dogadjaja.</p>
                 )}
               </CardBody>
             </Card>
@@ -248,47 +203,37 @@ const AdminCandidateDetailPage = () => {
               </CardHeader>
               <Divider />
               <CardBody className="grid gap-4">
-                    {pendingPhase1 ? (
-                      <div className="tfh-mobile-item tfh-mobile-item--admin">
-                        <div className="tfh-mobile-item-top">
-                          <strong>Faza 1 pokusaj na cekanju {pendingPhase1.attempt_no}</strong>
-                          <StatusBadge status={pendingPhase1.status} />
-                        </div>
-                        {pendingPhase1.video_blob_url && (
-                          <Button
-                            size="sm"
-                            variant="bordered"
-                            onPress={() => openPreview(pendingPhase1.video_blob_url, `Faza 1 pokušaj ${pendingPhase1.attempt_no}`)}
-                          >
-                            Preslušaj
-                          </Button>
-                        )}
-                        <Textarea
-                          label="Recenica za fazu 2"
-                      labelPlacement="outside"
-                      value={phase2Sentence}
-                      onValueChange={setPhase2Sentence}
-                      placeholder="Recenica za faza 2 zadatak"
-                    />
+                {pendingPhase1 ? (
+                  <div className="tfh-mobile-item tfh-mobile-item--admin">
+                    <div className="tfh-mobile-item-top">
+                      <strong>Faza 1 pokusaj na cekanju {pendingPhase1.attempt_no}</strong>
+                      <StatusBadge status={pendingPhase1.status} />
+                    </div>
+                    {pendingPhase1.video_blob_url && (
+                      <Button
+                        size="sm"
+                        variant="bordered"
+                        onPress={() => openPreview(pendingPhase1.video_blob_url, `Faza 1 pokusaj ${pendingPhase1.attempt_no}`)}
+                      >
+                        Preslusaj
+                      </Button>
+                    )}
+
                     <div className="flex flex-wrap gap-2">
                       <Button
                         size="sm"
                         color="primary"
-                        isLoading={busyAction === "phase1-move"}
+                        isLoading={busyAction === "phase1-approve"}
                         onPress={() =>
-                          runAction("phase1-move", async () => {
-                            if (!phase2Sentence.trim()) {
-                              throw new Error("Recenica za fazu 2 je obavezna.");
-                            }
+                          runAction("phase1-approve", async () => {
                             await apiPost("/api/admin/phase1/move", {
                               user_id: data.profile.user_id,
                               submission_id: pendingPhase1.submission_id,
-                              phase2_sentence: phase2Sentence.trim(),
                             });
                           })
                         }
                       >
-                        Prebaci u fazu 2
+                        Oznaci kao prosao/la
                       </Button>
                     </div>
 
@@ -332,88 +277,6 @@ const AdminCandidateDetailPage = () => {
                 ) : (
                   <p>Nema pending akcije za fazu 1.</p>
                 )}
-
-                {latestSubmittedPhase2 ? (
-                  <div className="tfh-mobile-item tfh-mobile-item--admin">
-                    <div className="tfh-mobile-item-top">
-                      <strong>Faza 2 poslati pokusaj {latestSubmittedPhase2.attempt_no}</strong>
-                      <StatusBadge status={latestSubmittedPhase2.status} />
-                    </div>
-                    {latestSubmittedPhase2.video_blob_url && (
-                      <Button
-                        size="sm"
-                        variant="bordered"
-                        onPress={() => openPreview(latestSubmittedPhase2.video_blob_url, `Faza 2 pokusaj ${latestSubmittedPhase2.attempt_no}`)}
-                      >
-                        Pregled videa
-                      </Button>
-                    )}
-                    <Textarea
-                      label="Feedback za fazu 2"
-                      labelPlacement="outside"
-                      value={phase2Feedback}
-                      onValueChange={setPhase2Feedback}
-                      placeholder="Feedback za retry/reject"
-                    />
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        color="success"
-                        isLoading={busyAction === "phase2-accept"}
-                        onPress={() =>
-                          runAction("phase2-accept", async () => {
-                            await apiPost("/api/admin/phase2/review", {
-                              action: "accept",
-                              task_id: data.phase2_task?.task_id,
-                              submission_id: latestSubmittedPhase2.id,
-                              feedback: phase2Feedback || null,
-                            });
-                          })
-                        }
-                      >
-                        Prihvati
-                      </Button>
-                      <Button
-                        size="sm"
-                        color="warning"
-                        variant="flat"
-                        isLoading={busyAction === "phase2-retry"}
-                        onPress={() =>
-                          runAction("phase2-retry", async () => {
-                            await apiPost("/api/admin/phase2/review", {
-                              action: "retry",
-                              task_id: data.phase2_task?.task_id,
-                              submission_id: latestSubmittedPhase2.id,
-                              feedback: phase2Feedback || null,
-                            });
-                          })
-                        }
-                      >
-                        Retry
-                      </Button>
-                      <Button
-                        size="sm"
-                        color="danger"
-                        variant="flat"
-                        isLoading={busyAction === "phase2-reject"}
-                        onPress={() =>
-                          runAction("phase2-reject", async () => {
-                            await apiPost("/api/admin/phase2/review", {
-                              action: "reject",
-                              task_id: data.phase2_task?.task_id,
-                              submission_id: latestSubmittedPhase2.id,
-                              feedback: phase2Feedback || null,
-                            });
-                          })
-                        }
-                      >
-                        Odbij
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <p>Nema submitted akcije za fazu 2.</p>
-                )}
               </CardBody>
             </Card>
 
@@ -438,9 +301,9 @@ const AdminCandidateDetailPage = () => {
                             <Button
                               size="sm"
                               variant="bordered"
-                              onPress={() => openPreview(row.video_blob_url, `Faza 1 pokušaj ${row.attempt_no}`)}
+                              onPress={() => openPreview(row.video_blob_url, `Faza 1 pokusaj ${row.attempt_no}`)}
                             >
-                              Preslušaj
+                              Preslusaj
                             </Button>
                             {["rejected", "moved_to_phase2"].includes(row.status) && (
                               <Button
@@ -451,7 +314,7 @@ const AdminCandidateDetailPage = () => {
                                 isLoading={busyAction === "delete-phase1-video"}
                                 onPress={() => deletePhase1Video(row)}
                               >
-                                Obriši snimak
+                                Obrisi snimak
                               </Button>
                             )}
                           </div>
@@ -461,67 +324,6 @@ const AdminCandidateDetailPage = () => {
                   </div>
                 ) : (
                   <p>Nema pokusaja za fazu 1.</p>
-                )}
-              </CardBody>
-            </Card>
-
-            <Card className="tfh-admin-panel-card">
-              <CardHeader>
-                <h3 className="text-lg font-semibold">Faza 2 zadatak i prijave</h3>
-              </CardHeader>
-              <Divider />
-              <CardBody>
-                {data.phase2_task ? (
-                  <>
-                    <p>
-                      Status zadatka: <StatusBadge status={data.phase2_task.task_status} />
-                    </p>
-                    <p>Recenica: {data.phase2_task.phase2_sentence}</p>
-                    <p>
-                      Pokusaji: {data.phase2_task.current_attempts} / {data.phase2_task.attempts_allowed}
-                    </p>
-                  </>
-                ) : (
-                  <p>Zadatak za fazu 2 jos nije otvoren.</p>
-                )}
-
-                {data.phase2_submissions?.length ? (
-                  <div className="tfh-mobile-list">
-                    {data.phase2_submissions.map((row) => (
-                      <article key={row.id} className="tfh-mobile-item">
-                        <div className="tfh-mobile-item-top">
-                          <strong>Pokusaj {row.attempt_no}</strong>
-                          <StatusBadge status={row.status} />
-                        </div>
-                        <p>Feedback: {row.feedback || "-"}</p>
-                        {row.video_blob_url && (
-                          <div className="tfh-admin-pagination-actions">
-                            <Button
-                              size="sm"
-                              variant="bordered"
-                              onPress={() => openPreview(row.video_blob_url, `Faza 2 pokusaj ${row.attempt_no}`)}
-                            >
-                              Pregled videa
-                            </Button>
-                            {["accepted", "rejected"].includes(row.status) && (
-                              <Button
-                                size="sm"
-                                color="danger"
-                                variant="flat"
-                                className="tfh-action-grid-btn tfh-action-grid-btn--ghost"
-                                isLoading={busyAction === "delete-phase2-video"}
-                                onPress={() => deletePhase2Video(row)}
-                              >
-                                Obrisi video
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                      </article>
-                    ))}
-                  </div>
-                ) : (
-                  <p>Nema prijava za fazu 2.</p>
                 )}
               </CardBody>
             </Card>

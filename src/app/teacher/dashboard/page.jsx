@@ -60,15 +60,12 @@ const TeacherDashboard = () => {
   const flowSteps = useMemo(() => {
     const hasPhase1 = Boolean(latestPhase1);
     const phase1Reviewed = Boolean(latestPhase1 && latestPhase1.status !== "pending");
-    const hasPhase2Task = Boolean(phase2Task);
-    const hasPhase2Submission = Boolean(phase2Task && Number(phase2Task.current_attempts || 0) > 0);
-    const finalDecision = Boolean(phase2Task && ["accepted", "rejected"].includes(phase2Task.status));
+    const hrContact = Boolean(latestPhase1?.status === "moved_to_phase2" || ["assigned", "submitted", "retry", "accepted"].includes(phase2Task?.status));
 
     return [
       { key: "phase1", label: "Faza 1", done: hasPhase1 },
       { key: "review", label: "Review", done: phase1Reviewed },
-      { key: "phase2", label: "Faza 2", done: hasPhase2Task && hasPhase2Submission },
-      { key: "result", label: "Rezultat", done: finalDecision },
+      { key: "result", label: "HR kontakt", done: hrContact },
     ];
   }, [latestPhase1, phase2Task]);
 
@@ -130,11 +127,7 @@ const TeacherDashboard = () => {
                 <p>Faza 1 jos nije poslata.</p>
               )}
 
-              {phase2Task && (
-                <p>
-                  Faza 2: <StatusBadge status={phase2Task.status} />
-                </p>
-              )}
+              {application.key === "phase1_passed" || application.key === "hr_contact_pending" ? <p>HR kontakt: u pripremi</p> : null}
             </div>
           </div>
         )}

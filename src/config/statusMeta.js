@@ -2,18 +2,18 @@ const STATUS_LABELS = {
   // generic/app flow
   unknown: "Nepoznato",
   phase1: "Faza 1",
-  phase2: "Faza 2",
+  phase2: "HR kontakt",
 
   // phase 1
   pending: "Na cekanju",
-  moved_to_phase2: "Prebacen u fazu 2",
+  moved_to_phase2: "Prosao/la fazu 1",
   rejected: "Odbijeno",
 
   // phase 2
   assigned: "Dodeljeno",
   submitted: "Poslato",
   retry: "Potreban retry",
-  accepted: "Prihvaceno",
+  accepted: "HR kontakt",
 
   // rejection reasons / misc
   bad_accent: "Akcenat",
@@ -30,4 +30,3 @@ export const getStatusLabel = (status) => {
   if (STATUS_LABELS[key]) return STATUS_LABELS[key];
   return key.replaceAll("_", " ");
 };
-

@@ -19,7 +19,7 @@ import { getBlobPreviewUrl, parseBlobUrl, removeBlobSafe } from "@/src/server/se
 import { setProfilePhase } from "@/src/server/services/authService";
 import { MAX_PHASE1_ATTEMPTS } from "@/src/config/teacherFlow";
 
-const trackedEvents = ["visits", "started_signup", "phase1_submitted", "phase1_passed", "phase2_submitted", "accepted"];
+const trackedEvents = ["visits", "started_signup", "phase1_submitted", "phase1_passed", "accepted"];
 
 const toPercent = (value, base) => {
   const num = Number(value || 0);
@@ -111,7 +111,7 @@ const buildAcceptedClipFileName = ({ firstName, lastName, email, attemptNo, blob
   const candidateSegment = personSegment || emailSegment || "candidate";
   const safeAttempt = Number(attemptNo) > 0 ? Number(attemptNo) : "x";
   const ext = detectBlobExtension({ blobKey, blobUrl });
-  return `accepted-${candidateSegment}-phase2-attempt-${safeAttempt}.${ext}`;
+  return `accepted-${candidateSegment}-phase1-attempt-${safeAttempt}.${ext}`;
 };
 
 const daysSince = (value) => {
@@ -139,25 +139,7 @@ const buildStuckCandidates = ({ phase1Rows = [], phase2Rows = [] }) => {
     reminder_kind: null,
   }));
 
-  const phase2Items = (phase2Rows || []).map((row) => {
-    const taskStatus = String(row.status || "");
-    return {
-      id: `phase2-${row.task_id}`,
-      user_id: row.user_id,
-      first_name: row.first_name,
-      last_name: row.last_name,
-      email: row.email,
-      status: taskStatus,
-      stuck_kind: taskStatus === "retry" ? "phase2_retry_waiting_candidate" : "phase2_assigned_waiting_candidate",
-      stuck_label: taskStatus === "retry" ? "Faza 2 retry ceka kandidata" : "Faza 2 dodeljena, bez predaje",
-      days_waiting: daysSince(row.updated_at),
-      waiting_since: row.updated_at,
-      queue_link: "/admin/phase2",
-      candidate_link: `/admin/candidates/${encodeURIComponent(row.user_id)}`,
-      reminder_kind: "phase2_submit",
-      attempts_progress: `${Number(row.current_attempts || 0)} / ${Number(row.attempts_allowed || 3)}`,
-    };
-  });
+  const phase2Items = [];
 
   const items = [...phase1Items, ...phase2Items]
     .sort((a, b) => {
@@ -180,8 +162,8 @@ const buildStuckCandidates = ({ phase1Rows = [], phase2Rows = [] }) => {
 export const getAdminDashboardData = async () => {
   const [phase1Pending, phase2Pending, acceptedCount, dailyRows, stuckPhase1, stuckPhase2] = await Promise.all([
     db.execute(sql`select count(*)::int as count from teacher_phase1_submissions where status = 'pending' and is_deleted = false`),
-    db.execute(sql`select count(*)::int as count from teacher_phase2_tasks where status in ('submitted','retry','assigned')`),
-    db.execute(sql`select count(*)::int as count from profiles where current_phase = 'accepted'`),
+    db.execute(sql`select 0::int as count`),
+    db.execute(sql`select count(*)::int as count from profiles where current_phase in ('accepted', 'phase2')`),
     db.execute(sql`
       select
         date_trunc('day', created_at) as day,
@@ -189,7 +171,7 @@ export const getAdminDashboardData = async () => {
         count(*)::int as count
       from analytics_events
       where created_at >= now() - interval '14 days'
-        and event_name in ('visits', 'started_signup', 'phase1_submitted', 'phase1_passed', 'phase2_submitted', 'accepted')
+        and event_name in ('visits', 'started_signup', 'phase1_submitted', 'phase1_passed', 'accepted')
       group by 1, 2
       order by 1 asc
     `),
@@ -240,8 +222,7 @@ export const getAdminDashboardData = async () => {
     { key: "started_signup", label: "Započete prijave" },
     { key: "phase1_submitted", label: "Faza 1 poslata" },
     { key: "phase1_passed", label: "Faza 1 prošla" },
-    { key: "phase2_submitted", label: "Faza 2 poslata" },
-    { key: "accepted", label: "Prihvaćeni" },
+    { key: "accepted", label: "HR kontakt" },
   ].map((stage, index, list) => {
     const count = Number(analyticsSummary[stage.key] || 0);
     const prev = index > 0 ? Number(analyticsSummary[list[index - 1].key] || 0) : 0;
@@ -264,7 +245,6 @@ export const getAdminDashboardData = async () => {
         started_signup: 0,
         phase1_submitted: 0,
         phase1_passed: 0,
-        phase2_submitted: 0,
         accepted: 0,
       });
     }
@@ -350,9 +330,7 @@ export const listAdminPhase1Queue = async ({ status = "pending", page = 1, pageS
   };
 };
 
-export const moveCandidateToPhase2 = async ({ adminUserId, userId, submissionId, phase2Sentence }) => {
-  const sentence = requireNonEmptyString(phase2Sentence, "phase2_sentence");
-
+export const moveCandidateToPhase2 = async ({ adminUserId, userId, submissionId }) => {
   const [submission] = await db
     .select()
     .from(teacherPhase1Submissions)
@@ -370,7 +348,7 @@ export const moveCandidateToPhase2 = async ({ adminUserId, userId, submissionId,
   }
 
   if (submission.status !== "pending") {
-    throw new ApiError(409, "Only pending Phase 1 submissions can be moved to Phase 2");
+    throw new ApiError(409, "Only pending Phase 1 submissions can be approved");
   }
 
   const now = new Date();
@@ -386,40 +364,13 @@ export const moveCandidateToPhase2 = async ({ adminUserId, userId, submissionId,
     })
     .where(eq(teacherPhase1Submissions.id, submission.id));
 
-  await db
-    .insert(teacherPhase2Tasks)
-    .values({
-      userId,
-      phase2Sentence: sentence,
-      status: "assigned",
-      attemptsAllowed: 3,
-      currentAttempts: 0,
-      lastFeedback: null,
-      closedAt: null,
-      createdBy: adminUserId,
-      updatedAt: now,
-    })
-    .onConflictDoUpdate({
-      target: teacherPhase2Tasks.userId,
-      set: {
-        phase2Sentence: sentence,
-        status: "assigned",
-        attemptsAllowed: 3,
-        currentAttempts: 0,
-        lastFeedback: null,
-        closedAt: null,
-        createdBy: adminUserId,
-        updatedAt: now,
-      },
-    });
-
-  await setProfilePhase(userId, "phase2");
+  await setProfilePhase(userId, "accepted");
 
   await createNotification({
     userId,
     type: "phase1",
     title: "Prosli ste Phase 1",
-    body: "Cestitamo! Uspesno ste prosli Phase 1 i prebaceni ste u Phase 2. Udjite u aplikaciju za sledeci korak.",
+    body: "Cestitamo! Uspesno ste prosli Phase 1. HR tim ce vas kontaktirati sa narednim koracima.",
     payload: { submission_id: submission.id },
   });
 
@@ -428,7 +379,7 @@ export const moveCandidateToPhase2 = async ({ adminUserId, userId, submissionId,
     await sendEmail({
       to: profile.email,
       subject: "Prosli ste Phase 1",
-      text: "Cestitamo! Uspesno ste prosli Phase 1 i prebaceni ste u Phase 2. Udjite u aplikaciju za sledeci korak.",
+      text: "Cestitamo! Uspesno ste prosli Phase 1. HR tim ce vas kontaktirati sa narednim koracima.",
     });
   }
 
@@ -439,6 +390,17 @@ export const moveCandidateToPhase2 = async ({ adminUserId, userId, submissionId,
     metadata: {
       submission_id: submission.id,
       reviewed_by: adminUserId,
+    },
+  });
+
+  await createAnalyticsEvent({
+    sessionId: `admin-${adminUserId}`,
+    userId,
+    eventName: "accepted",
+    metadata: {
+      submission_id: submission.id,
+      reviewed_by: adminUserId,
+      source: "phase1",
     },
   });
 
@@ -510,6 +472,14 @@ export const rejectCandidatePhase1 = async ({ adminUserId, userId, submissionId,
 };
 
 export const listAdminPhase2Queue = async ({ status = "submitted", page = 1, pageSize = 20 }) => {
+  return {
+    rows: [],
+    page,
+    pageSize,
+    total: 0,
+    empty_reason: "Faza 2 vise nije deo procesa.",
+  };
+
   const taskFilters = [];
   if (status !== "all") {
     taskFilters.push(eq(teacherPhase2Tasks.status, status));
@@ -573,7 +543,7 @@ export const listAdminPhase2Queue = async ({ status = "submitted", page = 1, pag
 };
 
 export const listAcceptedCandidates = async ({ q = "", page = 1, pageSize = 20 }) => {
-  const filters = [eq(teacherPhase2Tasks.status, "accepted")];
+  const filters = [inArray(profiles.currentPhase, ["accepted", "phase2"])];
   if (q) {
     const pattern = `%${q}%`;
     filters.push(
@@ -591,41 +561,38 @@ export const listAcceptedCandidates = async ({ q = "", page = 1, pageSize = 20 }
   const [items, countRows] = await Promise.all([
     db
       .select({
-        task: teacherPhase2Tasks,
         profile: profiles,
       })
-      .from(teacherPhase2Tasks)
-      .innerJoin(profiles, eq(profiles.userId, teacherPhase2Tasks.userId))
+      .from(profiles)
       .where(whereClause)
-      .orderBy(desc(teacherPhase2Tasks.updatedAt))
+      .orderBy(desc(profiles.updatedAt))
       .limit(pageSize)
       .offset((page - 1) * pageSize),
     db
       .select({ count: sql`count(*)::int` })
-      .from(teacherPhase2Tasks)
-      .innerJoin(profiles, eq(profiles.userId, teacherPhase2Tasks.userId))
+      .from(profiles)
       .where(whereClause),
   ]);
 
-  const taskIds = items.map((item) => item.task.id);
-  const latestSubmissionByTask = new Map();
+  const userIds = items.map((item) => item.profile.userId);
+  const latestSubmissionByUser = new Map();
 
-  if (taskIds.length) {
+  if (userIds.length) {
     const submissionRows = await db
       .select()
-      .from(teacherPhase2Submissions)
-      .where(and(inArray(teacherPhase2Submissions.taskId, taskIds), eq(teacherPhase2Submissions.isDeleted, false)))
-      .orderBy(desc(teacherPhase2Submissions.attemptNo), desc(teacherPhase2Submissions.createdAt));
+      .from(teacherPhase1Submissions)
+      .where(and(inArray(teacherPhase1Submissions.userId, userIds), eq(teacherPhase1Submissions.isDeleted, false)))
+      .orderBy(desc(teacherPhase1Submissions.attemptNo), desc(teacherPhase1Submissions.createdAt));
 
     for (const submission of submissionRows) {
-      if (!latestSubmissionByTask.has(submission.taskId)) {
-        latestSubmissionByTask.set(submission.taskId, submission);
+      if (!latestSubmissionByUser.has(submission.userId)) {
+        latestSubmissionByUser.set(submission.userId, submission);
       }
     }
   }
 
   const rows = items.map((item) => {
-    const latest = latestSubmissionByTask.get(item.task.id) || null;
+    const latest = latestSubmissionByUser.get(item.profile.userId) || null;
     return {
       user_id: item.profile.userId,
       first_name: item.profile.firstName,
@@ -633,16 +600,9 @@ export const listAcceptedCandidates = async ({ q = "", page = 1, pageSize = 20 }
       email: item.profile.email,
       phone: item.profile.phone,
       current_phase: item.profile.currentPhase,
-      task_id: item.task.id,
-      phase2_sentence: item.task.phase2Sentence,
-      task_status: item.task.status,
-      attempts_allowed: item.task.attemptsAllowed,
-      current_attempts: item.task.currentAttempts,
-      task_updated_at: item.task.updatedAt,
-      task_closed_at: item.task.closedAt,
-      accepted_at: latest?.reviewedAt || item.task.closedAt || item.task.updatedAt,
+      accepted_at: latest?.reviewedAt || item.profile.updatedAt,
       latest_submission_id: latest?.id || null,
-      latest_submission_status: latest?.status || null,
+      latest_submission_status: latest?.status || "moved_to_phase2",
       latest_attempt_no: latest?.attemptNo || null,
       latest_video_blob_key: latest?.videoBlobKey || null,
       latest_video_blob_url: latest?.videoBlobUrl || null,
@@ -664,14 +624,12 @@ export const getAcceptedCandidateDownload = async ({ submissionId }) => {
 
   const [row] = await db
     .select({
-      submission: teacherPhase2Submissions,
-      task: teacherPhase2Tasks,
+      submission: teacherPhase1Submissions,
       profile: profiles,
     })
-    .from(teacherPhase2Submissions)
-    .innerJoin(teacherPhase2Tasks, eq(teacherPhase2Tasks.id, teacherPhase2Submissions.taskId))
-    .innerJoin(profiles, eq(profiles.userId, teacherPhase2Submissions.userId))
-    .where(and(eq(teacherPhase2Submissions.id, parsedSubmissionId), eq(teacherPhase2Submissions.isDeleted, false)))
+    .from(teacherPhase1Submissions)
+    .innerJoin(profiles, eq(profiles.userId, teacherPhase1Submissions.userId))
+    .where(and(eq(teacherPhase1Submissions.id, parsedSubmissionId), eq(teacherPhase1Submissions.isDeleted, false)))
     .limit(1);
 
   if (!row) {
@@ -679,7 +637,7 @@ export const getAcceptedCandidateDownload = async ({ submissionId }) => {
   }
 
   const isAccepted =
-    row.task.status === "accepted" || row.submission.status === "accepted" || row.profile.currentPhase === "accepted";
+    row.submission.status === "moved_to_phase2" || ["accepted", "phase2"].includes(String(row.profile.currentPhase || ""));
 
   if (!isAccepted) {
     throw new ApiError(409, "Candidate is not in accepted state");
@@ -709,6 +667,8 @@ export const getAcceptedCandidateDownload = async ({ submissionId }) => {
 };
 
 export const reviewPhase2Task = async ({ adminUserId, action, taskId, submissionId, feedback = null }) => {
+  throw new ApiError(410, "Phase 2 is no longer part of the application flow");
+
   const parsedAction = requireAllowed(action, ["accept", "reject", "retry"], "action");
 
   const [task] = await db.select().from(teacherPhase2Tasks).where(eq(teacherPhase2Tasks.id, taskId)).limit(1);
@@ -1138,7 +1098,9 @@ export const listCandidates = async ({ status = "all", phase = "all", q = "", pa
       const latestPhase1 = latestPhase1ByUser.get(profile.userId) || null;
       const phase2Task = taskByUser.get(profile.userId) || null;
 
-      const candidateStatus = phase2Task?.status || latestPhase1?.status || "new";
+      const candidatePassedPhase1 =
+        latestPhase1?.status === "moved_to_phase2" || ["accepted", "phase2"].includes(String(profile.currentPhase || ""));
+      const candidateStatus = candidatePassedPhase1 ? "accepted" : latestPhase1?.status || phase2Task?.status || "new";
       if (status !== "all" && candidateStatus !== status) {
         return null;
       }

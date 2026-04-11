@@ -21,11 +21,9 @@ const AdminPhase1Page = () => {
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState("");
   const [busyDeleteId, setBusyDeleteId] = useState("");
-  const [phase2Sentences, setPhase2Sentences] = useState({});
   const [rejectReasons, setRejectReasons] = useState({});
   const [rejectNotes, setRejectNotes] = useState({});
   const [selectedSubmissionIds, setSelectedSubmissionIds] = useState([]);
-  const [bulkSentence, setBulkSentence] = useState("");
   const [bulkRejectReason, setBulkRejectReason] = useState("bad_pronunciation");
   const [bulkRejectNotes, setBulkRejectNotes] = useState("");
   const [bulkBusy, setBulkBusy] = useState(false);
@@ -66,11 +64,7 @@ const AdminPhase1Page = () => {
 
       if (nextTotal > 0 && nextRows.length === 0) {
         for (const delayMs of [300, 700, 1200]) {
-          // Mobile clients occasionally get an empty first read while count is already updated.
-          // A short retry window avoids requiring manual "Osvezi".
-          // eslint-disable-next-line no-await-in-loop
           await sleep(delayMs);
-          // eslint-disable-next-line no-await-in-loop
           ({ rows: nextRows, total: nextTotal } = await fetchQueue(targetPage));
           lastValidPage = Math.max(1, Math.ceil(nextTotal / pageSize));
           if (targetPage > lastValidPage) {
@@ -78,25 +72,20 @@ const AdminPhase1Page = () => {
             if (targetPage !== page) {
               setPage(targetPage);
             }
-            // eslint-disable-next-line no-await-in-loop
             ({ rows: nextRows, total: nextTotal } = await fetchQueue(targetPage));
           }
           if (nextTotal === 0 || nextRows.length > 0) break;
         }
       }
 
-      if (loadToken !== loadTokenRef.current) {
-        return;
-      }
+      if (loadToken !== loadTokenRef.current) return;
 
       setRows(nextRows);
       setTotal(nextTotal);
       setError("");
     } catch (loadError) {
-      if (loadToken !== loadTokenRef.current) {
-        return;
-      }
-      setError(loadError.message || "Neuspesno ucitavanje Faza 1 queue.");
+      if (loadToken !== loadTokenRef.current) return;
+      setError(loadError.message || "Neuspesno ucitavanje faza 1 queue.");
       setRows([]);
       setTotal(0);
     } finally {
@@ -110,7 +99,7 @@ const AdminPhase1Page = () => {
     if (authLoading) return;
     if (!user || !isAdmin) return;
     loadRows();
-  }, [authLoading, isAdmin, page, pageSize, statusFilter, user?.id]);
+  }, [authLoading, isAdmin, page, user?.id]);
 
   useEffect(() => {
     setSelectedSubmissionIds((prev) => prev.filter((id) => rows.some((row) => row.submission_id === id)));
@@ -120,11 +109,10 @@ const AdminPhase1Page = () => {
 
   const queueInfo = useMemo(() => {
     if (!rows.length) {
-      if (statusFilter === "pending") return "Nema kandidata na čekanju. Promeni filter ili osveži listu.";
-      return "Nema zapisa za izabrani filter.";
+      return "Nema kandidata na cekanju.";
     }
     return "";
-  }, [rows.length, statusFilter]);
+  }, [rows.length]);
 
   const allIds = rows.map((row) => row.submission_id);
   const allSelected = allIds.length > 0 && allIds.every((id) => selectedSubmissionIds.includes(id));
@@ -148,13 +136,7 @@ const AdminPhase1Page = () => {
     );
   };
 
-  const moveToPhase2 = async (row) => {
-    const sentence = phase2Sentences[row.submission_id]?.trim();
-    if (!sentence) {
-      setError("Rečenica za Fazu 2 je obavezna.");
-      return;
-    }
-
+  const approvePhase1 = async (row) => {
     setBusyId(row.submission_id);
     setError("");
     setInfo("");
@@ -163,11 +145,10 @@ const AdminPhase1Page = () => {
       await apiPost("/api/admin/phase1/move", {
         user_id: row.user_id,
         submission_id: row.submission_id,
-        phase2_sentence: sentence,
       });
       await loadRows();
     } catch (actionError) {
-      setError(actionError.message || "Prebacivanje u Fazu 2 nije uspelo.");
+      setError(actionError.message || "Potvrda prolaska faze 1 nije uspela.");
     }
 
     setBusyId("");
@@ -198,7 +179,7 @@ const AdminPhase1Page = () => {
 
   const openPreview = (row) => {
     setPreviewUrl(row.video_blob_url || "");
-    setPreviewTitle(`${row.first_name || "Kandidat"} ${row.last_name || ""} - Faza 1 pokušaj ${row.attempt_no}`.trim());
+    setPreviewTitle(`${row.first_name || "Kandidat"} ${row.last_name || ""} - faza 1 pokusaj ${row.attempt_no}`.trim());
   };
 
   const closePreview = () => {
@@ -208,8 +189,7 @@ const AdminPhase1Page = () => {
 
   const deletePhase1Video = async (row) => {
     if (!row?.submission_id) return;
-
-    const confirmed = window.confirm("Obriši ovu Faza 1 glasovnu poruku i ukloni je iz aktivne liste?");
+    const confirmed = window.confirm("Obrisi ovu faza 1 glasovnu poruku i ukloni je iz aktivne liste?");
     if (!confirmed) return;
 
     setBusyDeleteId(row.submission_id);
@@ -223,7 +203,7 @@ const AdminPhase1Page = () => {
       });
       await loadRows();
     } catch (actionError) {
-      setError(actionError.message || "Brisanje Faza 1 glasovne poruke nije uspelo.");
+      setError(actionError.message || "Brisanje faza 1 glasovne poruke nije uspelo.");
     } finally {
       setBusyDeleteId("");
     }
@@ -245,13 +225,11 @@ const AdminPhase1Page = () => {
 
     for (const row of rowsToProcess) {
       try {
-        // Sequential processing avoids race conflicts on same candidate updates.
-        // eslint-disable-next-line no-await-in-loop
         await fn(row);
         okCount += 1;
       } catch (err) {
         failedCount += 1;
-        lastError = err?.message || "Nepoznata greška.";
+        lastError = err?.message || "Nepoznata greska.";
       }
     }
 
@@ -260,29 +238,22 @@ const AdminPhase1Page = () => {
     setBulkBusy(false);
 
     if (failedCount) {
-      setError(`${successLabel}: uspešno ${okCount}, neuspešno ${failedCount}. ${lastError}`);
+      setError(`${successLabel}: uspesno ${okCount}, neuspesno ${failedCount}. ${lastError}`);
       return;
     }
 
-    setInfo(`${successLabel}: obrađeno ${okCount} stavki.`);
+    setInfo(`${successLabel}: obradjeno ${okCount} stavki.`);
   };
 
-  const bulkMoveToPhase2 = async () => {
-    const sentence = bulkSentence.trim();
-    if (!sentence) {
-      setError("Unesite rečenicu za bulk prebacivanje u Fazu 2.");
-      return;
-    }
-
+  const bulkApprovePhase1 = async () => {
     await runBulk(
       selectedPendingRows,
       (row) =>
         apiPost("/api/admin/phase1/move", {
           user_id: row.user_id,
           submission_id: row.submission_id,
-          phase2_sentence: sentence,
         }),
-      "Bulk prebacivanje u Fazu 2",
+      "Bulk potvrda prolaska faze 1",
     );
   };
 
@@ -301,7 +272,7 @@ const AdminPhase1Page = () => {
   };
 
   const bulkDelete = async () => {
-    if (!window.confirm("Obriši izabrane Faza 1 snimke koji su već review-ovani?")) return;
+    if (!window.confirm("Obrisi izabrane faza 1 snimke koji su vec review-ovani?")) return;
 
     await runBulk(
       selectedDeletableRows,
@@ -316,27 +287,14 @@ const AdminPhase1Page = () => {
 
   const renderActionPanel = (row) => (
     <div className="tfh-admin-decision-stack">
-      <label className="tfh-admin-modern-field">
-        <span className="tfh-admin-modern-label">Rečenica za Fazu 2</span>
-        <textarea
-          className="tfh-admin-control"
-          value={phase2Sentences[row.submission_id] || ""}
-          onChange={(event) =>
-            setPhase2Sentences((prev) => ({
-              ...prev,
-              [row.submission_id]: event.target.value,
-            }))
-          }
-        />
-      </label>
       <Button
         size="sm"
         color="primary"
         className="tfh-admin-decision-btn tfh-admin-decision-btn--move"
-        onPress={() => moveToPhase2(row)}
+        onPress={() => approvePhase1(row)}
         isLoading={busyId === row.submission_id}
       >
-        Prebaci u Fazu 2
+        Oznaci kao prosao/la
       </Button>
 
       <select
@@ -383,9 +341,8 @@ const AdminPhase1Page = () => {
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Admin Faza 1 queue" subtitle="Pregledaj prijave, odbij ili prebaci kandidata u Fazu 2.">
+      <AppShell title="Admin faza 1 queue" subtitle="Pregledaj prijave, odbij ili potvrdi da kandidat prolazi fazu 1 i ide na HR kontakt.">
         <AdminPhaseSwitch />
-
 
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="tfh-admin-pagination">
@@ -395,7 +352,7 @@ const AdminPhase1Page = () => {
                 Prethodna
               </Button>
               <Button size="sm" variant="bordered" isDisabled={loading || page >= totalPages} onPress={() => setPage((prev) => Math.min(totalPages, prev + 1))}>
-                Sledeća
+                Sledeca
               </Button>
             </div>
           </CardBody>
@@ -403,16 +360,17 @@ const AdminPhase1Page = () => {
 
         {error && <Alert color="danger" title={error} className="mb-4" />}
         {info && <Alert color="success" title={info} className="mb-4" />}
+
         <Card className="tfh-admin-panel-card">
           <CardHeader>
-            <h3 className="text-lg font-semibold">Lista prijava za Fazu 1</h3>
+            <h3 className="text-lg font-semibold">Lista prijava za fazu 1</h3>
           </CardHeader>
           <Divider />
           <CardBody>
             {loading ? (
               <div className="flex items-center gap-3 py-6">
                 <Spinner size="sm" />
-                <p>Ucitavanje Faza 1 queue...</p>
+                <p>Ucitavanje faza 1 queue...</p>
               </div>
             ) : rows.length ? (
               <>
@@ -420,6 +378,7 @@ const AdminPhase1Page = () => {
                   <input className="tfh-bulk-select-input" type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
                   <span>Izaberi sve na stranici</span>
                 </label>
+
                 <div className="tfh-table-wrap hidden lg:block">
                   <table className="tfh-table">
                     <thead>
@@ -429,7 +388,7 @@ const AdminPhase1Page = () => {
                         </th>
                         <th>Kandidat</th>
                         <th>Status</th>
-                        <th>Pokušaj</th>
+                        <th>Pokusaj</th>
                         <th>Snimak</th>
                         <th>Akcije</th>
                       </tr>
@@ -455,7 +414,7 @@ const AdminPhase1Page = () => {
                           <td>
                             {row.video_blob_url ? (
                               <Button size="sm" variant="bordered" onPress={() => openPreview(row)}>
-                                Preslušaj
+                                Preslusaj
                               </Button>
                             ) : "-"}
                           </td>
@@ -475,7 +434,7 @@ const AdminPhase1Page = () => {
                                       isLoading={busyDeleteId === row.submission_id}
                                       onPress={() => deletePhase1Video(row)}
                                     >
-                                      Obriši snimak
+                                      Obrisi snimak
                                     </Button>
                                   )}
                                 </>
@@ -506,10 +465,10 @@ const AdminPhase1Page = () => {
                       </div>
                       <p>{row.email}</p>
                       <p>{row.phone || "-"}</p>
-                      <p>Pokušaj: {row.attempt_no}</p>
+                      <p>Pokusaj: {row.attempt_no}</p>
 
                       {row.video_blob_url && (
-                        <Button size="sm" variant="bordered" onPress={() => openPreview(row)}>Preslušaj</Button>
+                        <Button size="sm" variant="bordered" onPress={() => openPreview(row)}>Preslusaj</Button>
                       )}
 
                       {row.status === "pending" ? (
@@ -524,7 +483,7 @@ const AdminPhase1Page = () => {
                             isLoading={busyDeleteId === row.submission_id}
                             onPress={() => deletePhase1Video(row)}
                           >
-                            Obriši snimak
+                            Obrisi snimak
                           </Button>
                         )
                       )}
@@ -548,24 +507,15 @@ const AdminPhase1Page = () => {
               Izabrano: {selectedRows.length} | Pending: {selectedPendingRows.length} | Za brisanje: {selectedDeletableRows.length}
             </p>
 
-            <label className="tfh-admin-modern-field">
-              <span className="tfh-admin-modern-label">Rečenica za bulk move u Fazu 2</span>
-              <textarea
-                className="tfh-admin-control"
-                value={bulkSentence}
-                onChange={(event) => setBulkSentence(event.target.value)}
-                placeholder="Jedna rečenica za sve izabrane pending kandidate"
-              />
-            </label>
             <div className="tfh-admin-pagination-actions tfh-admin-bulk-actions">
               <Button
                 size="sm"
                 color="primary"
                 className="tfh-admin-decision-btn tfh-admin-decision-btn--move"
                 isLoading={bulkBusy}
-                onPress={bulkMoveToPhase2}
+                onPress={bulkApprovePhase1}
               >
-                Bulk prebaci u Fazu 2
+                Bulk oznaci kao prosli
               </Button>
             </div>
 
@@ -586,6 +536,7 @@ const AdminPhase1Page = () => {
                 placeholder="Napomena za bulk odbijanje (opciono)"
               />
             </div>
+
             <div className="tfh-admin-pagination-actions tfh-admin-bulk-actions">
               <Button
                 size="sm"
@@ -605,19 +556,16 @@ const AdminPhase1Page = () => {
                 isLoading={bulkBusy}
                 onPress={bulkDelete}
               >
-                Bulk obriši review-ovane snimke
+                Bulk obrisi review-ovane snimke
               </Button>
             </div>
           </CardBody>
         </Card>
-        <VideoPreviewModal open={Boolean(previewUrl)} src={previewUrl} title={previewTitle} onClose={closePreview} />
 
+        <VideoPreviewModal open={Boolean(previewUrl)} src={previewUrl} title={previewTitle} onClose={closePreview} />
       </AppShell>
     </RequireAuth>
   );
 };
 
 export default AdminPhase1Page;
-
-
-

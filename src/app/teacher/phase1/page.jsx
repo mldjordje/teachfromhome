@@ -348,7 +348,7 @@ const TeacherPhase1Page = () => {
           </div>
 
           {latest?.status === "moved_to_phase2" && (
-            <div className="tfh-alert tfh-success">Faza 1 je uspesno prosla. Predji na fazu 2.</div>
+            <div className="tfh-alert tfh-success">Faza 1 je uspesno prosla. HR tim ce te kontaktirati sa narednim koracima.</div>
           )}
 
           {latest?.status === "pending" && <div className="tfh-alert">Poslednji pokusaj je na proveri. Sacekajte admin odluku.</div>}

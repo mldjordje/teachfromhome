@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 
 const phaseLinks = [
   { href: "/admin/phase1", label: "Faza 1" },
-  { href: "/admin/phase2", label: "Faza 2" },
   { href: "/admin/accepted", label: "Prihvaceni" },
   { href: "/admin/candidates", label: "Svi kandidati" },
 ];

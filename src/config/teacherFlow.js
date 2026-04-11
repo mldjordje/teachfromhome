@@ -83,15 +83,15 @@ export const buildTeacherApplicationFlow = ({ phase1Attempts = [], phase2Task = 
     };
   }
 
-  if (latestPhase1.status === "moved_to_phase2" && !phase2Task) {
+  if (latestPhase1.status === "moved_to_phase2") {
     return {
       ...baseFlow,
-      key: "phase2_waiting_assignment",
+      key: "phase1_passed",
       tone: "success",
       title: "Prosao/la si Fazu 1",
-      description: "Cekas dodelu konkretnog zadatka za Fazu 2.",
-      ctaLabel: "Otvori dashboard",
-      nextPath: "/teacher/dashboard",
+      description: "Nema vise druge faze. HR tim ce te kontaktirati sa narednim koracima.",
+      ctaLabel: "Otvori obavestenja",
+      nextPath: "/teacher/notifications",
     };
   }
 
@@ -106,68 +106,27 @@ export const buildTeacherApplicationFlow = ({ phase1Attempts = [], phase2Task = 
     };
   }
 
-  if (phase2Task.status === "assigned") {
+  if (["assigned", "submitted", "retry", "accepted"].includes(phase2Task.status)) {
     return {
       ...baseFlow,
-      key: "phase2_assigned",
+      key: "hr_contact_pending",
       tone: "success",
-      title: "Dodeljen ti je zadatak za Fazu 2",
-      description: "Pogledaj recenicu i posalji video.",
-      ctaLabel: "Posalji Fazu 2",
-      nextPath: "/teacher/phase2",
-      allowPhase2: true,
-    };
-  }
-
-  if (phase2Task.status === "submitted") {
-    return {
-      ...baseFlow,
-      key: "phase2_submitted",
-      title: "Faza 2 je poslata",
-      description: "Prijava je na admin proveri. Sacekaj povratnu informaciju.",
-      ctaLabel: "Pogledaj status",
-      nextPath: "/teacher/dashboard",
-      allowPhase2: true,
-    };
-  }
-
-  if (phase2Task.status === "retry") {
-    return {
-      ...baseFlow,
-      key: "phase2_retry",
-      tone: "warning",
-      title: "Potreban je retry za Fazu 2",
-      description: "Procitaj feedback i posalji novi pokusaj.",
-      ctaLabel: "Posalji novi pokusaj",
-      nextPath: "/teacher/phase2",
-      allowPhase2: true,
-      feedback: phase2Task.last_feedback || "",
-    };
-  }
-
-  if (phase2Task.status === "accepted") {
-    return {
-      ...baseFlow,
-      key: "phase2_accepted",
-      tone: "success",
-      title: "Cestitamo, prijava je prihvacena",
-      description: "Tim ce te uskoro kontaktirati sa sledecim informacijama.",
+      title: "Prosao/la si Fazu 1",
+      description: "Druga faza je uklonjena iz procesa. HR tim ce te kontaktirati sa narednim koracima.",
       ctaLabel: "Otvori obavestenja",
       nextPath: "/teacher/notifications",
-      allowPhase2: true,
     };
   }
 
   if (phase2Task.status === "rejected") {
     return {
       ...baseFlow,
-      key: "phase2_rejected",
+      key: "application_closed",
       tone: "danger",
-      title: "Faza 2 nije prihvacena",
-      description: phase2Task.last_feedback || "Prijava je zatvorena. Za dodatna pitanja pogledaj obavestenja.",
+      title: "Prijava je zatvorena",
+      description: phase2Task.last_feedback || "Za dodatna pitanja pogledaj obavestenja.",
       ctaLabel: "Otvori obavestenja",
       nextPath: "/teacher/notifications",
-      allowPhase2: true,
       feedback: phase2Task.last_feedback || "",
     };
   }
@@ -208,4 +167,3 @@ export const resolveTeacherPostLoginPath = ({ requestedPath, flow }) => {
   }
   return flow?.nextPath || "/teacher/dashboard";
 };
-

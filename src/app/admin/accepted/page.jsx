@@ -57,7 +57,7 @@ const AdminAcceptedCandidatesPage = () => {
 
   const openPreview = (row) => {
     setPreviewUrl(row.latest_video_blob_url || "");
-    setPreviewTitle(`${row.first_name || "Kandidat"} ${row.last_name || ""} - finalni klip`.trim());
+    setPreviewTitle(`${row.first_name || "Kandidat"} ${row.last_name || ""} - faza 1 snimak`.trim());
   };
 
   const closePreview = () => {
@@ -69,7 +69,7 @@ const AdminAcceptedCandidatesPage = () => {
     <RequireAuth adminOnly>
       <AppShell
         title="Prihvaceni kandidati"
-        subtitle="Kandidati koji su prosli Fazu 2. Pregledaj i preuzmi poslednji klip za prosledjivanje HR timu."
+        subtitle="Kandidati koji su prosli fazu 1 i cekaju HR kontakt. Pregledaj i preuzmi poslednji faza 1 snimak."
       >
         <AdminPhaseSwitch />
 
@@ -151,7 +151,7 @@ const AdminAcceptedCandidatesPage = () => {
             ) : rows.length ? (
               <div className="tfh-mobile-list">
                 {rows.map((row) => (
-                  <article key={`${row.user_id}-${row.task_id}`} className="tfh-mobile-item tfh-mobile-item--admin">
+                  <article key={`${row.user_id}-${row.latest_submission_id || "accepted"}`} className="tfh-mobile-item tfh-mobile-item--admin">
                     <div className="tfh-mobile-item-top">
                       <strong>
                         {row.first_name} {row.last_name}
@@ -160,12 +160,12 @@ const AdminAcceptedCandidatesPage = () => {
                     </div>
                     <p>{row.email}</p>
                     <p>{row.phone || "-"}</p>
-                    <p>Pokusaj: {row.latest_attempt_no || "-"}</p>
-                    <p>Prihvacen: {row.accepted_at ? new Date(row.accepted_at).toLocaleString() : "-"}</p>
+                    <p>Pokusaj faze 1: {row.latest_attempt_no || "-"}</p>
+                    <p>Prosao/la fazu 1: {row.accepted_at ? new Date(row.accepted_at).toLocaleString() : "-"}</p>
                     <div className="flex flex-wrap gap-2">
                       {row.latest_video_blob_url && (
                         <Button size="sm" variant="bordered" onPress={() => openPreview(row)}>
-                          Pregled klipa
+                          Pregled snimka
                         </Button>
                       )}
                       {row.latest_submission_id && (
@@ -175,7 +175,7 @@ const AdminAcceptedCandidatesPage = () => {
                           size="sm"
                           color="success"
                         >
-                          Download klipa
+                          Download snimka
                         </Button>
                       )}
                       <Button as={Link} href={`/admin/candidates/${row.user_id}`} size="sm" variant="flat">

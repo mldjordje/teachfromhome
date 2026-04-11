@@ -98,17 +98,13 @@ const AdminCandidatesPage = () => {
             <select className="tfh-admin-filter-select" value={status} onChange={(e) => onStatusChange(e.target.value)}>
               <option value="all">Svi statusi</option>
               <option value="pending">Na cekanju</option>
-              <option value="submitted">Poslato</option>
-              <option value="retry">Retry</option>
               <option value="accepted">Prihvaceno</option>
               <option value="rejected">Odbijeno</option>
-              <option value="moved_to_phase2">Prebaceno u fazu 2</option>
             </select>
 
             <select className="tfh-admin-filter-select" value={phase} onChange={(e) => onPhaseChange(e.target.value)}>
               <option value="all">Sve faze</option>
               <option value="phase1">phase1</option>
-              <option value="phase2">phase2</option>
               <option value="accepted">accepted</option>
               <option value="rejected">rejected</option>
             </select>

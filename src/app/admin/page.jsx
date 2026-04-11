@@ -7,17 +7,16 @@ import RequireAuth from "@components/auth/RequireAuth";
 import AppShell from "@components/app/AppShell";
 import { apiGet, apiPost } from "@library/apiClient";
 
-const trackedEvents = ["visits", "started_signup", "phase1_submitted", "phase1_passed", "phase2_submitted", "accepted"];
+const trackedEvents = ["visits", "started_signup", "phase1_submitted", "phase1_passed", "accepted"];
 
 const AdminDashboardPage = () => {
   const [phase1Pending, setPhase1Pending] = useState(0);
-  const [phase2Pending, setPhase2Pending] = useState(0);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [analyticsSummary, setAnalyticsSummary] = useState({});
   const [funnel, setFunnel] = useState({ stages: [], visit_to_accept_rate: 0, signup_to_accept_rate: 0 });
   const [dailyFunnel, setDailyFunnel] = useState([]);
   const [stuckCandidates, setStuckCandidates] = useState([]);
-  const [stuckSummary, setStuckSummary] = useState({ total: 0, phase1_pending_review: 0, phase2_waiting_candidate: 0 });
+  const [stuckSummary, setStuckSummary] = useState({ total: 0, phase1_pending_review: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [maintenanceBusy, setMaintenanceBusy] = useState(false);
@@ -30,16 +29,15 @@ const AdminDashboardPage = () => {
       try {
         const payload = await apiGet("/api/admin/dashboard");
         setPhase1Pending(payload.phase1Pending || 0);
-        setPhase2Pending(payload.phase2Pending || 0);
         setAcceptedCount(payload.acceptedCount || 0);
         setAnalyticsSummary(payload.analyticsSummary || {});
         setFunnel(payload.funnel || { stages: [] });
         setDailyFunnel(payload.dailyFunnel || []);
         setStuckCandidates(payload.stuckCandidates || []);
-        setStuckSummary(payload.stuckSummary || { total: 0, phase1_pending_review: 0, phase2_waiting_candidate: 0 });
+        setStuckSummary(payload.stuckSummary || { total: 0, phase1_pending_review: 0 });
         setError("");
       } catch (loadError) {
-        setError(loadError?.message || "Neuspešno učitavanje admin kontrolne table.");
+        setError(loadError?.message || "Neuspesno ucitavanje admin kontrolne table.");
       } finally {
         setLoading(false);
       }
@@ -55,7 +53,7 @@ const AdminDashboardPage = () => {
     try {
       const result = await apiPost("/api/admin/storage/cleanup", {});
       setMaintenanceMessage(
-        `Čišćenje završeno. Obrisano zastarelih: ${result?.deleted?.stale || 0}, zatvorenih: ${result?.deleted?.closed || 0}.`,
+        `Ciscenje zavrseno. Obrisano zastarelih: ${result?.deleted?.stale || 0}, zatvorenih: ${result?.deleted?.closed || 0}.`,
       );
     } catch (cleanupError) {
       setMaintenanceMessage(cleanupError?.message || "Storage cleanup nije uspeo.");
@@ -86,34 +84,28 @@ const AdminDashboardPage = () => {
 
   return (
     <RequireAuth adminOnly>
-      <AppShell title="Admin kontrolna tabla" subtitle="Pregled queue-ova, metrika i operativnih akcija.">
+      <AppShell title="Admin kontrolna tabla" subtitle="Pregled faze 1, HR kandidata i operativnih akcija.">
         {error && <Alert color="danger" title={error} className="mb-4" />}
 
         {loading ? (
           <Card className="tfh-admin-panel-card">
             <CardBody className="flex flex-row items-center gap-3 py-8">
               <Spinner size="sm" />
-              <p>Učitavanje admin metrika...</p>
+              <p>Ucitavanje admin metrika...</p>
             </CardBody>
           </Card>
         ) : (
           <div className="grid gap-5">
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2">
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="tfh-admin-kpi-label">Faza 1 na čekanju</span>
+                  <span className="tfh-admin-kpi-label">Faza 1 na cekanju</span>
                   <strong className="tfh-admin-kpi-value">{phase1Pending}</strong>
                 </CardBody>
               </Card>
               <Card className="tfh-kpi-panel">
                 <CardBody>
-                  <span className="tfh-admin-kpi-label">Faza 2 na čekanju</span>
-                  <strong className="tfh-admin-kpi-value">{phase2Pending}</strong>
-                </CardBody>
-              </Card>
-              <Card className="tfh-kpi-panel">
-                <CardBody>
-                  <span className="tfh-admin-kpi-label">Prihvaćeni kandidati</span>
+                  <span className="tfh-admin-kpi-label">Kandidati za HR kontakt</span>
                   <strong className="tfh-admin-kpi-value">{acceptedCount}</strong>
                 </CardBody>
               </Card>
@@ -143,8 +135,8 @@ const AdminDashboardPage = () => {
               <Divider />
               <CardBody className="grid gap-3">
                 <div className="tfh-funnel-summary">
-                  <span>Visit → Accept: {funnel.visit_to_accept_rate ?? 0}%</span>
-                  <span>Signup → Accept: {funnel.signup_to_accept_rate ?? 0}%</span>
+                  <span>Visit to HR: {funnel.visit_to_accept_rate ?? 0}%</span>
+                  <span>Signup to HR: {funnel.signup_to_accept_rate ?? 0}%</span>
                 </div>
                 <div className="tfh-funnel-grid">
                   {(funnel.stages || []).map((stage) => (
@@ -172,13 +164,13 @@ const AdminDashboardPage = () => {
                         <span>Posete: {day.visits}</span>
                         <span>Signup: {day.started_signup}</span>
                         <span>Faza1: {day.phase1_submitted}</span>
-                        <span>Accept: {day.accepted}</span>
-                        <span>Accept/visit: {day.accept_rate_from_visits}%</span>
+                        <span>HR: {day.accepted}</span>
+                        <span>HR/visit: {day.accept_rate_from_visits}%</span>
                       </article>
                     ))}
                   </div>
                 ) : (
-                  <p>Nema dovoljno događaja za dnevni trend.</p>
+                  <p>Nema dovoljno dogadjaja za dnevni trend.</p>
                 )}
               </CardBody>
             </Card>
@@ -192,7 +184,6 @@ const AdminDashboardPage = () => {
                 <div className="tfh-funnel-summary">
                   <span>Ukupno: {stuckSummary.total || 0}</span>
                   <span>Faza 1 review: {stuckSummary.phase1_pending_review || 0}</span>
-                  <span>Faza 2 ceka kandidata: {stuckSummary.phase2_waiting_candidate || 0}</span>
                 </div>
                 {stuckCandidates.length ? (
                   <div className="tfh-stuck-list">
@@ -244,7 +235,6 @@ const AdminDashboardPage = () => {
               <Divider />
               <CardBody className="tfh-admin-action-grid">
                 <Link href="/admin/phase1" className="tfh-admin-quick-link">Faza 1 queue</Link>
-                <Link href="/admin/phase2" className="tfh-admin-quick-link">Faza 2 queue</Link>
                 <Link href="/admin/accepted" className="tfh-admin-quick-link">Prihvaceni kandidati</Link>
                 <Link href="/admin/candidates" className="tfh-admin-quick-link">Kandidati</Link>
                 <Link href="/admin/training" className="tfh-admin-quick-link tfh-admin-quick-link--ghost">Trening klipovi</Link>

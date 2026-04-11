@@ -340,6 +340,13 @@ export const submitTeacherPhase1 = async ({
 };
 
 export const getTeacherPhase2Data = async (userId) => {
+  return {
+    task: null,
+    submissions: [],
+    trainingVideos: [],
+    showcaseVideos: [],
+  };
+
   const [taskRows, submissions, videos, showcase] = await Promise.all([
     db.select().from(teacherPhase2Tasks).where(eq(teacherPhase2Tasks.userId, userId)).limit(1),
     db
@@ -368,6 +375,8 @@ export const getTeacherPhase2Data = async (userId) => {
 };
 
 export const submitTeacherPhase2 = async ({ userId, taskId, videoBlobKey, videoBlobUrl, sessionId }) => {
+  throw new ApiError(410, "Phase 2 is no longer part of the application flow");
+
   const [task] = await db
     .select()
     .from(teacherPhase2Tasks)
