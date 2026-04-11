@@ -11,7 +11,6 @@ import { useAuth } from "@components/auth/AuthProvider";
 const teacherLinks = [
   { href: "/teacher/dashboard", label: "Moj status" },
   { href: "/teacher/phase1", label: "Faza 1" },
-  { href: "/teacher/phase2", label: "Faza 2" },
   { href: "/teacher/notifications", label: "Obavestenja" },
   { href: "/teacher/profile", label: "Profil" },
 ];
@@ -19,7 +18,6 @@ const teacherLinks = [
 const adminLinks = [
   { href: "/admin", label: "Admin po\u010detna" },
   { href: "/admin/phase1", label: "Admin faza 1" },
-  { href: "/admin/phase2", label: "Admin faza 2" },
   { href: "/admin/accepted", label: "Prihvaceni" },
   { href: "/admin/training", label: "Trening klipovi" },
   { href: "/admin/referrals", label: "Preporuke" },

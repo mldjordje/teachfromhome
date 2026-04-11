@@ -1448,3 +1448,403 @@ body.tfh-menu-open {
         background-position: 0% 50%;
     }
 }
+
+/* 2026-04 landing refresh */
+.tfh-home-landing {
+    background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 28%),
+        radial-gradient(circle at 88% 12%, rgba(37, 99, 235, 0.14), transparent 24%),
+        linear-gradient(180deg, #f7fbff 0%, #ffffff 48%, #f7fafc 100%);
+}
+
+.tfh-home-hero {
+    min-height: 100vh;
+    padding: 120px 0 90px;
+}
+
+.tfh-home-hero-overlay {
+    background:
+        linear-gradient(115deg, rgba(2, 6, 23, 0.88), rgba(15, 23, 42, 0.54) 48%, rgba(15, 23, 42, 0.26)),
+        radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.18), transparent 28%);
+}
+
+.tfh-home-hero-shell {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 420px);
+    gap: 28px;
+    align-items: end;
+}
+
+.tfh-home-hero-copy {
+    color: #ffffff;
+    max-width: 720px;
+}
+
+.tfh-home-eyebrow {
+    margin: 18px 0 10px;
+    color: rgba(125, 211, 252, 0.96);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.tfh-home-hero-copy h1 {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(42px, 6vw, 78px);
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+    max-width: 9ch;
+}
+
+.tfh-home-subtitle {
+    margin: 20px 0 0;
+    max-width: 660px;
+    color: rgba(226, 232, 240, 0.96);
+    font-size: clamp(17px, 2vw, 22px);
+    line-height: 1.65;
+}
+
+.tfh-home-hero-points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.tfh-home-hero-points span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.34);
+    background: rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0 14px;
+    backdrop-filter: blur(8px);
+}
+
+.tfh-home-hero-panel {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 28px;
+    border: 1px solid rgba(191, 219, 254, 0.2);
+    background: linear-gradient(180deg, rgba(6, 12, 26, 0.86), rgba(15, 23, 42, 0.74));
+    box-shadow: 0 24px 54px rgba(2, 6, 23, 0.34);
+    backdrop-filter: blur(16px);
+}
+
+.tfh-home-hero-panel-image {
+    position: relative;
+    min-height: 340px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(191, 219, 254, 0.18);
+}
+
+.tfh-home-hero-panel-image img {
+    object-fit: cover;
+}
+
+.tfh-home-hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.tfh-home-hero-stats article {
+    display: grid;
+    gap: 4px;
+    min-height: 96px;
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+    padding: 14px;
+}
+
+.tfh-home-hero-stats strong {
+    color: #ffffff;
+    font-size: clamp(24px, 3vw, 32px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.tfh-home-hero-stats span {
+    color: rgba(191, 219, 254, 0.9);
+    font-size: 12px;
+    line-height: 1.45;
+    text-transform: uppercase;
+}
+
+.tfh-home-band {
+    padding-top: 34px;
+}
+
+.tfh-home-section-head {
+    max-width: 760px;
+    margin-bottom: 18px;
+}
+
+.tfh-home-section-head h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(32px, 4.2vw, 54px);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+}
+
+.tfh-home-benefit-grid,
+.tfh-home-support-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.tfh-home-benefit-card,
+.tfh-home-support-card {
+    min-height: 100%;
+    border-radius: 24px;
+    border: 1px solid rgba(203, 213, 225, 0.8);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92));
+    padding: 22px;
+    box-shadow: 0 20px 34px rgba(15, 23, 42, 0.06);
+}
+
+.tfh-home-benefit-card h3,
+.tfh-home-support-card h3,
+.tfh-home-process-card h3,
+.tfh-home-role-copy h2,
+.tfh-home-checklist h3 {
+    margin: 0;
+    color: #0f172a;
+}
+
+.tfh-home-benefit-card h3,
+.tfh-home-support-card h3 {
+    font-size: 22px;
+    line-height: 1.14;
+}
+
+.tfh-home-benefit-card p,
+.tfh-home-support-card p {
+    margin: 12px 0 0;
+    color: #475569;
+    font-size: 16px;
+    line-height: 1.68;
+}
+
+.tfh-home-role-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.02fr) minmax(300px, 0.98fr);
+    gap: 22px;
+    align-items: center;
+}
+
+.tfh-home-role-copy {
+    display: grid;
+    gap: 14px;
+}
+
+.tfh-home-role-copy h2 {
+    font-size: clamp(34px, 4vw, 52px);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+}
+
+.tfh-home-role-copy p {
+    margin: 0;
+    color: #334155;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.tfh-home-role-lead {
+    color: #0f172a !important;
+    font-size: 19px !important;
+    font-weight: 600;
+}
+
+.tfh-home-role-media {
+    min-height: 540px;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 24px 40px rgba(15, 23, 42, 0.08);
+}
+
+.tfh-home-checklist {
+    margin-top: 6px;
+    display: grid;
+    gap: 10px;
+}
+
+.tfh-home-checklist h3 {
+    font-size: 24px;
+}
+
+.tfh-home-checklist ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+}
+
+.tfh-home-checklist li {
+    position: relative;
+    border-radius: 16px;
+    border: 1px solid #d8e5f2;
+    background: #f8fbff;
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+    padding: 14px 16px 14px 48px;
+}
+
+.tfh-home-checklist li::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 18px;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: linear-gradient(120deg, #2563eb, #22d3ee);
+    transform: translateY(-50%);
+    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.1);
+}
+
+.tfh-home-support {
+    background:
+        radial-gradient(circle at 0% 0%, rgba(219, 234, 254, 0.76), transparent 34%),
+        linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+}
+
+.tfh-home-process {
+    background:
+        radial-gradient(circle at 100% 0%, rgba(14, 165, 233, 0.12), transparent 26%),
+        #ffffff;
+}
+
+.tfh-home-process-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.tfh-home-process-card {
+    min-height: 100%;
+    border-radius: 24px;
+    border: 1px solid rgba(191, 219, 254, 0.7);
+    background: linear-gradient(180deg, #ffffff, #f8fbff);
+    padding: 22px;
+    box-shadow: 0 18px 30px rgba(15, 23, 42, 0.06);
+}
+
+.tfh-home-process-card > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 54px;
+    min-height: 34px;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #0c4a6e;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.tfh-home-process-card h3 {
+    margin-top: 16px;
+    font-size: 24px;
+    line-height: 1.12;
+}
+
+.tfh-home-process-card p {
+    margin: 10px 0 0;
+    color: #475569;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.tfh-home-final-card {
+    background:
+        radial-gradient(circle at 15% 20%, rgba(34, 211, 238, 0.18), transparent 24%),
+        linear-gradient(135deg, #020617, #102a5c 56%, #0ea5e9 100%);
+    padding: 56px 24px;
+    border: 1px solid rgba(125, 211, 252, 0.22);
+}
+
+@media (max-width: 1199px) {
+    .tfh-home-hero-shell,
+    .tfh-home-role-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tfh-home-benefit-grid,
+    .tfh-home-support-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tfh-home-process-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tfh-home-hero-copy h1 {
+        max-width: 11ch;
+    }
+}
+
+@media (max-width: 767px) {
+    .tfh-home-hero {
+        min-height: auto;
+        padding: 96px 0 56px;
+    }
+
+    .tfh-home-hero-shell,
+    .tfh-home-benefit-grid,
+    .tfh-home-support-grid,
+    .tfh-home-process-grid,
+    .tfh-home-hero-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .tfh-home-hero-copy h1 {
+        max-width: none;
+        font-size: clamp(34px, 10vw, 48px);
+    }
+
+    .tfh-home-subtitle,
+    .tfh-home-role-copy p,
+    .tfh-home-benefit-card p,
+    .tfh-home-support-card p,
+    .tfh-home-process-card p {
+        font-size: 15px;
+    }
+
+    .tfh-home-hero-panel {
+        padding: 12px;
+        border-radius: 22px;
+    }
+
+    .tfh-home-hero-panel-image,
+    .tfh-home-role-media {
+        min-height: 240px;
+    }
+
+    .tfh-home-band {
+        padding-top: 10px;
+    }
+
+    .tfh-home-benefit-card,
+    .tfh-home-support-card,
+    .tfh-home-process-card {
+        padding: 18px;
+    }
+}

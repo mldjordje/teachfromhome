@@ -5,9 +5,9 @@ import { useLanguage } from "@components/i18n/LanguageProvider";
 import ShowcaseVideoGrid from "@components/videos/ShowcaseVideoGrid";
 
 const reveal = {
-  initial: { opacity: 0, y: 26 },
+  initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" },
+  viewport: { once: true, margin: "-80px" },
   transition: { duration: 0.45, ease: [0.2, 0.8, 0.2, 1] },
 };
 
@@ -35,118 +35,184 @@ const ResponsiveMedia = ({ desktopSrc, mobileSrc, alt, className }) => (
 const content = {
   sr: {
     badge: "TeachFromHome.app",
-    title: "Predaj engleski online i radi od kuće",
-    subtitle: "Fleksibilan raspored, internacionalni učenici i brz onboarding u 2 faze.",
+    eyebrow: "Remote posao za nastavnike engleskog",
+    title: "Predaj engleski online i radi iz svog prostora",
+    subtitle:
+      "Fleksibilan raspored, spremni materijali i jasan onboarding: nalog, Faza 1 prijava, pregled i HR kontakt.",
     ctaApply: "Prijavi se",
-    ctaProcess: "Pogledaj proces",
-    whyTitle: "Zasto kandidati biraju TeachFromHome",
-    whyItems: [
+    ctaClips: "Pogledaj klipove",
+    heroPoints: ["Fleksibilne smene", "Rad od kuce", "Brz odgovor tima"],
+    heroStats: [
+      { value: "40.000+ RSD", label: "pocetna mesecna zarada" },
+      { value: "4-14", label: "uzrast ucenika" },
+      { value: "~2 dana", label: "moguc start nakon odobrenja" },
+    ],
+    benefitTitle: "Zasto kandidati biraju TeachFromHome",
+    benefitCards: [
       {
-        title: "Remote pozicija",
-        text: "Predajes iz svog prostora bez putovanja i kancelarije.",
-        image: "/images/teachfromhome/hero1-desktop.jpeg",
+        title: "Jasan pocetak",
+        text: "Odmah znas sta treba da posaljes i koji je sledeci korak nakon pregleda.",
       },
       {
-        title: "Fleksibilno vreme",
-        text: "Raspored prilagodjavas sebi i svojoj dostupnosti.",
-        image: "/images/teachfromhome/hero2-desktop.jpeg",
+        title: "Materijali su spremni",
+        text: "Roditelji ili platforma dostavljaju sadrzaj, pa nema klasicne pripreme casa od nule.",
       },
       {
-        title: "Stabilna saradnja",
-        text: "Jasna podrska tima i dugorocni potencijal zarade.",
-        image: "/images/teachfromhome/image1.jpeg",
+        title: "Stabilan remote ritam",
+        text: "Predajes iz svog prostora bez putovanja i kancelarijskog rasporeda.",
+      },
+      {
+        title: "Podrska tima",
+        text: "Tokom onboardinga imas jasne smernice, feedback i kontakt sa timom.",
       },
     ],
-    aboutTitle: "O poslu",
-    aboutLead:
-      "Tražimo tečan engleski, profesionalnu komunikaciju i stabilnu internet konekciju. Iskustvo u predavanju je prednost, ali nije obavezno.",
-    aboutParagraphs: [
-      "Organizovan je trening i obuka za nove predavače, tako da kandidati mogu naučiti metodologiju rada i dobiti podršku na početku.",
-      "Predavanje se održava online sa decom iz Kine uzrasta od 4 do 14 godina. Svi nastavni materijali su već obezbeđeni ili ih roditelji šalju unapred, tako da predavači ne moraju da pripremaju sopstveni materijal.",
-      "Rad se odvija online, sa fleksibilnim radnim vremenom i mogućnošću rada od kuće. Određeni broj časova može biti otkazan od strane predavača bez plaćanja penala, što omogućava dodatnu fleksibilnost u organizaciji rasporeda.",
-      "Časovi se održavaju putem ClassIn aplikacije, koja je jednostavna za korišćenje i namenjena online nastavi.",
+    roleTitle: "Kako izgleda posao",
+    roleLead:
+      "Trazi se tecan engleski, profesionalna komunikacija i stabilan internet. Iskustvo jeste plus, ali nije uslov.",
+    roleParagraphs: [
+      "Casovi se odrzavaju online sa decom iz Kine, uzrasta od 4 do 14 godina.",
+      "Raspored je fleksibilan i prilagodjava se tvojoj dostupnosti, a deo otkazivanja je dozvoljen bez penala.",
+      "ClassIn aplikacija je jednostavna za rad i koristi se kao glavni kanal za nastavu.",
     ],
-    aboutEquipmentTitle: "Potrebna oprema za rad",
-    aboutEquipment: [
-      "stabilna i brza internet konekcija",
-      "headset (slušalice sa mikrofonom)",
+    roleChecklistTitle: "Sta ti je potrebno",
+    roleChecklist: [
+      "stabilna internet konekcija",
+      "headset sa mikrofonom",
       "kompjuter ili laptop",
+      "mirno okruzenje za cas",
     ],
-    aboutMobileNote:
-      "Časovi se takođe mogu držati i preko mobilnog telefona, ukoliko predavaču to više odgovara.",
-    earningsTitle: "Zarada",
-    earningsCards: [
-      { label: "Pocetna mesecna zarada", value: "40.000+ RSD" },
-      { label: "Potencijal mesecne zarade", value: "100.000+ RSD" },
-      { label: "Pocetak nakon odobrenja", value: "~2 dana" },
+    supportTitle: "Sta dobijas od nas",
+    supportCards: [
+      {
+        title: "Onboarding bez lutanja",
+        text: "Prijava je skracena na jedan glavni korak, pa je proces pregledniji i brzi.",
+      },
+      {
+        title: "Brzi pregled prijava",
+        text: "Tim redovno proverava nove prijave i javlja sledece korake bez nepotrebnog cekanja.",
+      },
+      {
+        title: "Realna zarada",
+        text: "Mozes da krenes od dodatnog prihoda i postepeno gradis veci broj casova.",
+      },
     ],
-    processTitle: "Proces prijave u 2 faze",
+    showcaseTitle: "Klipovi prihvacenih kandidata",
+    showcaseText: "Pogledaj kako izgleda energija, izgovor i stil kandidata koji su uspesno prosli selekciju.",
+    showcaseCta: "Otvori sve klipove",
+    processTitle: "Kako izgleda prijava",
     processSteps: [
-      "Napravi nalog i popuni profil.",
-      "U Fazi 1 sam biraš tekst, unosiš ga i šalješ glasovnu poruku.",
-      "Ako prođeš, dobijaš zadatak za Fazu 2 i tada šalješ video snimak.",
-      "Nakon prihvatanja, tim te kontaktira za start.",
+      {
+        step: "01",
+        title: "Napravi nalog",
+        text: "Prijavis se Google nalogom i odmah dobijas pristup svom profilu.",
+      },
+      {
+        step: "02",
+        title: "Posalji Fazu 1",
+        text: "Popunis osnovne podatke i saljes audio prijavu po zadatom tekstu.",
+      },
+      {
+        step: "03",
+        title: "Sacekaj pregled",
+        text: "Tim proverava izgovor, energiju i koliko jasno vodis prezentaciju.",
+      },
+      {
+        step: "04",
+        title: "Dobijas odgovor",
+        text: "Ako prodjes, prelazis na HR kontakt i pripremu za pocetak rada.",
+      },
     ],
-    showcaseTitle: "Klipovi primljenih kandidata",
-    showcaseText: "Pogledaj kratke klipove kandidata koji su uspešno prošli proces.",
-    showcaseCta: "Pogledaj sve klipove",
-    finalTitle: "Pozicije se brzo popunjavaju",
-    finalText: "Prijave se pregledaju svakodnevno. Ako prodjes selekciju, brzo kreces sa radom.",
+    finalTitle: "Ako ti odgovara remote nastava, prijava moze da bude gotova danas",
+    finalText:
+      "Ne cekaj da se termini popune. Otvori nalog, posalji Fazu 1 i vidi brzo da li si dobar fit za TeachFromHome tim.",
   },
   en: {
     badge: "TeachFromHome.app",
-    title: "Teach English Online and Work from Home",
-    subtitle: "Flexible schedule, international students, and fast onboarding in 2 phases.",
+    eyebrow: "Remote opportunity for English teachers",
+    title: "Teach English online from your own setup",
+    subtitle:
+      "Flexible schedule, ready-made materials, and a simpler onboarding flow: account, Phase 1 submission, review, then HR contact.",
     ctaApply: "Apply now",
-    ctaProcess: "See process",
-    whyTitle: "Why candidates choose TeachFromHome",
-    whyItems: [
+    ctaClips: "Watch clips",
+    heroPoints: ["Flexible shifts", "Work from home", "Fast team feedback"],
+    heroStats: [
+      { value: "40,000+ RSD", label: "starting monthly earnings" },
+      { value: "4-14", label: "student age range" },
+      { value: "~2 days", label: "possible start after approval" },
+    ],
+    benefitTitle: "Why candidates choose TeachFromHome",
+    benefitCards: [
       {
-        title: "Fully remote",
-        text: "Teach from your own setup with no commute and no office overhead.",
-        image: "/images/teachfromhome/hero1-desktop.jpeg",
+        title: "Clear starting point",
+        text: "You always know what to submit first and what happens after the review.",
       },
       {
-        title: "Flexible schedule",
-        text: "Build your own availability and adapt it to your routine.",
-        image: "/images/teachfromhome/hero2-desktop.jpeg",
+        title: "Materials are ready",
+        text: "Parents or the platform provide the lesson content, so prep stays light.",
       },
       {
-        title: "Long-term opportunity",
-        text: "Structured team support with clear growth potential.",
-        image: "/images/teachfromhome/image1.jpeg",
+        title: "Stable remote routine",
+        text: "Teach from home without commuting or office overhead.",
+      },
+      {
+        title: "Team support",
+        text: "You get clear guidance, feedback, and support during onboarding.",
       },
     ],
-    aboutTitle: "About the job",
-    aboutLead:
-      "We look for fluent English, professional communication, and reliable internet. Teaching experience is a plus, but not required.",
-    aboutParagraphs: [
-      "Structured training is provided for new teachers, including onboarding support and methodology guidance.",
-      "Classes are held online with children in China (ages 4-14). Teaching materials are already provided or sent by parents in advance.",
-      "Work is fully remote with a flexible schedule and limited penalty-free class cancellations for better planning flexibility.",
-      "Classes are conducted via the ClassIn app, designed for easy online teaching.",
+    roleTitle: "What the role looks like",
+    roleLead:
+      "We look for fluent English, professional communication, and reliable internet. Teaching experience is a plus, not a requirement.",
+    roleParagraphs: [
+      "Classes are held online with children in China, typically ages 4 to 14.",
+      "Scheduling is flexible and adapts to your availability, with a limited number of no-penalty cancellations.",
+      "The ClassIn app is simple to use and works as the main teaching environment.",
     ],
-    aboutEquipmentTitle: "Required equipment",
-    aboutEquipment: ["stable high-speed internet", "headset (headphones with microphone)", "computer or laptop"],
-    aboutMobileNote: "Classes can also be delivered from a mobile phone when preferred by the teacher.",
-    earningsTitle: "Earnings",
-    earningsCards: [
-      { label: "Monthly starting range", value: "40,000+ RSD" },
-      { label: "Monthly earning potential", value: "100,000+ RSD" },
-      { label: "Start after approval", value: "~2 days" },
+    roleChecklistTitle: "What you need",
+    roleChecklist: ["stable internet", "headset with microphone", "computer or laptop", "quiet teaching environment"],
+    supportTitle: "What you get from us",
+    supportCards: [
+      {
+        title: "Shorter onboarding",
+        text: "The flow now centers around one main application step, which makes everything faster and clearer.",
+      },
+      {
+        title: "Fast reviews",
+        text: "The team regularly checks new applications and sends the next steps quickly.",
+      },
+      {
+        title: "Real earning potential",
+        text: "You can start as a side income and gradually build a fuller schedule.",
+      },
     ],
-    processTitle: "2-step application process",
+    showcaseTitle: "Accepted candidate clips",
+    showcaseText: "See the energy, pronunciation, and delivery style of candidates who successfully passed the process.",
+    showcaseCta: "Open all clips",
+    processTitle: "How the application works",
     processSteps: [
-      "Create account and complete your profile.",
-      "In Phase 1, provide your own short script and submit a voice message.",
-      "If approved, receive your Phase 2 sentence and submit your video.",
-      "After acceptance, team reaches out for onboarding.",
+      {
+        step: "01",
+        title: "Create your account",
+        text: "Sign in with Google and get immediate access to your profile.",
+      },
+      {
+        step: "02",
+        title: "Submit Phase 1",
+        text: "Complete your basic info and upload your audio introduction using the required script.",
+      },
+      {
+        step: "03",
+        title: "Wait for review",
+        text: "The team checks pronunciation, energy, and how clearly you present yourself.",
+      },
+      {
+        step: "04",
+        title: "Get the result",
+        text: "If approved, you move into HR contact and start preparation.",
+      },
     ],
-    showcaseTitle: "Accepted Candidate Clips",
-    showcaseText: "Watch short clips from candidates who successfully completed the process.",
-    showcaseCta: "See all clips",
-    finalTitle: "Open slots are filling quickly",
-    finalText: "Applications are reviewed daily. If selected, you can start quickly.",
+    finalTitle: "If remote teaching fits you, your application can be finished today",
+    finalText:
+      "Do not wait for slots to fill up. Create your account, submit Phase 1, and quickly find out whether you are a good fit for the TeachFromHome team.",
   },
 };
 
@@ -155,12 +221,12 @@ const TeachFromHomeLanding = () => {
   const t = content[language === "en" ? "en" : "sr"];
 
   return (
-    <div className="tfh-landing">
+    <div className="tfh-landing tfh-home-landing">
       <span className="tfh-visually-hidden" aria-hidden="true">
         {"\u010D\u0107\u017E\u0161\u0111 \u010C\u0106\u017D\u0160\u0110"}
       </span>
 
-      <section id="home" className="tfh-landing-hero tfh-anchor-section">
+      <section id="home" className="tfh-landing-hero tfh-home-hero tfh-anchor-section">
         <div className="tfh-hero-media tfh-hero-media--desktop">
           <Image
             src="/images/teachfromhome/hero1-desktop.jpeg"
@@ -168,7 +234,7 @@ const TeachFromHomeLanding = () => {
             fill
             className="tfh-hero-media-image"
             priority
-            sizes="(max-width: 991px) 100vw, 100vw"
+            sizes="100vw"
             quality={74}
           />
         </div>
@@ -185,22 +251,111 @@ const TeachFromHomeLanding = () => {
           />
         </div>
 
-        <div className="tfh-hero-overlay" />
+        <div className="tfh-hero-overlay tfh-home-hero-overlay" />
 
-        <motion.div className="container tfh-hero-content" {...reveal}>
-          <span className="tfh-hero-badge">{t.badge}</span>
-          <h1>{t.title}</h1>
-          <p>{t.subtitle}</p>
-          <div className="tfh-hero-actions">
-            <Link href="/apply" className="tfh-landing-btn tfh-landing-btn--solid">
-              {t.ctaApply}
-            </Link>
-            <Link href="/#process" className="tfh-landing-btn tfh-landing-btn--ghost">
-              {t.ctaProcess}
-            </Link>
+        <motion.div className="container tfh-home-hero-shell" {...reveal}>
+          <div className="tfh-home-hero-copy">
+            <span className="tfh-hero-badge">{t.badge}</span>
+            <p className="tfh-home-eyebrow">{t.eyebrow}</p>
+            <h1>{t.title}</h1>
+            <p className="tfh-home-subtitle">{t.subtitle}</p>
+
+            <div className="tfh-hero-actions">
+              <Link href="/apply" className="tfh-landing-btn tfh-landing-btn--solid">
+                {t.ctaApply}
+              </Link>
+              <Link href="/clips" className="tfh-landing-btn tfh-landing-btn--ghost">
+                {t.ctaClips}
+              </Link>
+            </div>
+
+            <div className="tfh-home-hero-points">
+              {t.heroPoints.map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="tfh-home-hero-panel">
+            <div className="tfh-home-hero-panel-image">
+              <Image
+                src="/images/teachfromhome/image1.jpeg"
+                alt="Remote teacher setup"
+                fill
+                sizes="(max-width: 991px) 100vw, 34vw"
+                quality={72}
+              />
+            </div>
+            <div className="tfh-home-hero-stats">
+              {t.heroStats.map((item) => (
+                <article key={item.label}>
+                  <strong>{item.value}</strong>
+                  <span>{item.label}</span>
+                </article>
+              ))}
+            </div>
           </div>
         </motion.div>
       </section>
+
+      <motion.section id="benefits" className="tfh-landing-section tfh-home-band tfh-anchor-section" {...reveal}>
+        <div className="container">
+          <div className="tfh-section-head tfh-home-section-head">
+            <h2>{t.benefitTitle}</h2>
+          </div>
+          <div className="tfh-home-benefit-grid">
+            {t.benefitCards.map((item) => (
+              <article key={item.title} className="tfh-home-benefit-card">
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      <motion.section id="role" className="tfh-landing-section tfh-anchor-section" {...reveal}>
+        <div className="container tfh-home-role-grid">
+          <div className="tfh-home-role-copy">
+            <h2>{t.roleTitle}</h2>
+            <p className="tfh-home-role-lead">{t.roleLead}</p>
+            {t.roleParagraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+            <div className="tfh-home-checklist">
+              <h3>{t.roleChecklistTitle}</h3>
+              <ul>
+                {t.roleChecklist.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <ResponsiveMedia
+            desktopSrc="/images/teachfromhome/hero2-desktop.jpeg"
+            mobileSrc="/images/teachfromhome/hero2-mobile.jpeg"
+            alt="Teach from home overview"
+            className="tfh-responsive-media tfh-home-role-media"
+          />
+        </div>
+      </motion.section>
+
+      <motion.section id="support" className="tfh-landing-section tfh-home-support tfh-anchor-section" {...reveal}>
+        <div className="container">
+          <div className="tfh-home-section-head">
+            <h2>{t.supportTitle}</h2>
+          </div>
+          <div className="tfh-home-support-grid">
+            {t.supportCards.map((item) => (
+              <article key={item.title} className="tfh-home-support-card">
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </motion.section>
 
       <motion.section id="clips" className="tfh-anchor-section tfh-landing-section tfh-showcase-section" {...reveal}>
         <div className="container">
@@ -208,9 +363,9 @@ const TeachFromHomeLanding = () => {
             <h2>{t.showcaseTitle}</h2>
             <p>{t.showcaseText}</p>
             <div className="tfh-clip-kpis">
-              <span>Izgovor</span>
-              <span>Energija</span>
-              <span>Jasna struktura</span>
+              <span>Pronunciation</span>
+              <span>Energy</span>
+              <span>Clear delivery</span>
             </div>
           </div>
 
@@ -224,17 +379,15 @@ const TeachFromHomeLanding = () => {
         </div>
       </motion.section>
 
-      <motion.section id="why-join" className="tfh-anchor-section tfh-landing-section" {...reveal}>
+      <motion.section id="process" className="tfh-landing-section tfh-home-process tfh-anchor-section" {...reveal}>
         <div className="container">
-          <div className="tfh-section-head">
-            <h2>{t.whyTitle}</h2>
+          <div className="tfh-home-section-head">
+            <h2>{t.processTitle}</h2>
           </div>
-          <div className="tfh-why-grid">
-            {t.whyItems.map((item) => (
-              <article key={item.title} className="tfh-why-card">
-                <div className="tfh-why-image">
-                  <Image src={item.image} alt={item.title} fill sizes="(max-width: 991px) 100vw, 33vw" quality={72} />
-                </div>
+          <div className="tfh-home-process-grid">
+            {t.processSteps.map((item) => (
+              <article key={item.step} className="tfh-home-process-card">
+                <span>{item.step}</span>
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
               </article>
@@ -243,71 +396,15 @@ const TeachFromHomeLanding = () => {
         </div>
       </motion.section>
 
-      <motion.section id="about-job" className="tfh-anchor-section tfh-landing-section tfh-about-section" {...reveal}>
-        <div className="container tfh-about-grid">
-          <div className="tfh-about-copy">
-            <h2>{t.aboutTitle}</h2>
-            <p>{t.aboutLead}</p>
-            {(t.aboutParagraphs || []).map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-            <h3>{t.aboutEquipmentTitle}</h3>
-            <ul>
-              {(t.aboutEquipment || []).map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <p>{t.aboutMobileNote}</p>
-          </div>
-          <ResponsiveMedia
-            desktopSrc="/images/teachfromhome/hero2-desktop.jpeg"
-            mobileSrc="/images/teachfromhome/hero2-mobile.jpeg"
-            alt="About job"
-            className="tfh-responsive-media"
-          />
-        </div>
-      </motion.section>
-
-      <motion.section id="earnings" className="tfh-anchor-section tfh-landing-section tfh-earnings-section" {...reveal}>
-        <div className="container">
-          <h2>{t.earningsTitle}</h2>
-          <div className="tfh-earnings-grid">
-            {t.earningsCards.map((item) => (
-              <article key={item.label}>
-                <span>{item.label}</span>
-                <strong>{item.value}</strong>
-              </article>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      <motion.section id="process" className="tfh-anchor-section tfh-landing-section tfh-process-section" {...reveal}>
-        <div className="container tfh-process-grid">
-          <ResponsiveMedia
-            desktopSrc="/images/teachfromhome/hero2-desktop.jpeg"
-            mobileSrc="/images/teachfromhome/hero2-mobile.jpeg"
-            alt="Application process"
-            className="tfh-responsive-media"
-          />
-          <div>
-            <h2>{t.processTitle}</h2>
-            <ol>
-              {t.processSteps.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          </div>
-        </div>
-      </motion.section>
-
       <motion.section id="apply" className="tfh-anchor-section tfh-landing-section tfh-final-section" {...reveal}>
-        <div className="container tfh-final-card">
-          <h2>{t.finalTitle}</h2>
-          <p>{t.finalText}</p>
-          <Link href="/apply" className="tfh-landing-btn tfh-landing-btn--solid">
-            {t.ctaApply}
-          </Link>
+        <div className="container">
+          <div className="tfh-final-card tfh-home-final-card">
+            <h2>{t.finalTitle}</h2>
+            <p>{t.finalText}</p>
+            <Link href="/apply" className="tfh-landing-btn tfh-landing-btn--solid">
+              {t.ctaApply}
+            </Link>
+          </div>
         </div>
       </motion.section>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Alert, Button, Card, CardBody, CardHeader, Divider, Spinner } from "@heroui/react";
 import RequireAuth from "@components/auth/RequireAuth";
@@ -8,6 +8,23 @@ import AppShell from "@components/app/AppShell";
 import AdminPhaseSwitch from "@components/app/AdminPhaseSwitch";
 import VideoPreviewModal from "@components/app/VideoPreviewModal";
 import { apiGet } from "@library/apiClient";
+
+const dateTimeFormatter = new Intl.DateTimeFormat("sr-RS", {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+
+const formatDateTime = (value) => {
+  if (!value) return "-";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "-";
+  return dateTimeFormatter.format(parsed);
+};
+
+const getDisplayName = (row) => {
+  const fullName = [row.first_name, row.last_name].filter(Boolean).join(" ").trim();
+  return fullName || row.email || "Kandidat";
+};
 
 const AdminAcceptedCandidatesPage = () => {
   const [rows, setRows] = useState([]);
@@ -47,6 +64,17 @@ const AdminAcceptedCandidatesPage = () => {
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+  const summary = useMemo(() => {
+    const withVideo = rows.filter((row) => Boolean(row.latest_video_blob_url)).length;
+    const reviewedDates = rows.map((row) => row.accepted_at).filter(Boolean).sort((a, b) => new Date(b) - new Date(a));
+
+    return {
+      onPage: rows.length,
+      withVideo,
+      latestAcceptedAt: reviewedDates[0] || null,
+    };
+  }, [rows]);
+
   const onSearch = () => {
     if (page !== 1) {
       setPage(1);
@@ -57,7 +85,7 @@ const AdminAcceptedCandidatesPage = () => {
 
   const openPreview = (row) => {
     setPreviewUrl(row.latest_video_blob_url || "");
-    setPreviewTitle(`${row.first_name || "Kandidat"} ${row.last_name || ""} - faza 1 snimak`.trim());
+    setPreviewTitle(`${getDisplayName(row)} - faza 1 snimak`);
   };
 
   const closePreview = () => {
@@ -69,9 +97,38 @@ const AdminAcceptedCandidatesPage = () => {
     <RequireAuth adminOnly>
       <AppShell
         title="Prihvaceni kandidati"
-        subtitle="Kandidati koji su prosli fazu 1 i cekaju HR kontakt. Pregledaj i preuzmi poslednji faza 1 snimak."
+        subtitle="Kandidati koji su prosli fazu 1 i spremni su za HR kontakt. Ovde brzo pregledas snimak, kontakt podatke i detalje prijave."
       >
         <AdminPhaseSwitch />
+
+        <Card className="tfh-admin-panel-card tfh-accepted-summary-card mb-4">
+          <CardBody className="tfh-accepted-summary-body">
+            <div className="tfh-accepted-summary-copy">
+              <span className="tfh-accepted-summary-kicker">HR handoff</span>
+              <h3>Lista za sledeci korak</h3>
+              <p>Pregledaj ko je spreman za kontakt, proveri poslednji klip i otvori detaljan profil kandidata kad treba.</p>
+            </div>
+
+            <div className="tfh-accepted-summary-stats">
+              <article>
+                <strong>{total}</strong>
+                <span>ukupno prihvacenih</span>
+              </article>
+              <article>
+                <strong>{summary.onPage}</strong>
+                <span>na ovoj strani</span>
+              </article>
+              <article>
+                <strong>{summary.withVideo}</strong>
+                <span>sa dostupnim klipom</span>
+              </article>
+              <article>
+                <strong>{summary.latestAcceptedAt ? formatDateTime(summary.latestAcceptedAt) : "-"}</strong>
+                <span>poslednje odobrenje</span>
+              </article>
+            </div>
+          </CardBody>
+        </Card>
 
         <Card className="tfh-admin-panel-card mb-4">
           <CardBody className="grid gap-3 md:grid-cols-4">
@@ -88,8 +145,8 @@ const AdminAcceptedCandidatesPage = () => {
             <select
               className="tfh-admin-filter-select"
               value={String(pageSize)}
-              onChange={(e) => {
-                setPageSize(Number(e.target.value) || 20);
+              onChange={(event) => {
+                setPageSize(Number(event.target.value) || 20);
                 setPage(1);
               }}
             >
@@ -139,7 +196,7 @@ const AdminAcceptedCandidatesPage = () => {
 
         <Card className="tfh-admin-panel-card">
           <CardHeader>
-            <h3 className="text-lg font-semibold">Lista prihvacenih kandidata</h3>
+            <h3 className="text-lg font-semibold">Kandidati spremni za HR</h3>
           </CardHeader>
           <Divider />
           <CardBody>
@@ -149,25 +206,57 @@ const AdminAcceptedCandidatesPage = () => {
                 <p>Ucitavanje kandidata...</p>
               </div>
             ) : rows.length ? (
-              <div className="tfh-mobile-list">
+              <div className="tfh-accepted-grid">
                 {rows.map((row) => (
-                  <article key={`${row.user_id}-${row.latest_submission_id || "accepted"}`} className="tfh-mobile-item tfh-mobile-item--admin">
-                    <div className="tfh-mobile-item-top">
-                      <strong>
-                        {row.first_name} {row.last_name}
-                      </strong>
-                      <span className="tfh-state-pill tfh-state-pill--ok">Prihvacen</span>
+                  <article key={`${row.user_id}-${row.latest_submission_id || "accepted"}`} className="tfh-accepted-card">
+                    <div className="tfh-accepted-card-top">
+                      <div>
+                        <p className="tfh-accepted-card-label">Kandidat</p>
+                        <strong>{getDisplayName(row)}</strong>
+                      </div>
+                      <div className="tfh-accepted-pill-row">
+                        <span className="tfh-state-pill tfh-state-pill--ok">Prihvacen</span>
+                        <span className="tfh-state-pill">{row.current_phase === "phase2" ? "Legacy accepted" : "HR handoff"}</span>
+                      </div>
                     </div>
-                    <p>{row.email}</p>
-                    <p>{row.phone || "-"}</p>
-                    <p>Pokusaj faze 1: {row.latest_attempt_no || "-"}</p>
-                    <p>Prosao/la fazu 1: {row.accepted_at ? new Date(row.accepted_at).toLocaleString() : "-"}</p>
-                    <div className="flex flex-wrap gap-2">
+
+                    <div className="tfh-accepted-contact-grid">
+                      <div>
+                        <span>Email</span>
+                        <p>{row.email || "-"}</p>
+                      </div>
+                      <div>
+                        <span>Telefon</span>
+                        <p>{row.phone || "-"}</p>
+                      </div>
+                    </div>
+
+                    <div className="tfh-accepted-meta-grid">
+                      <article>
+                        <span>Pokusaj faze 1</span>
+                        <strong>{row.latest_attempt_no || "-"}</strong>
+                      </article>
+                      <article>
+                        <span>Prosao/la fazu 1</span>
+                        <strong>{formatDateTime(row.accepted_at)}</strong>
+                      </article>
+                      <article>
+                        <span>Poslednji upload</span>
+                        <strong>{formatDateTime(row.latest_submission_created_at)}</strong>
+                      </article>
+                    </div>
+
+                    <div className="tfh-accepted-clip-status">
+                      <span>{row.latest_video_blob_url ? "Klip je dostupan za pregled i download." : "Klip nije sacuvan za ovaj unos."}</span>
+                    </div>
+
+                    <div className="tfh-accepted-actions">
                       {row.latest_video_blob_url && (
                         <Button size="sm" variant="bordered" onPress={() => openPreview(row)}>
                           Pregled snimka
                         </Button>
                       )}
+
                       {row.latest_submission_id && (
                         <Button
                           as="a"
@@ -178,6 +267,7 @@ const AdminAcceptedCandidatesPage = () => {
                           Download snimka
                         </Button>
                       )}
+
                       <Button as={Link} href={`/admin/candidates/${row.user_id}`} size="sm" variant="flat">
                         Otvori detalj
                       </Button>
@@ -186,10 +276,14 @@ const AdminAcceptedCandidatesPage = () => {
                 ))}
               </div>
             ) : (
-              <p>Nema prihvacenih kandidata za prikaz.</p>
+              <div className="tfh-accepted-empty">
+                <strong>Nema prihvacenih kandidata za prikaz.</strong>
+                <p>Promeni filtere ili osvezi listu ako ocekujes nove rezultate.</p>
+              </div>
             )}
           </CardBody>
         </Card>
+
         <VideoPreviewModal open={Boolean(previewUrl)} src={previewUrl} title={previewTitle} onClose={closePreview} />
       </AppShell>
     </RequireAuth>

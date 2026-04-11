@@ -29,7 +29,7 @@ const ApplyPage = () => {
           <CardBody className="gap-4">
             <span className="tfh-minimal-kicker">TeachFromHome</span>
             <h2>Jednostavan tok prijave</h2>
-            <p>Prijavi se Google nalogom i odmah nastavi na svoj sledeci korak.</p>
+            <p>Prijavi se Google nalogom i odmah nastavi na Fazu 1. Nakon pregleda, dobijas odgovor i sledece korake od tima.</p>
 
             <div className="tfh-apply-step-grid">
               <article className="tfh-apply-step">
@@ -41,8 +41,8 @@ const ApplyPage = () => {
                 <p>Admin proverava prijavu.</p>
               </article>
               <article className="tfh-apply-step">
-                <strong>Faza 2</strong>
-                <p>Dodeljen task i finalni snimak.</p>
+                <strong>HR kontakt</strong>
+                <p>Ako prodjes, tim ti javlja dalje korake.</p>
               </article>
             </div>
 

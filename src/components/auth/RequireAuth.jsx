@@ -31,7 +31,7 @@ const RequireAuth = ({ children, adminOnly = false }) => {
       return;
     }
 
-    const shouldGuardTeacherRoute = pathname === "/teacher/phase1" || pathname === "/teacher/phase2";
+    const shouldGuardTeacherRoute = pathname === "/teacher/phase1";
     if (!shouldGuardTeacherRoute) {
       setGuardLoading(false);
       return;
