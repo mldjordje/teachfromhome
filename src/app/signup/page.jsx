@@ -6,12 +6,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Alert, Button, Card, CardBody, Input } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
-import { trackEvent } from "@library/analytics";
+import { trackEvent, trackVisitOnce } from "@library/analytics";
 import { sanitizeNextPath, signInWithGoogle } from "@library/auth";
 import { apiPost } from "@library/apiClient";
 import { buildTeacherApplicationFlow, resolveTeacherPostLoginPath } from "@config/teacherFlow";
 
 const REFERRAL_STORAGE_KEY = "tfh_pending_referral_code";
+const signupBenefits = [
+  "Referral kod je opcion",
+  "Google nalog je dovoljan za nastavak",
+  "Posle registracije odmah ides na svoj sledeci korak",
+];
 
 const SignupPage = () => {
   const router = useRouter();
@@ -81,6 +86,10 @@ const SignupPage = () => {
     finalizeSignup();
   }, [isAdmin, loading, nextTarget, router, user]);
 
+  useEffect(() => {
+    trackVisitOnce({ page: "signup" });
+  }, []);
+
   const onGoogleSignup = async () => {
     setError("");
     setSuccess("");
@@ -113,11 +122,28 @@ const SignupPage = () => {
             <span className="tfh-minimal-kicker">Novi kandidat</span>
             <h2>Brza registracija</h2>
             <p>Unesi referral kod ako ga imas i nastavi preko Google naloga.</p>
+            <div className="tfh-entry-metrics">
+              <article className="tfh-entry-metric">
+                <span>Referral</span>
+                <strong>Opciono</strong>
+              </article>
+              <article className="tfh-entry-metric">
+                <span>Nalog</span>
+                <strong>Google</strong>
+              </article>
+              <article className="tfh-entry-metric">
+                <span>Nastavak</span>
+                <strong>Odmah na Fazu 1</strong>
+              </article>
+            </div>
             <ul className="tfh-minimal-list">
-              <li>Google registracija</li>
-              <li>Opcioni referral kod</li>
-              <li>Direktan ulazak na sledeci korak</li>
+              {signupBenefits.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
             </ul>
+            <div className="tfh-entry-note">
+              Ako nemas referral, samo ostavi polje prazno i nastavi dalje.
+            </div>
           </CardBody>
         </Card>
 

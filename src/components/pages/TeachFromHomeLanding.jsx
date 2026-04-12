@@ -1,8 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@components/i18n/LanguageProvider";
 import ShowcaseVideoGrid from "@components/videos/ShowcaseVideoGrid";
+import { trackVisitOnce } from "@library/analytics";
 
 const reveal = {
   initial: { opacity: 0, y: 24 },
@@ -219,6 +221,10 @@ const content = {
 const TeachFromHomeLanding = () => {
   const { language } = useLanguage();
   const t = content[language === "en" ? "en" : "sr"];
+
+  useEffect(() => {
+    trackVisitOnce({ page: "landing" });
+  }, []);
 
   return (
     <div className="tfh-landing tfh-home-landing">

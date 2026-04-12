@@ -42,7 +42,7 @@ const TeacherDashboard = () => {
 
   useEffect(() => {
     trackEvent({
-      eventName: "visits",
+      eventName: "teacher_dashboard_view",
       metadata: { page: "teacher_dashboard" },
     });
   }, [session?.user?.id]);
@@ -69,14 +69,54 @@ const TeacherDashboard = () => {
     ];
   }, [latestPhase1, phase2Task]);
 
+  const summaryStats = useMemo(
+    () => [
+      {
+        label: "Trenutna faza",
+        value: profile?.current_phase || "phase1",
+        tone: "status",
+      },
+      {
+        label: "Pokusaji faze 1",
+        value: `${phase1Attempts.length} / 3`,
+      },
+      {
+        label: "Neprocitana obavestenja",
+        value: unreadCount,
+      },
+    ],
+    [phase1Attempts.length, profile?.current_phase, unreadCount],
+  );
+
+  const nextActions = useMemo(
+    () => [
+      {
+        title: application.ctaLabel,
+        description: application.description,
+        href: application.nextPath,
+      },
+      {
+        title: "Otvori obavestenja",
+        description: "Tu ces videti admin odgovor i sledece poruke tima.",
+        href: "/teacher/notifications",
+      },
+      {
+        title: "Azuriraj profil",
+        description: "Telefon i osnovni podaci neka budu spremni ako te tim kontaktira.",
+        href: "/teacher/profile",
+      },
+    ],
+    [application.ctaLabel, application.description, application.nextPath],
+  );
+
   return (
     <RequireAuth>
       <AppShell title="Moj status prijave" subtitle="Jasan pregled gde si trenutno i sta je sledeci korak.">
         {loading ? (
           <div className="tfh-alert">Ucitavanje statusa...</div>
         ) : (
-          <div className="tfh-grid">
-            <div className={`tfh-card tfh-application-status tfh-application-status--${application.tone}`}>
+          <div className="tfh-dashboard-grid">
+            <div className={`tfh-card tfh-dashboard-summary tfh-application-status tfh-application-status--${application.tone}`}>
               <h3>{application.title}</h3>
               <p>{application.description}</p>
 
@@ -100,25 +140,26 @@ const TeacherDashboard = () => {
 
             {application.feedback && <div className="tfh-alert">Feedback: {application.feedback}</div>}
 
-            <div className="tfh-grid tfh-grid-3">
-              <div className="tfh-card">
-                <h3>Trenutna faza</h3>
-                <p>
-                  <StatusBadge status={profile?.current_phase || "phase1"} />
-                </p>
-              </div>
-              <div className="tfh-card">
-                <h3>Pokusaji faze 1</h3>
-                <p>{phase1Attempts.length} / 3</p>
-              </div>
-              <div className="tfh-card">
-                <h3>Neprocitana obavestenja</h3>
-                <p>{unreadCount}</p>
-              </div>
+            <div className="tfh-dashboard-stat-grid">
+              {summaryStats.map((item) => (
+                <article key={item.label} className="tfh-dashboard-stat">
+                  <span>{item.label}</span>
+                  {item.tone === "status" ? <StatusBadge status={item.value} /> : <strong>{item.value}</strong>}
+                </article>
+              ))}
             </div>
 
-            <div className="tfh-card">
-              <h3>Detalji statusa</h3>
+            <div className="tfh-dashboard-action-grid">
+              {nextActions.map((item) => (
+                <Link key={item.href} href={item.href} className="tfh-dashboard-action-card">
+                  <strong>{item.title}</strong>
+                  <p>{item.description}</p>
+                </Link>
+              ))}
+            </div>
+
+            <div className="tfh-card tfh-dashboard-detail-card">
+              <h3>Detalji prijave</h3>
               {latestPhase1 ? (
                 <p>
                   Faza 1: <StatusBadge status={latestPhase1.status} />

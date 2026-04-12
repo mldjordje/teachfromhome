@@ -7,12 +7,36 @@ import { Button, Card, CardBody } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { PHASE1_SHARED_SCRIPT_TEXT } from "@config/phaseTexts";
+import { trackVisitOnce } from "@library/analytics";
 
 const NEXT_PHASE1 = "/teacher/phase1";
+const flowHighlights = [
+  { label: "Trajanje", value: "2 min" },
+  { label: "Prvi korak", value: "Google login" },
+  { label: "Faza 1", value: "audio + profil" },
+];
+const flowSteps = [
+  {
+    title: "Google ulaz",
+    text: "Prijavis se jednim klikom i sistem pamti tvoj status prijave.",
+  },
+  {
+    title: "Posalji Fazu 1",
+    text: "Popunis osnovne podatke i saljes audio prijavu po zadatom tekstu.",
+  },
+  {
+    title: "Cekas odgovor",
+    text: "Tim pregleda prijavu i javlja da li prelazis na HR kontakt.",
+  },
+];
 
 const ApplyPage = () => {
   const router = useRouter();
   const { user, isAdmin, loading } = useAuth();
+
+  useEffect(() => {
+    trackVisitOnce({ page: "apply" });
+  }, []);
 
   useEffect(() => {
     if (loading || !user) return;
@@ -31,24 +55,34 @@ const ApplyPage = () => {
             <h2>Jednostavan tok prijave</h2>
             <p>Prijavi se Google nalogom i odmah nastavi na Fazu 1. Nakon pregleda, dobijas odgovor i sledece korake od tima.</p>
 
-            <div className="tfh-apply-step-grid">
-              <article className="tfh-apply-step">
-                <strong>Faza 1</strong>
-                <p>Profil + audio prijava.</p>
-              </article>
-              <article className="tfh-apply-step">
-                <strong>Review</strong>
-                <p>Admin proverava prijavu.</p>
-              </article>
-              <article className="tfh-apply-step">
-                <strong>HR kontakt</strong>
-                <p>Ako prodjes, tim ti javlja dalje korake.</p>
-              </article>
+            <div className="tfh-entry-metrics">
+              {flowHighlights.map((item) => (
+                <article key={item.label} className="tfh-entry-metric">
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                </article>
+              ))}
+            </div>
+
+            <div className="tfh-entry-timeline">
+              {flowSteps.map((step, index) => (
+                <article key={step.title} className="tfh-entry-timeline-item">
+                  <span className="tfh-entry-timeline-number">0{index + 1}</span>
+                  <div>
+                    <strong>{step.title}</strong>
+                    <p>{step.text}</p>
+                  </div>
+                </article>
+              ))}
             </div>
 
             <div className="tfh-apply-script-block">
               <span>Tekst za Fazu 1</span>
               <p>{PHASE1_SHARED_SCRIPT_TEXT}</p>
+            </div>
+
+            <div className="tfh-entry-note">
+              Nema posebne lozinke, nema CV upload-a i sve radi i sa telefona.
             </div>
           </CardBody>
         </Card>

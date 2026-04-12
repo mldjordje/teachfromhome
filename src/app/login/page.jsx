@@ -7,7 +7,14 @@ import { Alert, Button, Card, CardBody } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
 import { sanitizeNextPath, signInWithGoogle } from "@library/auth";
+import { trackVisitOnce } from "@library/analytics";
 import { buildTeacherApplicationFlow, resolveTeacherPostLoginPath } from "@config/teacherFlow";
+
+const quickStates = [
+  "Novi kandidat ide direktno na Fazu 1",
+  "Ako si vec slao prijavu, otvara ti se pravi sledeci korak",
+  "Sve ostaje vezano za isti Google nalog",
+];
 
 const LoginPage = () => {
   const router = useRouter();
@@ -72,6 +79,10 @@ const LoginPage = () => {
     };
   }, [isAdmin, loading, nextFromQuery, router, user]);
 
+  useEffect(() => {
+    trackVisitOnce({ page: "login" });
+  }, []);
+
   const onGoogleLogin = useCallback(async () => {
     setError("");
     setBusy(true);
@@ -97,10 +108,24 @@ const LoginPage = () => {
             <span className="tfh-minimal-kicker">Brz ulazak</span>
             <h2>Jedna prijava</h2>
             <p>Nakon logina odmah vidis status prijave i sledeci korak.</p>
+            <div className="tfh-entry-metrics">
+              <article className="tfh-entry-metric">
+                <span>Ulaz</span>
+                <strong>Google</strong>
+              </article>
+              <article className="tfh-entry-metric">
+                <span>Lozinka</span>
+                <strong>Nije potrebna</strong>
+              </article>
+              <article className="tfh-entry-metric">
+                <span>Uredjaj</span>
+                <strong>Telefon + desktop</strong>
+              </article>
+            </div>
             <ul className="tfh-minimal-list">
-              <li>Google OAuth</li>
-              <li>Bez posebne lozinke</li>
-              <li>Telefon + desktop</li>
+              {quickStates.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
             </ul>
           </CardBody>
         </Card>

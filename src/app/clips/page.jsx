@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { Button, Card, CardBody } from "@heroui/react";
 import { motion } from "framer-motion";
 import AppShell from "@components/app/AppShell";
 import ShowcaseVideoGrid from "@components/videos/ShowcaseVideoGrid";
+import { trackVisitOnce } from "@library/analytics";
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -14,6 +16,10 @@ const fadeUp = {
 };
 
 const ClipsPage = () => {
+  useEffect(() => {
+    trackVisitOnce({ page: "clips" });
+  }, []);
+
   return (
     <AppShell
       title="Klipovi kandidata"

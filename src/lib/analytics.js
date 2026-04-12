@@ -1,6 +1,7 @@
 import { callEdgeFunction } from "@library/edgeClient";
 
 const SESSION_KEY = "tfh_session_id";
+const VISIT_PREFIX = "tfh_visit_once";
 
 export const getAnalyticsSessionId = () => {
   if (typeof window === "undefined") {
@@ -29,5 +30,30 @@ export const trackEvent = async ({ eventName, metadata = {} }) => {
     });
   } catch (error) {
     console.warn("trackEvent failed", error);
+  }
+};
+
+export const trackVisitOnce = async ({ page, metadata = {} }) => {
+  if (typeof window === "undefined") return;
+
+  const normalizedPage = String(page || "").trim() || "unknown";
+  const visitKey = `${VISIT_PREFIX}:${normalizedPage}`;
+
+  try {
+    const store = window.sessionStorage;
+    if (store.getItem(visitKey)) {
+      return;
+    }
+
+    store.setItem(visitKey, "1");
+    await trackEvent({
+      eventName: "visits",
+      metadata: {
+        page: normalizedPage,
+        ...metadata,
+      },
+    });
+  } catch (error) {
+    console.warn("trackVisitOnce failed", error);
   }
 };
