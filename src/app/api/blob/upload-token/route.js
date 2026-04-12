@@ -7,13 +7,13 @@ import { getUploadPolicy, parseUploadPayload } from "@/src/server/services/blobS
 
 export async function POST(request) {
   try {
-    const auth = await getAuthUser();
     const body = await request.json();
 
     const response = await handleUpload({
       body,
       request,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
+        const auth = await getAuthUser();
         const payload = parseUploadPayload(clientPayload);
         return getUploadPolicy({
           pathname,
