@@ -3574,3 +3574,69 @@ textarea.tfh-admin-control,
     font-size: 20px;
   }
 }
+
+/* 2026-04 portal text contrast fix */
+.tfh-page--portal .tfh-card,
+.tfh-page--portal .tfh-mobile-item,
+.tfh-page--portal .tfh-admin-panel-card,
+.tfh-page--portal .tfh-kpi-panel {
+  color: #f5f8ff !important;
+}
+
+.tfh-page--portal .tfh-card h2,
+.tfh-page--portal .tfh-card h3,
+.tfh-page--portal .tfh-card h4,
+.tfh-page--portal .tfh-card strong,
+.tfh-page--portal .tfh-mobile-item strong,
+.tfh-page--portal .tfh-admin-panel-card h2,
+.tfh-page--portal .tfh-admin-panel-card h3,
+.tfh-page--portal .tfh-admin-panel-card h4,
+.tfh-page--portal .tfh-admin-panel-card strong,
+.tfh-page--portal .tfh-kpi-panel strong {
+  color: #ffffff !important;
+}
+
+.tfh-page--portal .tfh-card p,
+.tfh-page--portal .tfh-card li,
+.tfh-page--portal .tfh-card label,
+.tfh-page--portal .tfh-card small,
+.tfh-page--portal .tfh-mobile-item p,
+.tfh-page--portal .tfh-mobile-item li,
+.tfh-page--portal .tfh-mobile-item label,
+.tfh-page--portal .tfh-mobile-item small,
+.tfh-page--portal .tfh-admin-panel-card p,
+.tfh-page--portal .tfh-admin-panel-card li,
+.tfh-page--portal .tfh-admin-panel-card label,
+.tfh-page--portal .tfh-admin-panel-card small,
+.tfh-page--portal .tfh-kpi-panel p,
+.tfh-page--portal .tfh-kpi-panel li,
+.tfh-page--portal .tfh-kpi-panel label,
+.tfh-page--portal .tfh-kpi-panel small {
+  color: #eef4ff !important;
+}
+
+.tfh-page--portal .tfh-card span:not(.tfh-badge):not(.tfh-flow-step):not(.tfh-entry-timeline-number),
+.tfh-page--portal .tfh-mobile-item span:not(.tfh-badge):not(.tfh-flow-step),
+.tfh-page--portal .tfh-admin-panel-card span:not(.tfh-badge):not(.tfh-flow-step):not(.tfh-entry-timeline-number),
+.tfh-page--portal .tfh-kpi-panel span:not(.tfh-badge):not(.tfh-flow-step) {
+  color: #eef4ff !important;
+}
+
+.tfh-page--portal .tfh-form label,
+.tfh-page--portal .tfh-funnel-summary span,
+.tfh-page--portal .tfh-funnel-stage span,
+.tfh-page--portal .tfh-funnel-stage small,
+.tfh-page--portal .tfh-funnel-daily-item span,
+.tfh-page--portal .tfh-timeline-item p,
+.tfh-page--portal .tfh-timeline-item small,
+.tfh-page--portal .tfh-stuck-item-copy p,
+.tfh-page--portal .tfh-entry-note,
+.tfh-page--portal .tfh-entry-timeline-item p {
+  color: #eef4ff !important;
+}
+
+.tfh-page--portal .tfh-form input::placeholder,
+.tfh-page--portal .tfh-form textarea::placeholder,
+.tfh-page--portal .tfh-form select::placeholder {
+  color: rgba(232, 239, 255, 0.72) !important;
+}
