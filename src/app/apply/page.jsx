@@ -6,25 +6,22 @@ import { useRouter } from "next/navigation";
 import { Button, Card, CardBody } from "@heroui/react";
 import AppShell from "@components/app/AppShell";
 import { useAuth } from "@components/auth/AuthProvider";
-import { PHASE1_SHARED_SCRIPT_TEXT } from "@config/phaseTexts";
 import { trackVisitOnce } from "@library/analytics";
 
 const NEXT_PHASE1 = "/teacher/phase1";
-const flowHighlights = [
-  { label: "Trajanje", value: "2 min" },
-  { label: "Prvi korak", value: "Google login" },
-  { label: "Faza 1", value: "audio + profil" },
-];
 const flowSteps = [
   {
+    step: "01",
     title: "Google ulaz",
-    text: "Prijavis se jednim klikom i sistem pamti tvoj status prijave.",
+    text: "Prijavis se jednim klikom — nema lozinke ni CV-a.",
   },
   {
-    title: "Posalji Fazu 1",
-    text: "Popunis osnovne podatke i saljes audio prijavu po zadatom tekstu.",
+    step: "02",
+    title: "Faza 1 — audio",
+    text: "Popunis podatke i snimas kratku glasovnu poruku po zadatom tekstu.",
   },
   {
+    step: "03",
     title: "Cekas odgovor",
     text: "Tim pregleda prijavu i javlja da li prelazis na HR kontakt.",
   },
@@ -47,27 +44,18 @@ const ApplyPage = () => {
   const signupLink = `/signup?next=${encodeURIComponent(NEXT_PHASE1)}`;
 
   return (
-    <AppShell title="Kandidatska prijava" subtitle="Jedan klik do Faze 1." publicView>
+    <AppShell title="Kandidatska prijava" subtitle="Tri koraka do HR razgovora." publicView>
       <section className="tfh-minimal-auth tfh-minimal-auth--stacked tfh-apply-grid">
         <Card className="tfh-minimal-left tfh-apply-overview">
           <CardBody className="gap-4">
             <span className="tfh-minimal-kicker">TeachFromHome</span>
-            <h2>Jednostavan tok prijave</h2>
-            <p>Prijavi se Google nalogom i odmah nastavi na Fazu 1. Nakon pregleda, dobijas odgovor i sledece korake od tima.</p>
-
-            <div className="tfh-entry-metrics">
-              {flowHighlights.map((item) => (
-                <article key={item.label} className="tfh-entry-metric">
-                  <span>{item.label}</span>
-                  <strong>{item.value}</strong>
-                </article>
-              ))}
-            </div>
+            <h2>Kako izgleda prijava?</h2>
+            <p>Sve radi sa telefona. Nema posebne lozinke, nema CV upload-a — samo Google nalog i kratka glasovna poruka.</p>
 
             <div className="tfh-entry-timeline">
-              {flowSteps.map((step, index) => (
-                <article key={step.title} className="tfh-entry-timeline-item">
-                  <span className="tfh-entry-timeline-number">0{index + 1}</span>
+              {flowSteps.map((step) => (
+                <article key={step.step} className="tfh-entry-timeline-item">
+                  <span className="tfh-entry-timeline-number">{step.step}</span>
                   <div>
                     <strong>{step.title}</strong>
                     <p>{step.text}</p>
@@ -76,26 +64,21 @@ const ApplyPage = () => {
               ))}
             </div>
 
-            <div className="tfh-apply-script-block">
-              <span>Tekst za Fazu 1</span>
-              <p>{PHASE1_SHARED_SCRIPT_TEXT}</p>
-            </div>
-
             <div className="tfh-entry-note">
-              Nema posebne lozinke, nema CV upload-a i sve radi i sa telefona.
+              Trajanje: oko 2 minuta. Tekst za citanje dobijas na sledecoj stranici.
             </div>
           </CardBody>
         </Card>
 
         <Card className="tfh-minimal-card tfh-minimal-primary">
           <CardBody className="gap-4">
-            <h3>Nastavi preko Google-a</h3>
-            <p>Vec imas nalog? Sistem ce sam prepoznati tvoj status prijave.</p>
+            <h3>Pocni prijavu</h3>
+            <p>Prijavi se Google nalogom i odmah nastavi na Fazu 1.</p>
             <Button as={Link} href={loginLink} size="lg" className="tfh-action-btn" fullWidth>
-              Nastavi
+              Pocni prijavu
             </Button>
             <Button as={Link} href={signupLink} variant="flat" size="lg" className="tfh-action-btn tfh-action-btn--ghost" fullWidth>
-              Imam referral kod / prvi put sam ovde
+              Imam referral kod
             </Button>
           </CardBody>
         </Card>

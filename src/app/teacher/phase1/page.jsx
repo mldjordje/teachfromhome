@@ -50,20 +50,9 @@ const supportsAudioRecording = () =>
   typeof navigator !== "undefined" &&
   Boolean(navigator.mediaDevices?.getUserMedia);
 
-const phase1Checklist = [
-  "Popuni osnovne podatke istim emailom kojim si prijavljen/a.",
-  "Preslusaj audio pre slanja i proveri da li je glas jasan.",
-  "Govori prirodno, bez buke u pozadini i bez zurbe.",
-];
-
-const phase1Tips = [
-  "Ako si na telefonu, upload gotovog audio fajla je najstabilnija opcija.",
-  "Ako browser ne podrzava snimanje, koristi upload umesto record opcije.",
-  "Posle slanja status se odmah osvezava na dashboard-u i u istoriji pokusaja.",
-];
-
 const TeacherPhase1Page = () => {
   const { user, profile, refreshAuthState } = useAuth();
+  const [step, setStep] = useState(1);
   const [firstName, setFirstName] = useState(profile?.first_name || "");
   const [lastName, setLastName] = useState(profile?.last_name || "");
   const [phone, setPhone] = useState(profile?.phone || "");
@@ -135,23 +124,6 @@ const TeacherPhase1Page = () => {
   const attemptsLeft = Math.max(0, 3 - attempts.length);
   const hasAudioToSubmit = audioSource === "record" ? Boolean(recordedAudioBlob) : Boolean(audioFile);
   const canSubmit = !busy && !isRecording && hasAudioToSubmit && attemptsLeft > 0 && latest?.status !== "pending" && latest?.status !== "moved_to_phase2";
-  const selectedAudioMeta = useMemo(() => {
-    if (audioSource === "record" && recordedAudioBlob) {
-      return {
-        label: "Snimljena glasovna poruka",
-        size: formatFileSize(recordedAudioBlob.size),
-      };
-    }
-
-    if (audioFile) {
-      return {
-        label: audioFile.name,
-        size: formatFileSize(audioFile.size),
-      };
-    }
-
-    return null;
-  }, [audioFile, audioSource, recordedAudioBlob]);
 
   const stopActiveStream = () => {
     if (!streamRef.current) return;
@@ -266,9 +238,7 @@ const TeacherPhase1Page = () => {
     setError("");
     setSuccess("");
     if (nextSource === "upload") {
-      if (isRecording) {
-        stopRecording();
-      }
+      if (isRecording) stopRecording();
       return;
     }
     setAudioFile(null);
@@ -279,6 +249,18 @@ const TeacherPhase1Page = () => {
     const normalizedMimeType = normalizePhase1AudioMimeType(recordedAudioBlob.type || "audio/webm");
     const extension = FILE_EXTENSION_BY_MIME[normalizedMimeType] || "webm";
     return new File([recordedAudioBlob], `phase1-recording-${Date.now()}.${extension}`, { type: normalizedMimeType || "audio/webm" });
+  };
+
+  const goToStep2 = () => {
+    setError("");
+    if (!firstName.trim()) { setError("Unesi ime."); return; }
+    if (!lastName.trim()) { setError("Unesi prezime."); return; }
+    if (!dateOfBirth) { setError("Unesi datum rodjenja."); return; }
+    if (!phone.trim()) { setError("Unesi broj telefona."); return; }
+    if (!shortAbout.trim()) { setError("Unesi kratki opis."); return; }
+    if (shortAbout.length > 50) { setError("Kratki opis moze imati najvise 50 karaktera."); return; }
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const onSubmit = async (e) => {
@@ -307,10 +289,6 @@ const TeacherPhase1Page = () => {
     }
     if (selectedAudioFile.type && !isAllowedAudioMimeType(selectedAudioFile.type)) {
       setError("Nepodrzan audio format. Koristite MP3, M4A, WAV, WEBM ili OGG.");
-      return;
-    }
-    if (shortAbout.length > 50) {
-      setError("Kratki opis moze imati najvise 50 karaktera.");
       return;
     }
 
@@ -345,7 +323,7 @@ const TeacherPhase1Page = () => {
         metadata: { attempt_no: nextAttempt },
       });
 
-      setSuccess("Faza 1 je uspesno poslata.");
+      setSuccess("Faza 1 je uspesno poslata. Sacekaj admin pregled.");
       setAudioFile(null);
       clearRecordedAudio();
       await refreshAuthState();
@@ -357,77 +335,110 @@ const TeacherPhase1Page = () => {
     }
   };
 
+  const isBlocked = latest?.status === "moved_to_phase2" || latest?.status === "pending";
+
   return (
     <RequireAuth>
-      <AppShell title="Faza 1" subtitle="Posalji audio prijavu. Maksimalno 3 pokusaja.">
+      <AppShell title="Faza 1" subtitle="Audio prijava u dva koraka.">
         <div className="tfh-phase1-shell">
-          <div className="tfh-phase1-main">
-            <div className="tfh-phase1-status-grid">
-              <div className="tfh-card tfh-phase1-status-card">
-                <span>Iskorisceni pokusaji</span>
-                <strong>{attempts.length} / 3</strong>
-              </div>
-              <div className="tfh-card tfh-phase1-status-card">
-                <span>Preostali pokusaji</span>
-                <strong>{attemptsLeft}</strong>
-              </div>
-              <div className="tfh-card tfh-phase1-status-card">
-                <span>Poslednji status</span>
-                <strong>{latest ? <StatusBadge status={latest.status} /> : "Jos nema prijave"}</strong>
-              </div>
-            </div>
 
-            {latest?.status === "moved_to_phase2" && (
-              <div className="tfh-alert tfh-success">Faza 1 je uspesno prosla. HR tim ce te kontaktirati sa narednim koracima.</div>
+          {/* Step progress bar */}
+          <div className="tfh-step-bar">
+            <div className={`tfh-step-node${step === 1 ? " is-current" : " is-done"}`}>
+              <span>{step > 1 ? "✓" : "1"}</span>
+              <p>Podaci</p>
+            </div>
+            <div className="tfh-step-track" />
+            <div className={`tfh-step-node${step === 2 ? " is-current" : ""}`}>
+              <span>2</span>
+              <p>Audio</p>
+            </div>
+          </div>
+
+          {/* Status alerts */}
+          {latest?.status === "moved_to_phase2" && (
+            <div className="tfh-alert tfh-success">Faza 1 je uspesno prosla. HR tim ce te kontaktirati sa narednim koracima.</div>
+          )}
+          {latest?.status === "pending" && (
+            <div className="tfh-alert">Poslednji pokusaj je na proveri. Sacekajte admin odluku.</div>
+          )}
+
+          <form onSubmit={onSubmit}>
+            {/* ── Step 1: Profile data ── */}
+            {step === 1 && (
+              <div className="tfh-card tfh-step-card">
+                <div className="tfh-step-card-header">
+                  <h3>Tvoji podaci</h3>
+                  <p>Popuni osnovne podatke — potrebni su nam za kontakt.</p>
+                </div>
+                <div className="tfh-form">
+                  <div className="tfh-grid tfh-grid-2">
+                    <div>
+                      <label>Ime</label>
+                      <input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Ime" />
+                    </div>
+                    <div>
+                      <label>Prezime</label>
+                      <input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Prezime" />
+                    </div>
+                    <div>
+                      <label>Datum rodjenja</label>
+                      <input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+                    </div>
+                    <div>
+                      <label>Telefon</label>
+                      <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+381..." />
+                    </div>
+                  </div>
+                  <div>
+                    <label>Email</label>
+                    <input value={user?.email || ""} readOnly />
+                  </div>
+                  <div>
+                    <label>
+                      Kratko o meni
+                      <small className="tfh-char-count">{shortAbout.length}/50</small>
+                    </label>
+                    <input
+                      value={shortAbout}
+                      maxLength={50}
+                      onChange={(e) => setShortAbout(e.target.value)}
+                      placeholder="Npr: Predajem matematiku 5 godina."
+                    />
+                  </div>
+                  {error && <div className="tfh-alert tfh-error">{error}</div>}
+                  <div className="tfh-actions">
+                    <button type="button" className="tfh-btn tfh-btn--full" onClick={goToStep2} disabled={isBlocked}>
+                      Dalje — korak 2 od 2
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
 
-            {latest?.status === "pending" && <div className="tfh-alert">Poslednji pokusaj je na proveri. Sacekajte admin odluku.</div>}
-
-            <div className="tfh-card">
-              <h3>Posalji prijavu</h3>
-              <form className="tfh-form" onSubmit={onSubmit}>
-                <div className="tfh-grid tfh-grid-2">
-                  <div>
-                    <label>Ime</label>
-                    <input value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-                  </div>
-                  <div>
-                    <label>Prezime</label>
-                    <input value={lastName} onChange={(e) => setLastName(e.target.value)} required />
-                  </div>
-                  <div>
-                    <label>Datum rodjenja</label>
-                    <input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} required />
-                  </div>
-                  <div>
-                    <label>Telefon</label>
-                    <input value={phone} onChange={(e) => setPhone(e.target.value)} required />
-                  </div>
+            {/* ── Step 2: Audio ── */}
+            {step === 2 && (
+              <div className="tfh-card tfh-step-card">
+                <div className="tfh-step-card-header">
+                  <button type="button" className="tfh-step-back" onClick={() => { setStep(1); setError(""); setSuccess(""); }}>
+                    ← Nazad
+                  </button>
+                  <h3>Snimi glasovnu poruku</h3>
+                  <p>Procitaj tekst ispod glasno i jasno, pa posalji.</p>
                 </div>
 
-                <div>
-                  <label>Email</label>
-                  <input value={user?.email || ""} readOnly />
+                {/* Script text — prominent */}
+                <div className="tfh-script-display">
+                  <div className="tfh-script-label">Tekst za citanje</div>
+                  <p className="tfh-script-text">{PHASE1_SHARED_SCRIPT_TEXT}</p>
                 </div>
-                <div>
-                  <label>Kratko o meni</label>
-                  <input value={shortAbout} maxLength={50} onChange={(e) => setShortAbout(e.target.value)} required />
-                </div>
-                <div>
-                  <label>Tekst za izgovor</label>
-                  <textarea value={PHASE1_SHARED_SCRIPT_TEXT} readOnly />
-                  <small>Ovaj tekst je isti za sve kandidate.</small>
-                </div>
-                <div>
-                  <label>Audio snimak</label>
-                  <div className="tfh-apply-script-block">
-                    <span>Brzi vodic</span>
-                    <p>1) Izaberi Upload ili Snimi direktno. 2) Preslusaj snimak pre slanja. 3) Klikni Posalji prijavu.</p>
-                  </div>
+
+                <div className="tfh-form">
+                  {/* Audio source toggle */}
                   <div className="tfh-audio-source-toggle">
                     <button
                       type="button"
-                      className={`tfh-source-option ${audioSource === "upload" ? "is-active" : ""}`}
+                      className={`tfh-source-option${audioSource === "upload" ? " is-active" : ""}`}
                       onClick={() => onAudioSourceChange("upload")}
                       disabled={busy}
                     >
@@ -435,7 +446,7 @@ const TeacherPhase1Page = () => {
                     </button>
                     <button
                       type="button"
-                      className={`tfh-source-option ${audioSource === "record" ? "is-active" : ""}`}
+                      className={`tfh-source-option${audioSource === "record" ? " is-active" : ""}`}
                       onClick={() => onAudioSourceChange("record")}
                       disabled={busy || !recorderSupported}
                     >
@@ -454,58 +465,88 @@ const TeacherPhase1Page = () => {
                           setSuccess("");
                         }}
                       />
-                      <small>Max {PHASE1_MAX_AUDIO_MB}MB (MP3/M4A/WAV/WEBM/OGG)</small>
+                      <small>Max {PHASE1_MAX_AUDIO_MB}MB · MP3 / M4A / WAV / WEBM / OGG</small>
                       {audioFile && (
-                        <small>
-                          Izabran fajl: <strong>{audioFile.name}</strong> ({formatFileSize(audioFile.size)})
-                        </small>
+                        <div className="tfh-audio-ready">
+                          ✓ {audioFile.name} ({formatFileSize(audioFile.size)})
+                        </div>
                       )}
                     </div>
                   ) : (
                     <div className="tfh-record-box">
-                      <div className="tfh-actions">
-                        {!isRecording ? (
-                          <button type="button" className="tfh-btn" onClick={startRecording} disabled={busy || !recorderSupported}>
-                            Snimi glasovnu
-                          </button>
-                        ) : (
-                          <button type="button" className="tfh-btn" onClick={stopRecording} disabled={busy}>
-                            Zaustavi snimanje
-                          </button>
-                        )}
-                        <button type="button" className="tfh-btn tfh-btn-outline" onClick={clearRecordedAudio} disabled={busy || isRecording || !recordedAudioBlob}>
-                          Obrisi snimak
-                        </button>
-                      </div>
-                      {recorderSupported ? (
-                        <>
-                          {isRecording && <small className="tfh-recording-hint">Snimanje je u toku...</small>}
-                          {!isRecording && !recordedAudioBlob && <small>Klikni "Snimi glasovnu", izgovori tekst i klikni "Zaustavi snimanje".</small>}
-                        </>
+                      {!recorderSupported ? (
+                        <div className="tfh-alert">Tvoj browser ne podrzava snimanje. Koristi upload opciju.</div>
                       ) : (
-                        <small>Tvoj browser ne podrzava snimanje zvuka. Koristi opciju upload fajla.</small>
+                        <div className="tfh-actions">
+                          {!isRecording ? (
+                            <button type="button" className="tfh-btn tfh-btn--record" onClick={startRecording} disabled={busy}>
+                              Pocni snimanje
+                            </button>
+                          ) : (
+                            <button type="button" className="tfh-btn tfh-btn--stop" onClick={stopRecording} disabled={busy}>
+                              Zaustavi snimanje
+                            </button>
+                          )}
+                          {recordedAudioBlob && !isRecording && (
+                            <button type="button" className="tfh-btn tfh-btn-outline tfh-btn--sm" onClick={clearRecordedAudio} disabled={busy}>
+                              Obrisi
+                            </button>
+                          )}
+                        </div>
                       )}
-                      {recordedAudioUrl && <audio className="tfh-record-preview" controls preload="metadata" src={recordedAudioUrl} />}
+                      {isRecording && (
+                        <div className="tfh-recording-live">
+                          <span className="tfh-recording-dot" />
+                          Snimanje u toku...
+                        </div>
+                      )}
+                      {recordedAudioUrl && (
+                        <audio className="tfh-record-preview" controls preload="metadata" src={recordedAudioUrl} />
+                      )}
                     </div>
                   )}
+
+                  {/* Submission readiness */}
+                  <div className="tfh-submit-status">
+                    {canSubmit ? (
+                      <span className="tfh-submit-ready">✓ Sve je spremno za slanje</span>
+                    ) : (
+                      <span className="tfh-submit-waiting">
+                        {latest?.status === "pending"
+                          ? "Ceka se admin odluka..."
+                          : latest?.status === "moved_to_phase2"
+                          ? "Vec si prosao Fazu 1."
+                          : attemptsLeft === 0
+                          ? "Nemas vise pokusaja."
+                          : "Dodaj ili snimi audio pre slanja."}
+                      </span>
+                    )}
+                  </div>
+
+                  {error && <div className="tfh-alert tfh-error">{error}</div>}
+                  {success && <div className="tfh-alert tfh-success">{success}</div>}
+
+                  <div className="tfh-actions">
+                    <button type="submit" className="tfh-btn tfh-btn--full" disabled={!canSubmit}>
+                      {busy ? "Slanje..." : "Posalji prijavu"}
+                    </button>
+                  </div>
+
+                  {attemptsLeft > 0 && !isBlocked && (
+                    <p className="tfh-attempts-info">Preostalo pokusaja: {attemptsLeft} od 3</p>
+                  )}
                 </div>
+              </div>
+            )}
+          </form>
 
-                {error && <div className="tfh-alert tfh-error">{error}</div>}
-                {success && <div className="tfh-alert tfh-success">{success}</div>}
-
-                <div className="tfh-actions">
-                  <button type="submit" className="tfh-btn" disabled={!canSubmit}>
-                    {busy ? "Slanje..." : "Posalji prijavu"}
-                  </button>
-                </div>
-              </form>
-            </div>
-
+          {/* Attempt history — only when there are actual attempts */}
+          {attempts.length > 0 && (
             <div className="tfh-card">
               <h3>Istorija pokusaja</h3>
               {loading ? (
-                <p>Ucitavanje pokusaja...</p>
-              ) : attempts.length ? (
+                <p>Ucitavanje...</p>
+              ) : (
                 <div className="tfh-mobile-list">
                   {attempts.map((row) => (
                     <article key={row.id} className="tfh-mobile-item">
@@ -513,67 +554,21 @@ const TeacherPhase1Page = () => {
                         <strong>Pokusaj {row.attempt_no}</strong>
                         <StatusBadge status={row.status} />
                       </div>
-                      <p>Razlog odbijanja: {row.reject_reason || "-"}</p>
-                      <p>Admin napomena: {row.admin_notes || "-"}</p>
+                      {row.reject_reason && <p>Razlog: {row.reject_reason}</p>}
+                      {row.admin_notes && <p>Napomena: {row.admin_notes}</p>}
                       <p>{new Date(row.created_at).toLocaleString()}</p>
                       {row.video_blob_url ? (
-                        <div className="tfh-record-box">
-                          <small>Tvoj poslati snimak</small>
-                          <audio className="tfh-record-preview" controls preload="metadata" src={row.video_blob_url} />
-                        </div>
+                        <audio className="tfh-record-preview" controls preload="metadata" src={row.video_blob_url} />
                       ) : (
                         <p>Snimak trenutno nije dostupan.</p>
                       )}
                     </article>
                   ))}
                 </div>
-              ) : (
-                <p>Jos nema pokusaja.</p>
               )}
             </div>
-          </div>
+          )}
 
-          <aside className="tfh-phase1-sidebar">
-            <div className="tfh-card tfh-phase1-helper-card">
-              <h3>Pre slanja proveri</h3>
-              <div className="tfh-timeline-list">
-                {phase1Checklist.map((item) => (
-                  <article key={item} className="tfh-timeline-item">
-                    <strong>{item}</strong>
-                  </article>
-                ))}
-              </div>
-            </div>
-
-            <div className="tfh-card tfh-phase1-helper-card">
-              <h3>Spremnost prijave</h3>
-              <div className="tfh-timeline-list">
-                <article className="tfh-timeline-item">
-                  <strong>Audio</strong>
-                  <p>{selectedAudioMeta ? `${selectedAudioMeta.label} (${selectedAudioMeta.size})` : "Jos nije dodat audio fajl."}</p>
-                </article>
-                <article className="tfh-timeline-item">
-                  <strong>Nacin slanja</strong>
-                  <p>{audioSource === "record" ? "Snimanje direktno u browseru" : "Upload postojeceg audio fajla"}</p>
-                </article>
-                <article className="tfh-timeline-item">
-                  <strong>Status forme</strong>
-                  <p>{canSubmit ? "Spremno za slanje." : "Dodaj audio i proveri obavezna polja."}</p>
-                </article>
-              </div>
-            </div>
-
-            <div className="tfh-card tfh-phase1-helper-card">
-              <h3>Prakticni saveti</h3>
-              <div className="tfh-timeline-list">
-                {phase1Tips.map((item) => (
-                  <article key={item} className="tfh-timeline-item">
-                    <p>{item}</p>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </aside>
         </div>
       </AppShell>
     </RequireAuth>
