@@ -31,15 +31,25 @@ export const authOptions = {
 
       if (account?.provider && account?.providerAccountId && token?.email) {
         const authProviderUserId = `${account.provider}:${account.providerAccountId}`;
-        token.userId = await upsertProfileOnLogin({
-          userId: authProviderUserId,
-          email: token.email,
-          name: user?.name || "",
-        });
+        try {
+          token.userId = await upsertProfileOnLogin({
+            userId: authProviderUserId,
+            email: token.email,
+            name: user?.name || "",
+          });
+        } catch (err) {
+          console.error("[auth] upsertProfileOnLogin failed:", err);
+          return false;
+        }
       }
 
       if (token?.userId) {
-        token.isAdmin = await isAdminUser(token.userId);
+        try {
+          token.isAdmin = await isAdminUser(token.userId);
+        } catch (err) {
+          console.error("[auth] isAdminUser failed:", err);
+          token.isAdmin = false;
+        }
       }
 
       return token;
