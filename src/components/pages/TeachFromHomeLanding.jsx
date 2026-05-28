@@ -38,7 +38,7 @@ const content = {
   sr: {
     badge: "TeachFromHome.app",
     eyebrow: "Remote posao za nastavnike engleskog",
-    title: "Predaj engleski online i radi iz svog prostora",
+    title: "Drži online časove i radi iz svog prostora",
     subtitle:
       "Fleksibilan raspored, spremni materijali i jasan onboarding: nalog, Faza 1 prijava, pregled i HR kontakt.",
     ctaApply: "Prijavi se",
